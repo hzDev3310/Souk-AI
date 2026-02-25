@@ -8,4 +8,16 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* 🎨 Primary Palette */
+    --color-emerald-deep: #0F5132;
+    /* Main Brand Color: Tunisia, growth, sustainability */
+    --color-green-fresh: #198754;
+    /* Secondary: Buttons, highlights, success states */
+    --color-blue-ai: #2563EB;
+    /* AI Accent: Technology, intelligence */
+    --color-soft-white: #F8F9FA;
+    /* Background: Clean, modern feel */
+    --color-dark-premium: #111827;
+    /* Dark Mode / Premium Background */
 }

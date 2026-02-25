@@ -12,6 +12,10 @@ services:
       - ./:/var/www
     networks:
       - laravel-network
+    ports:
+      - "5173:5173"
+    depends_on:
+      - mysql
 
   # Nginx Service
   nginx:
@@ -40,7 +44,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    networks:          # <--- Add these two lines
+    networks:
+      # <--- Add these two lines
       - laravel-network
 
 networks:
