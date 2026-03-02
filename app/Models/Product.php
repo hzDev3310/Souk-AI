@@ -12,5 +12,10 @@ class Product extends Model
 
     public $translatable = ['name', 'description'];
 
-    protected $fillable = ['name', 'description', 'price'];
+    protected $fillable = ['name', 'description', 'price', 'store_id'];
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class);
+    }
 }

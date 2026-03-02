@@ -18,3 +18,8 @@ sleep 2
 echo "✨ Starting Frontend (Vite) and Backend development tools..."
 echo "Press Ctrl+C to stop the development servers (Docker will keep running in background)."
 docker compose exec app composer dev
+
+
+
+
+echo "projoct runnig on http://localhost:8000"
