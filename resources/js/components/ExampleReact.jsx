@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function ExampleReact() {
+    const { t, i18n } = useTranslation();
     const [count, setCount] = useState(0);
+    const locale = i18n.language || 'en';
 
     return (
         <div className="min-h-screen flex items-center justify-center p-6 bg-soft-white dark:bg-dark-premium">
@@ -13,11 +16,11 @@ export default function ExampleReact() {
                 </div>
 
                 <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-100">
-                    React <span className="text-blue-ai">Interactive</span> Page
+                    React <span className="text-blue-ai">{t('Dashboard')}</span>
                 </h1>
 
                 <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
-                    This page is an SPA-like experience powered by React.
+                    {t('Welcome')}! This page is an SPA-like experience powered by React.
                     It handles state locally for smooth, app-like interactions without page reloads.
                 </p>
 
@@ -41,10 +44,10 @@ export default function ExampleReact() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="/" className="text-gray-500 hover:text-emerald-deep font-bold transition-colors">
-                        Back Home
+                    <a href={`/${locale}`} className="text-gray-500 hover:text-emerald-deep font-bold transition-colors">
+                        {t('Welcome')} (Home)
                     </a>
-                    <a href="/example-blade" className="text-gray-500 hover:text-emerald-deep font-bold transition-colors">
+                    <a href={`/${locale}/example-blade`} className="text-gray-500 hover:text-emerald-deep font-bold transition-colors">
                         View Blade version
                     </a>
                 </div>

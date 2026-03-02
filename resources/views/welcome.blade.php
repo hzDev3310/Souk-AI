@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}"
+    class="scroll-smooth">
 
 <head>
     <meta charset="utf-8">
@@ -49,23 +50,45 @@
         <!-- Navbar -->
         <nav class="fixed top-0 w-full z-50 px-6 py-4">
             <div class="max-w-7xl mx-auto flex items-center justify-between glass py-3 px-6 rounded-2xl shadow-sm">
-                <div class="flex items-center gap-2">
+                <a href="{{ url(app()->getLocale()) }}" class="flex items-center gap-2">
                     <div
                         class="w-10 h-10 bg-emerald-deep rounded-xl flex items-center justify-center text-white font-bold text-xl">
                         S
                     </div>
                     <span class="text-2xl font-bold tracking-tight text-emerald-deep dark:text-white">Souk<span
                             class="text-blue-ai">.AI</span></span>
-                </div>
+                </a>
 
                 <div class="hidden md:flex items-center gap-8 text-sm font-medium">
-                    <a href="#" class="hover:text-emerald-deep transition-colors">Marketplace</a>
+                    <a href="{{ url(app()->getLocale() . '/example-react') }}"
+                        class="hover:text-emerald-deep transition-colors">{{ __('Dashboard') }} (React)</a>
                     <a href="#" class="hover:text-emerald-deep transition-colors">How it Works</a>
                     <a href="#" class="hover:text-emerald-deep transition-colors">Sustainability</a>
                     <a href="#" class="hover:text-emerald-deep transition-colors">Influencers</a>
                 </div>
 
                 <div class="flex items-center gap-4">
+                    <div class="relative group">
+                        <button
+                            class="flex items-center gap-1 text-sm font-medium hover:text-emerald-deep transition-colors">
+                            <span>{{ strtoupper(app()->getLocale()) }}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div
+                            class="absolute right-0 mt-2 w-24 glass rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[60]">
+                            <a href="{{ route('lang.switch', 'en') }}"
+                                class="block px-4 py-2 text-xs hover:text-emerald-deep transition-colors">English</a>
+                            <a href="{{ route('lang.switch', 'fr') }}"
+                                class="block px-4 py-2 text-xs hover:text-emerald-deep transition-colors">Français</a>
+                            <a href="{{ route('lang.switch', 'ar') }}"
+                                class="block px-4 py-2 text-xs hover:text-emerald-deep transition-colors">العربية</a>
+                        </div>
+                    </div>
+
                     @if (Route::has('login'))
                     @auth
                     <a href="{{ url('/dashboard') }}" class="text-sm font-semibold hover:underline">Dashboard</a>
@@ -109,16 +132,16 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center gap-4">
-                    <button
+                    <a href="{{ url(app()->getLocale() . '/example-react') }}"
                         class="w-full sm:w-auto bg-emerald-deep text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-green-fresh transition-all shadow-xl shadow-emerald-deep/20 flex items-center justify-center gap-2 group">
-                        Explore Products
+                        {{ __('Products') }} (React)
                         <svg xmlns="http://www.w3.org/2000/svg"
                             class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
-                    </button>
+                    </a>
                     <button
                         class="w-full sm:w-auto bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 px-8 py-4 rounded-2xl font-bold text-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">
                         How it Works
