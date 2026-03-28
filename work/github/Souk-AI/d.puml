@@ -1,0 +1,293 @@
+@startuml
+skinparam class AttributeIconSize 0
+hide methods
+
+' =========================
+' ENUMS
+' =========================
+enum UserRole {
+  CLIENT
+  INFLUENCER
+  STORE
+  ADMIN
+  SHIPPING_COMPANY
+  SHIPPING_EMP
+}
+
+enum ProductCondition {
+  NEW
+  GOOD
+  USED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PENDING
+  PAID
+}
+
+enum FactureType {
+  STORE
+  INFLUENCER
+  ADMIN
+  SHIPPING
+}
+
+enum NotificationTarget {
+  CLIENT
+  INFLUENCER
+  STORE
+  SHIPPING_COMPANY
+  SHIPPING_EMP
+  USER
+}
+
+' =========================
+' CORE USER SYSTEM
+' =========================
+class User {
+  +id : uuid <<PK>>
+  name : string
+  email : string
+  password : string
+  role : UserRole
+  isBlocked : boolean
+  createdAt : datetime
+}
+
+class Client {
+  +id : uuid <<PK>>
+  user_id : uuid <<FK>>
+}
+
+class Influencer {
+  +id : uuid <<PK>>
+  user_id : uuid <<FK>>
+  userName: STRING
+  referralCode : string
+  commissionRate : float <<5%>>
+  profilePicture : string
+  phone : string
+  address : string
+  cin : string
+  rib : string
+  isActive : boolean
+  slug : string
+}
+
+class Store {
+  +id : uuid <<PK>>
+  user_id : uuid <<FK>>
+  name_fr : string
+  name_ar : string
+  name_en : stirng
+  description_fr : text
+  description_ar : text
+  description_en : text
+  responsibleName : string
+  responsiblePhone : string
+  storePhone : string
+  address : string
+  responsibleCin : string
+  matriculeFiscale : string
+  logo : string
+  rib : string
+  isActive : boolean
+  categories : json
+  slug : string
+  categories : json
+}
+
+class Admin {
+  +id : uuid <<PK>>
+  user_id : uuid <<FK>>
+  platformCommissionAdmin : float <<10%>>
+  platformCommissionShare : float <<5%>>
+}
+
+' =========================
+' PRODUCT MANAGEMENT
+' =========================
+class Category {
+  +id : uuid <<PK>>
+  name_fr : string
+  name_ar : string
+  name_en : string
+  slug : string
+  icon : string
+  logo : string
+  cover : string
+  isActive : boolean
+  parent_id : uuid <<FK>>
+}
+
+class Product {
+  +id : uuid <<PK>>
+  store_id : uuid <<FK>>
+  name_fr : string
+  name_ar : string
+  name_en : string
+  description_fr : text
+  description_ar : text
+  description_en : text
+  price : decimal
+  condition : ProductCondition
+  stock : int
+  slug : string
+  promo : decimal
+}
+
+class ProductAlbum {
+  +id : uuid <<PK>>
+  product_id : uuid <<FK>>
+  imageUrl : string
+  isPrimary : boolean
+}
+
+class ProductVariation {
+  +id : uuid <<PK>>
+  product_id : uuid <<FK>>
+  variationType : string
+  variationValue : string
+  stock : int
+}
+
+
+class ShippingCompany {
+  +id : uuid <<PK>>
+  user_id : uuid <<FK>>
+  name : string
+  phone : string
+  rib : string
+  responsibleName : string
+  responsiblePhone : string
+  companyPhone : string
+  address : string
+  cin : string
+  matriculeFiscale : string
+  createdAt : datetime
+}
+
+class ShippingEmployee {
+  +id : uuid <<PK>>
+  user_id : uuid <<FK>>
+  shipping_company_id : uuid <<FK>>
+  fullName : string
+  phone : string
+  cin : string
+  isAvailable : boolean
+}
+
+class Order {
+  +id : uuid <<PK>>
+  client_id : uuid <<FK>>
+  shipping_company_id : uuid <<FK>>
+  shipping_employee_id : uuid <<FK>>
+  status : OrderStatus
+  totalAmount : decimal
+  createdAt : datetime
+}
+
+class OrderItem {
+  +id : uuid <<PK>>
+  order_id : uuid <<FK>>
+  product_id : uuid <<FK>>
+  varient_id : uuid <<fk>>
+  quantity : int
+  price : decimal
+}
+
+
+
+class Facture {
+  +id : uuid <<PK>>
+  order_id : uuid <<FK>>
+  user_id : uuid <<FK>>
+  factureNumber : string
+  type : FactureType
+  amount : decimal
+  status : PaymentStatus
+  createdAt : datetime
+}
+
+' =========================
+' GOVERNANCE & FEEDBACK
+' =========================
+class Notification {
+  +id : uuid <<PK>>
+  targetType : NotificationTarget
+  targetId : uuid
+  title : string
+  link ; string
+  message : text
+  isRead : boolean
+  createdAt : datetime
+}
+
+class Report {
+  +id : uuid <<PK>>
+  reporterId : uuid
+  reportedUserId : uuid
+  reportedProductId : uuid
+  description : text
+  status : string <<PENDING | RESOLVED>>
+  createdAt : datetime
+}
+
+class Comment {
+  +id : uuid <<PK>>
+  userId : uuid
+  targetType : string <<PRODUCT | STORE>>
+  targetId : uuid
+  content : text
+  createdAt : datetime
+}
+
+class Rating {
+  +id : uuid <<PK>>
+  userId : uuid
+  targetType : string <<PRODUCT | STORE>>
+  targetId : uuid
+  rating : int <<1..5>>
+  createdAt : datetime
+}
+
+' =========================
+' RELATIONSHIPS
+' =========================
+User "1" -- "1" Client
+User "1" -- "1" Influencer
+User "1" -- "1" Store
+User "1" -- "1" Admin
+User "1" -- "1" ShippingCompany
+User "1" -- "1" ShippingEmployee
+
+Store "1" -- "0..*" Product
+Product "1" -- "0..*" ProductAlbum
+Product "1" -- "0..*" ProductVariation
+
+
+Influencer "1" -- "0..*" Product
+Category "1" -- "0..*" Category : "has subcategories"
+
+Order "1" -- "0..*" OrderItem
+OrderItem "1" -- "1" Product
+Order "1" -- "0..*" Facture 
+
+ShippingCompany "1" -- "0..*" ShippingEmployee
+User "1" -- "0..*" Facture 
+
+User "1" -- "0..*" Notification
+User "1" -- "0..*" Report 
+User "1" -- "0..*" Comment
+User "1" -- "0..*" Rating 
+
+@enduml
