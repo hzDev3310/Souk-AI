@@ -6,6 +6,9 @@ docker compose up -d --build
 echo "📦 Installing Composer dependencies..."
 docker compose exec app composer install
 
+echo "📦 Installing Node.js dependencies..."
+docker compose exec app npm install
+
 # Check if .env exists, if not, create it
 if [ ! -f .env ]; then
     echo "📄 Creating .env file..."
@@ -18,6 +21,9 @@ sleep 10
 
 echo "🗄️ Running database migrations..."
 docker compose exec app php artisan migrate
+
+echo "🏗️ Building frontend assets..."
+docker compose exec app npm run build
 
 echo "👤 Creating default admin user..."
 docker compose exec app php artisan tinker --execute="

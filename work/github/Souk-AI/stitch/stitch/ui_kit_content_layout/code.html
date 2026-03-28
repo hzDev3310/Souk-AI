@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#aecbda",
+              "on-error": "#ffffff",
+              "surface-container-low": "#f5f3f3",
+              "on-surface": "#1b1c1c",
+              "on-error-container": "#93000a",
+              "surface-bright": "#fbf9f9",
+              "error-container": "#ffdad6",
+              "surface-tint": "#006d41",
+              "primary-container": "#198754",
+              "on-secondary-container": "#4c6875",
+              "surface-container-highest": "#e3e2e2",
+              "outline": "#6e7a70",
+              "secondary": "#46626f",
+              "surface-container-high": "#e9e8e7",
+              "primary-fixed-dim": "#77da9f",
+              "on-secondary-fixed-variant": "#2f4a57",
+              "outline-variant": "#bdcabe",
+              "on-primary-container": "#ffffff",
+              "on-tertiary-fixed-variant": "#004f50",
+              "on-tertiary-container": "#ffffff",
+              "surface": "#fbf9f9",
+              "inverse-on-surface": "#f2f0f0",
+              "surface-dim": "#dbdad9",
+              "surface-container-lowest": "#ffffff",
+              "secondary-container": "#c9e7f6",
+              "background": "#fbf9f9",
+              "inverse-surface": "#303031",
+              "secondary-fixed": "#c9e7f6",
+              "on-primary-fixed": "#002110",
+              "on-tertiary-fixed": "#002020",
+              "on-background": "#1b1c1c",
+              "on-primary-fixed-variant": "#00522f",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "tertiary": "#00696a",
+              "primary": "#006c40",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "tertiary-fixed": "#7cf5f7",
+              "surface-variant": "#e3e2e2",
+              "on-secondary-fixed": "#001f29",
+              "surface-container": "#efeded",
+              "tertiary-fixed-dim": "#5cd8da",
+              "tertiary-container": "#008486",
+              "inverse-primary": "#77da9f",
+              "on-surface-variant": "#3e4941",
+              "primary-fixed": "#93f7ba"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #fbf9f9; color: #1b1c1c; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Manrope', sans-serif; color: #2C4854; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .custom-striped tr:nth-child(even) { background-color: rgba(25, 135, 84, 0.05); }
+    </style>
+</head>
+<body class="bg-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fbf9f9]/70 backdrop-blur-md shadow-sm">
+<div class="flex justify-between items-center px-8 py-4 max-w-full mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold text-[#2C4854]">Souk.AI</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="font-['Manrope'] font-semibold text-sm tracking-tight text-[#198754] border-b-2 border-[#198754] pb-1" href="#">Content &amp; Layout</a>
+<a class="font-['Manrope'] font-medium text-sm tracking-tight text-[#2C4854] hover:text-[#198754] transition-colors" href="#">Forms &amp; Inputs</a>
+<a class="font-['Manrope'] font-medium text-sm tracking-tight text-[#2C4854] hover:text-[#198754] transition-colors" href="#">Components &amp; Interactive</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-100 rounded-lg transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[#2C4854]">settings</span>
+</button>
+<button class="p-2 hover:bg-slate-100 rounded-lg transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[#2C4854]">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<main class="pt-24 pb-20 px-6 md:px-12 max-w-7xl mx-auto space-y-20">
+<!-- Typography Showcase -->
+<section class="space-y-10" id="typography">
+<div class="border-l-4 border-primary pl-6 py-2">
+<h2 class="text-4xl font-extrabold tracking-tight">Typography Hierarchy</h2>
+<p class="text-secondary mt-2 max-w-2xl">Editorial-first scaling using Manrope for headlines and Inter for functional precision.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+<div class="bg-surface-container-low p-8 rounded-[1rem] space-y-6">
+<h1 class="text-5xl font-extrabold leading-tight">H1: Digital Curation</h1>
+<h2 class="text-4xl font-bold">H2: Circular Economy</h2>
+<h3 class="text-3xl font-bold">H3: Regenerative Design</h3>
+<h4 class="text-2xl font-semibold">H4: Conscious Markets</h4>
+<h5 class="text-xl font-semibold">H5: Sustainable Growth</h5>
+<h6 class="text-lg font-semibold">H6: Curated Selection</h6>
+</div>
+<div class="space-y-8">
+<div class="bg-surface-container-low p-8 rounded-[1rem]">
+<p class="text-xs font-bold uppercase tracking-widest text-primary mb-4">Functional Tokens</p>
+<div class="space-y-4">
+<div class="flex justify-between items-baseline border-b border-outline-variant/20 pb-2">
+<span class="text-secondary font-medium font-body">Product Title (Medium)</span>
+<span class="text-[#2C4854] font-medium text-md">Vintage Leather Satchel</span>
+</div>
+<div class="flex justify-between items-baseline border-b border-outline-variant/20 pb-2">
+<span class="text-secondary font-medium font-body">Price Tag (Semi-bold)</span>
+<span class="text-[#2C4854] font-semibold text-xl">$245.00</span>
+</div>
+<div class="flex justify-between items-baseline border-b border-outline-variant/20 pb-2">
+<span class="text-secondary font-medium font-body">Conversion Link</span>
+<a class="text-[#198754] font-semibold hover:underline" href="#">Secure this item →</a>
+</div>
+</div>
+</div>
+<div class="bg-secondary-container/30 p-8 rounded-[1rem]">
+<p class="text-on-secondary-container leading-relaxed">
+                            The "Conscious Curator" north star ensures that our body copy feels like an invitation. We prioritize legibility with generous leading and a clear distinction between editorial headings and transactional details.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Image & Gallery Showcase -->
+<section class="space-y-10" id="visuals">
+<div class="border-l-4 border-primary pl-6 py-2">
+<h2 class="text-4xl font-extrabold tracking-tight">Image Systems</h2>
+<p class="text-secondary mt-2 max-w-2xl">Visual assets utilize consistent 16px radii and tonal framing to elevate product presentation.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Circular Logos / Sellers -->
+<div class="flex flex-col items-center gap-4 p-8 bg-surface-container-low rounded-[1rem]">
+<div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-sm">
+<img class="w-full h-full object-cover" data-alt="portrait of a professional female curator in a minimalist art gallery with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv7JE8lTBecK63TanqUE1X-l2jMOyJTyalU3885KA8IsvRp0jyoYozagYwjKrEEz_JohQDg_Nllo-90q7bXfd_MHLuxtMf0FkWtqdmhSh4NwhU-seYKzydgsP1vychHhx-lh0OGnidaz87Mm92VU1XrbjiT0DJxIot9J0mRlfUeTufUi0jVblpg4j5YoBdZ042CGgmPH9qatRpisIfJad4hysHLGY_QK4AtwJgU0icHL3ilSHrcVomDFbdp4pGGDG7kQvzRkTfwLc"/>
+</div>
+<div class="text-center">
+<p class="font-bold text-[#2C4854]">Elena Vance</p>
+<span class="text-xs px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full uppercase tracking-tighter font-bold">Premium Seller</span>
+</div>
+</div>
+<!-- Product Thumbnail -->
+<div class="md:col-span-2 group relative overflow-hidden rounded-[1rem] bg-surface-container-low p-6">
+<div class="aspect-[21/9] rounded-[1rem] overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="high-end minimalist designer watch on a marble surface with dramatic side lighting and sharp shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7HVAgmGRcPZNxWW4T_Fdzw-gBI5NwwF2-swxxWXTF24IpvG7Pl6MtxuUjSzPSogUnZVtO7BFlPbpPVsrEBy-4yAV72Y5wNW8WIw2jzUofGgJb07g4ToHGo534gs7P3wENg6CJT4H_kd2FFdWvttJ6qPAGGHq94dt4ZKJi9gYPL4heo0wKCsTaYtjTYzgkUjnb3p4GEB4-q993t-Up-azz6S0wA12NKI1OSP1sGLriRQ8JvgvJt34vBXUjRg7QFDY9dHszBpWgYa8"/>
+</div>
+<div class="mt-4 flex justify-between items-center">
+<div>
+<p class="text-[#2C4854] font-medium">Limited Edition Chronograph</p>
+<p class="text-sm text-secondary">Verified Authenticity • Grade A</p>
+</div>
+<span class="text-2xl font-semibold text-[#2C4854]">$890</span>
+</div>
+</div>
+</div>
+<!-- Figures Gallery -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+<figure class="space-y-3">
+<img class="rounded-[1rem] aspect-square object-cover bg-surface-container-highest" data-alt="close-up detail of high-quality leather grain on a designer handbag with soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsTvqLRK99cS5ktOGFnPDTJbXeXUGuQ1Zw9OFG18FKz9oacyO5lZX0qATeC7WqR3hP0J55-TBLP_o9snYPd7sFnNdkRa-YL7HIsDk20NJnifxjVN-hHLnCorah3H--AipDi6t-IGHvgcrHitgn6-kt7IMbF1-YjjGega3ibegOg8-MM719jdDmWbWnUlGgjvlGZfEKYRmwpYbNd3PdOk7uhEeRJjKayQZNMiERSZ2-JZt3UnnAZ-BG3ksMpt5fG0vQjNeCwoz4cEw"/>
+<figcaption class="text-sm text-slate-500 font-medium italic">Exterior condition: Mint</figcaption>
+</figure>
+<figure class="space-y-3">
+<img class="rounded-[1rem] aspect-square object-cover bg-surface-container-highest" data-alt="detail shot of a red athletic shoe sole showing minimal wear on a clean gray surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-p9ur0FcapTFZwnRzDXva9V68MY-B6iN0d3Jlp8SWt3sCrSIkqJ5RYZdeBgDcY5icjTbkNuwtvyL-Vq2WxiBuX_GlEFAa8hCjghFaZM_hOUaPORR5StWTFY5fURGZ9jEKD3VfgI_E8tKywURE1_vtLafUxbgw2KUTnprAhSfrcPZFlKeo-T1MxB0gDuMACP7LTXc81ngyRJw_AJkSho07ahiiC3PXuE_-LZWt6BZLpXfH3IzopEvF4S3qDt-_1X-hGJxKXbG0W9k"/>
+<figcaption class="text-sm text-slate-500 font-medium italic">Sole integrity: 95%</figcaption>
+</figure>
+<figure class="space-y-3">
+<img class="rounded-[1rem] aspect-square object-cover bg-surface-container-highest" data-alt="studio shot of premium headphones with emphasis on the cushioned ear cups and sleek metal frame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwR6KDjODe9W6gIAMYDfP9IiLlGpqjJmn7PtSQ8F_QZkoGj_s5WmDNqOteMsFyLoxxPjK6csqsyHK6U17a_GvlW4x0kloAd-9-y6OEjB2bKQQlJUQYdPjAbKEEd4waQZD2H6VHtropb4nhyGCdOfNTgpjFSZVedGAUYorYx6dTnQ1NHgZ3dkr1QZNE1iwvMxIorv04omzipdyhRid8yetx5tT_X0xLTCb9amcRTcpAA2nT1TeWjdpU8Ks7BT8ssroh7PZRAVk1NuU"/>
+<figcaption class="text-sm text-slate-500 font-medium italic">Hardware: Tested &amp; Working</figcaption>
+</figure>
+<figure class="space-y-3">
+<img class="rounded-[1rem] aspect-square object-cover bg-surface-container-highest" data-alt="close up of high-end mechanical camera lens showing the glass elements and aperture rings" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBP6Rvbdc4RrapF1eCc2lbofDqe7IZoJNWkHU6bG0wj5ngsPxLti4BJpVgSziT1xpeGB3EsFTai0wN7x3TOJRV7zfRLHbrNw3rn_gsnnx6mS_gLeBMwzBfT7YBzUitXuw72eUvWEsYaRWFW8H7JjdSxOEJ5ZpjxflMteG2dZ797ga34ZzdYRA3yVhk49chGgpQ4t9T0D8YweItbzSiMItpC0e1mmld7Q2GFq6R70-vLCIwGrc8Fhe5r4_ZY6nuQN2yfIoUfsjzFEGc"/>
+<figcaption class="text-sm text-slate-500 font-medium italic">Optical: No scratches</figcaption>
+</figure>
+</div>
+</section>
+<!-- Table Showcase -->
+<section class="space-y-10" id="tables">
+<div class="border-l-4 border-primary pl-6 py-2">
+<h2 class="text-4xl font-extrabold tracking-tight">Transactional Data</h2>
+<p class="text-secondary mt-2 max-w-2xl">Structured inventory logs with deep blue headers and subtle success-green striping for readability.</p>
+</div>
+<div class="overflow-hidden rounded-[1rem] bg-surface shadow-sm border border-outline-variant/10">
+<table class="w-full text-left border-collapse custom-striped">
+<thead class="bg-[#2C4854] text-white">
+<tr>
+<th class="px-6 py-4 font-bold text-sm uppercase tracking-wider">Asset ID</th>
+<th class="px-6 py-4 font-bold text-sm uppercase tracking-wider">Item Name</th>
+<th class="px-6 py-4 font-bold text-sm uppercase tracking-wider">Condition</th>
+<th class="px-6 py-4 font-bold text-sm uppercase tracking-wider text-right">Market Value</th>
+<th class="px-6 py-4 font-bold text-sm uppercase tracking-wider text-center">Action</th>
+</tr>
+</thead>
+<tbody class="text-[#2C4854]">
+<tr>
+<td class="px-6 py-5 font-mono text-xs">SKU-88219</td>
+<td class="px-6 py-5 font-medium">Herman Miller Aeron Chair</td>
+<td class="px-6 py-5"><span class="px-2 py-1 bg-primary/10 text-[#198754] rounded-md text-xs font-bold uppercase">Like New</span></td>
+<td class="px-6 py-5 font-semibold text-right">$750.00</td>
+<td class="px-6 py-5 text-center"><button class="text-[#198754] font-bold text-sm hover:underline">Details</button></td>
+</tr>
+<tr>
+<td class="px-6 py-5 font-mono text-xs">SKU-44120</td>
+<td class="px-6 py-5 font-medium">Fujifilm X100V Silver</td>
+<td class="px-6 py-5"><span class="px-2 py-1 bg-secondary/10 text-secondary rounded-md text-xs font-bold uppercase">Refurbished</span></td>
+<td class="px-6 py-5 font-semibold text-right">$1,400.00</td>
+<td class="px-6 py-5 text-center"><button class="text-[#198754] font-bold text-sm hover:underline">Details</button></td>
+</tr>
+<tr>
+<td class="px-6 py-5 font-mono text-xs">SKU-99031</td>
+<td class="px-6 py-5 font-medium">Vitra Eames Bird (Black)</td>
+<td class="px-6 py-5"><span class="px-2 py-1 bg-primary/10 text-[#198754] rounded-md text-xs font-bold uppercase">Pristine</span></td>
+<td class="px-6 py-5 font-semibold text-right">$210.00</td>
+<td class="px-6 py-5 text-center"><button class="text-[#198754] font-bold text-sm hover:underline">Details</button></td>
+</tr>
+<tr>
+<td class="px-6 py-5 font-mono text-xs">SKU-21105</td>
+<td class="px-6 py-5 font-medium">Apple MacBook Pro M2</td>
+<td class="px-6 py-5"><span class="px-2 py-1 bg-secondary/10 text-secondary rounded-md text-xs font-bold uppercase">Open Box</span></td>
+<td class="px-6 py-5 font-semibold text-right">$1,850.00</td>
+<td class="px-6 py-5 text-center"><button class="text-[#198754] font-bold text-sm hover:underline">Details</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Asymmetric Bento Grid Example -->
+<section class="space-y-10" id="bento">
+<div class="border-l-4 border-primary pl-6 py-2">
+<h2 class="text-4xl font-extrabold tracking-tight">Circular Curation Layout</h2>
+<p class="text-secondary mt-2 max-w-2xl">High-end asymmetric grids prioritizing discovery over simple listing.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-[600px]">
+<div class="md:col-span-2 md:row-span-2 bg-[#2C4854] rounded-[1rem] p-8 flex flex-col justify-end text-white relative overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover opacity-40 hover:scale-110 transition-transform duration-1000" data-alt="artistic shot of high-end sneakers in a designer box with premium tissue paper and soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgKH9otmMQvQvgO6bH6Sw4zBxqPlWJ90JqwN6uibczc5A8ArkS0dkc32H3VncKYdFrHXDaYhjAqazAuz3CI_Wn7bozuBQewfOwborHm03-XF-M-QKm7JQFCcgVoULX_mrdQaCYVGB_EUyxeYXtWIxfrbtshkSR1O8PAnomSwAJ5Xz4Yoe_KgRYX_9XvjMAlwGxvySxn9fUgpZZ-jg9fslMcXVwrao5tiB82nZ18q3qYglA0AX2wsNZgm32WxuauSyIiHSaHiv9n_U"/>
+<div class="relative z-10">
+<span class="text-xs font-bold px-3 py-1 bg-[#198754] rounded-full mb-4 inline-block">TRENDING</span>
+<h3 class="text-3xl font-bold text-white mb-2">Sustainable Footwear</h3>
+<p class="opacity-80 max-w-sm mb-6">Discover our curated collection of pre-loved premium sneakers.</p>
+<button class="bg-[#198754] text-white px-6 py-3 rounded-full font-bold text-sm flex items-center gap-2 w-fit active:scale-95 transition-all">
+                            Explore Collection <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="md:col-span-2 bg-surface-container-low rounded-[1rem] p-6 flex flex-col justify-center border-b-4 border-primary">
+<div class="flex items-center gap-4 mb-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-[#198754]">eco</span>
+</div>
+<h4 class="text-xl font-bold">Regenerative Resell</h4>
+</div>
+<p class="text-secondary">Extending the lifecycle of luxury items by 4.2 years on average.</p>
+</div>
+<div class="bg-[#198754]/5 rounded-[1rem] p-6 border border-[#198754]/20 flex flex-col justify-between">
+<span class="material-symbols-outlined text-[#198754] text-3xl">verified_user</span>
+<div>
+<p class="text-2xl font-bold text-[#2C4854]">100%</p>
+<p class="text-xs text-secondary font-bold uppercase tracking-widest">Authenticated</p>
+</div>
+</div>
+<div class="bg-secondary-container/20 rounded-[1rem] p-6 border border-secondary/10 flex flex-col justify-between">
+<span class="material-symbols-outlined text-secondary text-3xl">local_shipping</span>
+<div>
+<p class="text-2xl font-bold text-[#2C4854]">Carbon</p>
+<p class="text-xs text-secondary font-bold uppercase tracking-widest">Neutral Delivery</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#2C4854] w-full mt-20">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-10 w-full">
+<div class="mb-8 md:mb-0">
+<span class="text-lg font-bold text-white">Souk.AI</span>
+<p class="font-['Manrope'] text-sm text-slate-300 mt-2 opacity-90">© 2024 Souk.AI - Regenerative Sophistication</p>
+</div>
+<div class="flex gap-8">
+<a class="font-['Manrope'] text-sm text-slate-400 hover:text-[#198754] hover:underline transition-all" href="#">Documentation</a>
+<a class="font-['Manrope'] text-sm text-slate-400 hover:text-[#198754] hover:underline transition-all" href="#">Brand Guidelines</a>
+<a class="font-['Manrope'] text-sm text-slate-400 hover:text-[#198754] hover:underline transition-all" href="#">Support</a>
+<a class="font-['Manrope'] text-sm text-slate-400 hover:text-[#198754] hover:underline transition-all" href="#">Privacy</a>
+</div>
+</div>
+</footer>
+</body></html>

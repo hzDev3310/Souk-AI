@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Souk.AI - Mobile Product Feed</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#001f29",
+              "on-error-container": "#93000a",
+              "inverse-primary": "#77da9f",
+              "on-background": "#1b1c1c",
+              "tertiary": "#00696a",
+              "on-primary": "#ffffff",
+              "on-tertiary-container": "#ffffff",
+              "on-tertiary-fixed": "#002020",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#e9e8e7",
+              "error": "#ba1a1a",
+              "tertiary-fixed": "#7cf5f7",
+              "background": "#fbf9f9",
+              "primary-container": "#198754",
+              "error-container": "#ffdad6",
+              "primary-fixed": "#93f7ba",
+              "surface-bright": "#fbf9f9",
+              "primary": "#006c40",
+              "on-primary-fixed-variant": "#00522f",
+              "on-tertiary-fixed-variant": "#004f50",
+              "outline-variant": "#bdcabe",
+              "secondary-fixed-dim": "#aecbda",
+              "primary-fixed-dim": "#77da9f",
+              "on-surface-variant": "#3e4941",
+              "on-surface": "#1b1c1c",
+              "tertiary-container": "#008486",
+              "surface-variant": "#e3e2e2",
+              "surface-container-highest": "#e3e2e2",
+              "secondary-container": "#c9e7f6",
+              "surface-tint": "#006d41",
+              "on-error": "#ffffff",
+              "on-primary-container": "#ffffff",
+              "surface-container": "#efeded",
+              "inverse-on-surface": "#f2f0f0",
+              "surface-container-low": "#f5f3f3",
+              "on-secondary-fixed-variant": "#2f4a57",
+              "secondary": "#46626f",
+              "surface": "#fbf9f9",
+              "tertiary-fixed-dim": "#5cd8da",
+              "on-secondary": "#ffffff",
+              "on-secondary-container": "#4c6875",
+              "surface-dim": "#dbdad9",
+              "on-tertiary": "#ffffff",
+              "inverse-surface": "#303031",
+              "secondary-fixed": "#c9e7f6",
+              "outline": "#6e7a70",
+              "on-primary-fixed": "#002110"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface-container-low shadow-sm dark:shadow-none flex items-center justify-between px-6 h-16 w-full">
+<div class="flex items-center gap-4">
+<button class="text-primary dark:text-primary-light active:scale-95 duration-150 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-secondary dark:text-secondary-light font-extrabold tracking-tight font-manrope text-xl">Souk.AI</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-primary dark:text-primary-light active:scale-95 duration-150 hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">search</span>
+</button>
+</div>
+</header>
+<main class="pt-20 pb-24 px-4 max-w-lg mx-auto">
+<!-- Pull-to-Refresh Indicator -->
+<div class="flex justify-center py-4 opacity-40">
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined animate-spin text-secondary" style="font-size: 20px;">sync</span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-secondary">Refreshing</span>
+</div>
+</div>
+<!-- Featured Categories (Editorial Layout) -->
+<section class="mb-8">
+<div class="flex items-end justify-between mb-4">
+<h2 class="font-headline font-bold text-2xl tracking-tight text-on-surface">Curated Picks</h2>
+<span class="text-primary font-semibold text-sm">View All</span>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+<div class="flex-none w-32 h-40 rounded-xl bg-surface-container-low relative overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover opacity-90" data-alt="minimalist white designer watch on a marble surface with soft natural lighting and elegant shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZygxfSetP3mv-1letvcS5Hb5_lw1XqgzPgiUpgLdRioiv-j5b6EmiZpgX6AxxwAhLl4qOr49HVXktDCeBzxSxGvwFa5y5KtLDMGheZkPMO-5Qh4BiGa3ZEFSlE83rJeyxO2b571UvPYrqr8g6QieFEZYrMOj1hMxBv18H9O8bDqY8n8PdD1-ft0gfJhtnoO5_N8T63CAOO_063H2TgxTuWiuvRsWyQBgypveQCkYVZuga5WETEA_6zfzDP46IHynJN0WULjSsmLo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+<span class="text-white text-xs font-bold">Tech</span>
+</div>
+</div>
+<div class="flex-none w-32 h-40 rounded-xl bg-surface-container-low relative overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover opacity-90" data-alt="vibrant red athletic sneakers on a clean studio background with professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlmMf9rW7iiY_8nySCjhtKLFwZdqSP4CV97vWt0APaRBvHr4OPMeI4gzH7rqDBoZLue5EMA4VYaqY-bkepPsnYvHXClXtVuu-xIMzSWWkshJs5PqD8SVlJUcGDMqIcGyqCR65nU-6FqdwaEjLdUsHC4wubXz5zWNPakk5U8KB9agya3lCJ4EslNYNxyYcR4Ddt2TR1tnu4-Z8Xm0PdN8xN100FQG3TGAc8Nh-apidN8HLjb7G7YPfac2e0DvM5YKTI_gzODWJPvKE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+<span class="text-white text-xs font-bold">Footwear</span>
+</div>
+</div>
+<div class="flex-none w-32 h-40 rounded-xl bg-surface-container-low relative overflow-hidden">
+<img class="absolute inset-0 w-full h-full object-cover opacity-90" data-alt="vintage style film camera with a leather strap on a wooden table with soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsewyevxvi6rVSaAdNVD5FIuB0TXxLnlVrWp61deYV3N_ow0ajuRfy4CGfFojq4x8LXQTFOWJevigdJkKffcNVYgnyrAQ7Q_uQCUFXAd-5zNpYZ18de9jdfjV2ljwhPWAKVvq5pYGjkfYo6qkxfCFVWdGXAvjZPhsjneE3FOTOiAF9IN2tlzJB4kX2KRcxuZzDI_P1uMaIaOw1ura7_MOPBcvwZjzYc6tL8Co4WrimdIm6R1zlPF4_QODaKRpGzsi-NzCvK5mijQ4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-3">
+<span class="text-white text-xs font-bold">Gear</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Product Feed (Two Column Grid) -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Product Card 1 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-[3/4] relative rounded-2xl bg-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="modern black wireless headphones against a soft gray background with sharp focus and professional studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV9GDczbR2MHXiEifGpj4hmxpBhJiVyNQFaSBT6WPE2zxzbSO5SeTNlZRvVYiueITxaAKqCRaFTUGRqs2nYiqr-1wbxpday7BtvX4GGJGrMlSoqKKdROFYxkuAXqZkyiNdtea6VG7cQKSnyp7lUxfxKI3tVqsQzkNJCPHFTT-z4MGbO9Wgad_KyLiGhnaRaP0LkNUDNhcqm0PO5trzlKuJn98lzv_AYRsHq3Mcn4SCycIsMqd9Oc07-6CzZzKczciCHZ4pgFT_fkc"/>
+<!-- Condition Badge -->
+<div class="absolute top-2 right-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md bg-primary-container/80 text-white">
+                        New
+                    </div>
+<!-- Quick Share -->
+<button class="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-surface/90 backdrop-blur-sm flex items-center justify-center text-secondary shadow-sm active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+<div class="px-1">
+<h3 class="font-body font-medium text-on-surface line-clamp-1">Studio Headphones</h3>
+<p class="font-headline font-semibold text-lg text-secondary">$149.00</p>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-[3/4] relative rounded-2xl bg-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="sleek modern mechanical keyboard with subtle RGB lighting on a dark desk setup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbBeOLEKyyhguLr1ZnhXiTUd0mqEf13D_FyKYygZT5Lrtjc-nMrwRSYQYgyaE1urSsCEGaTRWZAd5QpxDKo8C80eX-J6wUfqoO2w6O7mAfgiG60n9qHZ_rGp4hfJrSA7ML7ElNxIHrVOJTtv50TNVmDTifaH6zzRk_p_E-kWtwL72VpZHnd3rgcHMKpUBgAEA7dJeukBavRWH2_bcWoWJKcFr71WUQJ7d9dviITtE93M6ppq9LI6sWcVDhNH7I2tylcXDIP9_9Dek"/>
+<!-- Condition Badge -->
+<div class="absolute top-2 right-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md bg-secondary-container/80 text-on-secondary-container">
+                        Good
+                    </div>
+<!-- Quick Share -->
+<button class="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-surface/90 backdrop-blur-sm flex items-center justify-center text-secondary shadow-sm active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+<div class="px-1">
+<h3 class="font-body font-medium text-on-surface line-clamp-1">Mechanical Board</h3>
+<p class="font-headline font-semibold text-lg text-secondary">$85.50</p>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-[3/4] relative rounded-2xl bg-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="minimalist smartphone in gold finish on a white background showing a clean design aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFadjzrF3KFWdkzyxaYFy_PhzmGbo_koDHNpmD_wooznpliUwP_qqhde7M4cTrzoFX_S8m9au5fZXzWR81iVCEBuuK_WQGH7vmnEkypw0rd5fhqDwI-WvP4OXu3oRd5_uwFtR9Ygl3ZR9ihvaDgxf4kV4HPYc0z-9mhoJ6IYtUjTxfl0hv3KnDQd1hDxV3ZU3nKSRIQisVkXTcoVpsVkOcB_HibLS0XfUkJFEEQ0IaUbIQEO81OjfnLTvGJqmS0230Q0yGSmbEAG4"/>
+<!-- Condition Badge -->
+<div class="absolute top-2 right-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md bg-surface-container-highest/80 text-on-surface-variant">
+                        Used
+                    </div>
+<!-- Quick Share -->
+<button class="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-surface/90 backdrop-blur-sm flex items-center justify-center text-secondary shadow-sm active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+<div class="px-1">
+<h3 class="font-body font-medium text-on-surface line-clamp-1">Smartphone 12 Pro</h3>
+<p class="font-headline font-semibold text-lg text-secondary">$520.00</p>
+</div>
+</div>
+<!-- Product Card 4 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-[3/4] relative rounded-2xl bg-surface-container-low overflow-hidden">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="black and white athletic running shoes on a textured gray background with dramatic shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8XVNXKF4H1phIToMmOmz5rktmkiySws1XWUpQpHFeRGFY2U3C7QI4w-erIg47XdHmVz8qdOx5Ti2d8jvbbBy6ltXwmsG2AloicVltCrPC3c6sdf34dQSCawniNIvt56xch0R1h_g7Obo8ZZLn-qOt4-L7uMn43KvIUnsiTmLdOa6BzBxrQxaQDfx33y6FnxXQoxGCEvoYN7j2rt15wR1d6qXOjsRg_tsQqxPkffBxuci2be98aN8rFSHWv4OZlTrnHeTbfyyriFY"/>
+<!-- Condition Badge -->
+<div class="absolute top-2 right-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest backdrop-blur-md bg-primary-container/80 text-white">
+                        New
+                    </div>
+<!-- Quick Share -->
+<button class="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-surface/90 backdrop-blur-sm flex items-center justify-center text-secondary shadow-sm active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+<div class="px-1">
+<h3 class="font-body font-medium text-on-surface line-clamp-1">Eco-Run Trainers</h3>
+<p class="font-headline font-semibold text-lg text-secondary">$112.00</p>
+</div>
+</div>
+<!-- Skeleton Loaders for "infinite scroll" feel -->
+<div class="flex flex-col gap-3 animate-pulse">
+<div class="aspect-[3/4] rounded-2xl bg-surface-container"></div>
+<div class="h-4 w-3/4 bg-surface-container rounded"></div>
+<div class="h-5 w-1/2 bg-surface-container rounded"></div>
+</div>
+<div class="flex flex-col gap-3 animate-pulse">
+<div class="aspect-[3/4] rounded-2xl bg-surface-container"></div>
+<div class="h-4 w-3/4 bg-surface-container rounded"></div>
+<div class="h-5 w-1/2 bg-surface-container rounded"></div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 h-20 rounded-t-2xl bg-surface dark:bg-slate-900 border-t border-outline-variant/15 shadow-[0_-10px_30px_rgba(28,42,61,0.06)] flex justify-around items-center px-4 pb-safe w-full">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center text-primary dark:text-primary-light font-bold hover:bg-surface-bright dark:hover:bg-slate-800 transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider">Home</span>
+</a>
+<!-- Explore -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-slate-400 opacity-70 hover:bg-surface-bright dark:hover:bg-slate-800 transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider">Explore</span>
+</a>
+<!-- Post (Action Centered) -->
+<a class="flex flex-col items-center justify-center -mt-6" href="#">
+<div class="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center text-white shadow-lg active:scale-90 duration-200">
+<span class="material-symbols-outlined" style="font-size: 32px;">add</span>
+</div>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider mt-1 text-secondary opacity-70">Post</span>
+</a>
+<!-- Leads -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-slate-400 opacity-70 hover:bg-surface-bright dark:hover:bg-slate-800 transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider">Leads</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-secondary dark:text-slate-400 opacity-70 hover:bg-surface-bright dark:hover:bg-slate-800 transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-wider">Profile</span>
+</a>
+</nav>
+</body></html>
