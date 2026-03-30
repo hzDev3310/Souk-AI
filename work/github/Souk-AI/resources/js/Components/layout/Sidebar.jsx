@@ -2,22 +2,43 @@ import { Link } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
 import { Icon } from '@/Components/ui/Icon';
 
-const SidebarItem = ({ href, icon, children, active }) => (
-  <li>
-    <Link
-      href={href}
-      className={cn(
-        "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200",
-        active
-          ? "bg-brand-primary/10 text-brand-primary font-bold shadow-sm"
-          : "text-brand-secondary dark:text-slate-400 hover:bg-surface-container-low hover:text-brand-primary"
-      )}
-    >
-      <Icon name={icon} className="text-xl" />
-      <span className="text-sm font-headline tracking-tight">{children}</span>
-    </Link>
-  </li>
-);
+const SidebarItem = ({ href, icon, children, active, onClick }) => {
+  if (href) {
+    return (
+      <li>
+        <Link
+          href={href}
+          className={cn(
+            "flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200",
+            active
+              ? "bg-brand-primary/10 text-brand-primary font-bold shadow-sm"
+              : "text-brand-secondary dark:text-slate-400 hover:bg-surface-container-low hover:text-brand-primary"
+          )}
+        >
+          <Icon name={icon} className="text-xl" />
+          <span className="text-sm font-headline tracking-tight">{children}</span>
+        </Link>
+      </li>
+    );
+  }
+  
+  return (
+    <li>
+      <button
+        onClick={onClick}
+        className={cn(
+          "w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 text-left",
+          active
+            ? "bg-brand-primary/10 text-brand-primary font-bold shadow-sm"
+            : "text-brand-secondary dark:text-slate-400 hover:bg-surface-container-low hover:text-brand-primary"
+        )}
+      >
+        <Icon name={icon} className="text-xl" />
+        <span className="text-sm font-headline tracking-tight">{children}</span>
+      </button>
+    </li>
+  );
+};
 
 export const Sidebar = ({ className, items = [], activePath }) => {
   return (
@@ -31,7 +52,7 @@ export const Sidebar = ({ className, items = [], activePath }) => {
       <ul className="space-y-2">
         {items.map((item) => (
           <SidebarItem
-            key={item.href}
+            key={item.label}
             href={item.href}
             icon={item.icon}
             active={activePath === item.href}

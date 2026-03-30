@@ -15,11 +15,11 @@ export default {
     theme: {
         extend: {
             colors: {
-                // Souk.AI Core Branding
-                'brand-primary': '#198754', // Fresh Green
-                'brand-secondary': '#2C4854', // Deep Blue
+                // Souk.AI Core Branding - Light Mode
+                'brand-primary': '#198754',
+                'brand-secondary': '#2C4854',
                 
-                // M3-like extended palette from Stitch
+                // Material Design 3 palette - Light Mode
                 'primary': '#198754',
                 'secondary': '#2C4854',
                 'on-primary': '#ffffff',
@@ -37,6 +37,14 @@ export default {
                 'error': '#ba1a1a',
                 'error-container': '#ffdad6',
                 'on-error-container': '#93000a',
+                'success': '#2e7d32',
+                'on-success': '#ffffff',
+                'success-container': '#c8e6c9',
+                'on-success-container': '#1b5e20',
+                'warning': '#f57f17',
+                'on-warning': '#ffffff',
+                'info': '#0288d1',
+                'on-info': '#ffffff',
             },
             fontFamily: {
                 headline: ['Manrope', ...defaultTheme.fontFamily.sans],
@@ -49,6 +57,20 @@ export default {
             },
         },
     },
+
+    safelist: [
+        'dark:bg-[#121212]',
+        'dark:bg-[#1e1e1e]',
+        'dark:bg-[#2f2f2f]',
+        'dark:bg-[#262626]',
+        'dark:bg-[#333333]',
+        'dark:bg-[#3a3a3a]',
+        'dark:text-[#e0e0e0]',
+        'dark:text-[#b0b0b0]',
+        'dark:text-[#90caf9]',
+        'dark:border-[#3a3a3a]',
+        'dark:border-[#4a4a4a]',
+    ],
 
     plugins: [forms],
 };
