@@ -1,4 +1,9 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import en from '../Locales/en.json';
+import ar from '../Locales/ar.json';
+import fr from '../Locales/fr.json';
+
+const translations = { en, ar, fr };
 
 const LanguageContext = createContext();
 
@@ -21,8 +26,30 @@ export const LanguageProvider = ({ children }) => {
         localStorage.setItem('lang', lang);
     }, [lang]);
 
+    /**
+     * Translation helper: usage t('auth.login.title')
+     */
+    const t = (path) => {
+        const keys = path.split('.');
+        let result = translations[lang] || translations.en;
+        
+        for (const key of keys) {
+            if (result[key]) {
+                result = result[key];
+            } else {
+                // Fallback to English
+                let fallback = translations.en;
+                for (const fk of keys) {
+                    fallback = fallback?.[fk];
+                }
+                return fallback || path;
+            }
+        }
+        return result;
+    };
+
     return (
-        <LanguageContext.Provider value={{ lang, setLang, dir }}>
+        <LanguageContext.Provider value={{ lang, setLang, dir, t }}>
             {children}
         </LanguageContext.Provider>
     );

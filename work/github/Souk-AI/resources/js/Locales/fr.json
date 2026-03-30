@@ -1,0 +1,33 @@
+{
+    "auth": {
+        "login": {
+            "title": "Ravi de vous revoir, Curateur",
+            "description": "Connectez-vous pour accéder à votre tableau de bord et gérer vos collections régénératives.",
+            "email": "Email du curateur",
+            "password": "Clé d'accès / Mot de passe",
+            "remember": "Se souvenir de mon accès au coffre",
+            "forgot": "Récupérer mes identifiants ?",
+            "submit": "Accéder au tableau de bord",
+            "signup_prompt": "Nouvelle adhésion ?",
+            "signup_link": "Créer un compte curateur"
+        },
+        "signup": {
+            "title": "Commencez votre voyage",
+            "description": "Créez un compte curateur pour commencer à façonner l'avenir du design régénératif.",
+            "name": "Nom complet",
+            "email": "Adresse email",
+            "password": "Clé d'accès / Mot de passe",
+            "confirm_password": "Confirmez votre clé d'accès",
+            "terms": "J'accepte le code de conduite et d'éthique des curateurs.",
+            "submit": "Établir votre compte",
+            "login_prompt": "Déjà membre du réseau ?",
+            "login_link": "Se connecter au tableau de bord"
+        },
+        "layout": {
+            "hero_title": "Curateur du futur du",
+            "hero_subtitle": "Design Régénératif",
+            "hero_description": "Rejoignez le marché mondial pour le sauvetage architectural unique, les trésors du milieu du siècle et les matériaux éco-certifiés.",
+            "footer": "Commerce Régénératif"
+        }
+    }
+}

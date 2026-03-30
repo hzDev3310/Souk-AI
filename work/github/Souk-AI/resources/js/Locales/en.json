@@ -1,0 +1,33 @@
+{
+    "auth": {
+        "login": {
+            "title": "Welcome Back, Curator",
+            "description": "Sign in to access your dashboard and manage your regenerative collections.",
+            "email": "Curator Email",
+            "password": "Passkey / Password",
+            "remember": "Remember my vault access",
+            "forgot": "Recover credentials?",
+            "submit": "Enter Dashboard",
+            "signup_prompt": "Joining for the first time?",
+            "signup_link": "Create Curator Account"
+        },
+        "signup": {
+            "title": "Begin Your Journey",
+            "description": "Create a curator account to start curating the future of regenerative design.",
+            "name": "Full Name",
+            "email": "Email Address",
+            "password": "Passkey / Password",
+            "confirm_password": "Confirm Passkey",
+            "terms": "I agree to the curator code of conduct and ethics.",
+            "submit": "Establish Account",
+            "login_prompt": "Already part of the network?",
+            "login_link": "Sign in to Dashboard"
+        },
+        "layout": {
+            "hero_title": "Curating the Future of",
+            "hero_subtitle": "Regenerative Design",
+            "hero_description": "Join the global marketplace for architectural salvage, mid-century treasures, and eco-certified materials.",
+            "footer": "Regenerative Commerce"
+        }
+    }
+}
