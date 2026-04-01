@@ -29,5 +29,30 @@
             "hero_description": "Rejoignez le marché mondial pour le sauvetage architectural unique, les trésors du milieu du siècle et les matériaux éco-certifiés.",
             "footer": "Commerce Régénératif"
         }
+    },
+    "nav": {
+        "overview": "Aperçu",
+        "users": "Utilisateurs",
+        "stores": "Magasins",
+        "settings": "Paramètres",
+        "marketplace": "Marché",
+        "orders": "Mes Commandes",
+        "wishlist": "Favoris",
+        "products": "Produits",
+        "sales": "Ventes",
+        "analytics": "Analytique",
+        "campaigns": "Campagnes",
+        "earnings": "Gains",
+        "fleet": "Flotte",
+        "routes": "Itinéraires",
+        "deliveries": "Livraisons",
+        "history": "Historique",
+        "assets": "Actifs",
+        "collections": "Collections",
+        "messages": "Messages",
+        "design_system": "Système de Design",
+        "logout": "Déconnexion",
+        "search": "Rechercher...",
+        "profile": "Voir le profil"
     }
 }

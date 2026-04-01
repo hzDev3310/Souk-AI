@@ -29,5 +29,30 @@
             "hero_description": "Join the global marketplace for architectural salvage, mid-century treasures, and eco-certified materials.",
             "footer": "Regenerative Commerce"
         }
+    },
+    "nav": {
+        "overview": "Overview",
+        "users": "Users",
+        "stores": "Stores",
+        "settings": "Settings",
+        "marketplace": "Marketplace",
+        "orders": "My Orders",
+        "wishlist": "Wishlist",
+        "products": "Products",
+        "sales": "Sales",
+        "analytics": "Analytics",
+        "campaigns": "Campaigns",
+        "earnings": "Earnings",
+        "fleet": "Fleet",
+        "routes": "Routes",
+        "deliveries": "Deliveries",
+        "history": "History",
+        "assets": "Assets",
+        "collections": "Collections",
+        "messages": "Messages",
+        "design_system": "Design System",
+        "logout": "Sign Out",
+        "search": "Search...",
+        "profile": "View Profile"
     }
 }

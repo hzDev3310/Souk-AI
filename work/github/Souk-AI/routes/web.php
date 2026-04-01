@@ -5,7 +5,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return Inertia::render('Public/Home');
 });
 
 Route::get('/design-system', function () {
