@@ -3,5 +3,6 @@
     "Dashboard": "Dashboard",
     "Products": "Products",
     "Search": "Search",
-    "Language": "Language"
+    "Language": "Language",
+    "welcome_message": "The project has been reset. Start building your amazing application!"
 }

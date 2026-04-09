@@ -3,5 +3,6 @@
     "Dashboard": "Tableau de bord",
     "Products": "Produits",
     "Search": "Rechercher",
-    "Language": "Langue"
+    "Language": "Langue",
+    "welcome_message": "Le projet a été réinitialisé. Commencez à construire votre application incroyable !"
 }

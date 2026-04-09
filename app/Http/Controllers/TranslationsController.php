@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class TranslationsController extends Controller
 {
     public function index($locale)
     {
         $path = base_path("lang/{$locale}.json");
-
-        if (!file_exists($path)) {
-            return response()->json([], 404);
+        
+        if (File::exists($path)) {
+            return response()->json(json_decode(File::get($path), true));
         }
 
-        $translations = json_decode(file_get_contents($path), true);
-
-        return response()->json($translations);
+        return response()->json([]);
     }
 }
