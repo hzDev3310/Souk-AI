@@ -1,29 +1,24 @@
 <?php
 
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
-{
-    use HasApiTokens, HasFactory, Notifiable;
+class User extends Authenticatable {
+    use HasUuids, HasApiTokens;
 
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $fillable = ['name', 'family_name', 'email', 'password', 'role', 'isBlocked'];
+    protected $hidden = ['password'];
+    protected $casts = ['isBlocked' => 'boolean'];
 
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
+    public function client() { return $this->hasOne(Client::class); }
+    public function influencer() { return $this->hasOne(Influencer::class); }
+    public function store() { return $this->hasOne(Store::class); }
+    public function admin() { return $this->hasOne(Admin::class); }
+    public function shippingCompany() { return $this->hasOne(ShippingCompany::class); }
+    public function shippingEmp() { return $this->hasOne(ShippingEmp::class); }
+    public function logs() { return $this->hasMany(Log::class); }
+    public function comments() { return $this->hasMany(Comment::class); }
+    public function ratings() { return $this->hasMany(Rating::class); }
 }

@@ -1,10 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 const Welcome = () => {
     const { t, i18n } = useTranslation();
     const { isDarkMode, toggleTheme } = useTheme();
+    const { isAuthenticated } = useAuth();
 
     const changeLanguage = (lng) => {
         i18n.changeLanguage(lng);
@@ -62,6 +64,17 @@ const Welcome = () => {
                 <button onClick={() => changeLanguage('fr')} style={{...buttonStyle, opacity: i18n.language === 'fr' ? 1 : 0.6}}>Français</button>
                 <button onClick={() => changeLanguage('ar')} style={{...buttonStyle, opacity: i18n.language === 'ar' ? 1 : 0.6}}>العربية</button>
             </div>
+
+            {!isAuthenticated && (
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                    <a href="/login" style={{...buttonStyle, backgroundColor: isDarkMode ? '#3182ce' : '#4299e1', color: 'white', textDecoration: 'none'}}>
+                        Login
+                    </a>
+                    <a href="/register" style={{...buttonStyle, backgroundColor: isDarkMode ? '#38a169' : '#48bb78', color: 'white', textDecoration: 'none'}}>
+                        Register
+                    </a>
+                </div>
+            )}
 
             <div style={{ 
                 padding: '1rem', 

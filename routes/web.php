@@ -15,6 +15,16 @@ Route::get('/lang/{locale}', function ($locale) {
     return redirect()->back();
 })->name('lang.switch');
 
-Route::get('/{any?}', function () {
-    return view('welcome');
-})->where('any', '.*');
+Route::middleware('web')->group(function () {
+    Route::get('/login', function () {
+        return view('welcome');
+    })->name('login');
+
+    Route::get('/register', function () {
+        return view('welcome');
+    });
+
+    Route::get('/{any?}', function () {
+        return view('welcome');
+    })->where('any', '.*');
+});
