@@ -2,6 +2,12 @@ import './bootstrap';
 import './i18n';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Navigate,
+} from 'react-router-dom';
 import Welcome from './components/Welcome';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -9,6 +15,8 @@ import LogoutButton from './components/auth/LogoutButton';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import DashboardLayout from './components/layout/DashboardLayout';
+import Dashboard from './pages/Dashboard';
 
 // Simple router based on current path
 const App = () => {
@@ -56,13 +64,42 @@ const App = () => {
     );
 };
 
+// Router-based App
+const RouterApp = () => {
+    return (
+        <Router>
+            <Routes>
+                {/* Public Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+
+                {/* Protected Dashboard Routes */}
+                <Route
+                    path="/dashboard/*"
+                    element={
+                        <ProtectedRoute>
+                            <DashboardLayout />
+                        </ProtectedRoute>
+                    }
+                >
+                    <Route index element={<Dashboard />} />
+                </Route>
+
+                {/* Default Route */}
+                <Route path="/" element={<App />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </Router>
+    );
+};
+
 const rootElement = document.getElementById('react-root');
 if (rootElement) {
     const root = createRoot(rootElement);
     root.render(
         <ThemeProvider>
             <AuthProvider>
-                <App />
+                <RouterApp />
             </AuthProvider>
         </ThemeProvider>
     );

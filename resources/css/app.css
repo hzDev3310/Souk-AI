@@ -22,4 +22,72 @@
     /* Background: Clean, modern feel */
     --color-dark-premium: #111827;
     /* Dark Mode / Premium Background */
+
+    /* 🎨 MatDash Colors */
+    --color-primary: #198353;
+    --color-primaryemphasis: #146b42;
+    --color-secondary: #14E9E2;
+    --color-secondaryemphasis: #11c9c3;
+    --color-success: #36C76C;
+    --color-successemphasis: #2da856;
+    --color-warning: #FFB900;
+    --color-warningemphasis: #d99a00;
+    --color-error: #FF6692;
+    --color-erroremphasis: #e54a78;
+    --color-info: #46caeb;
+    --color-infoemphasis: #3aaac5;
+    --color-lightprimary: color-mix(in oklab, var(--color-primary) 12%, transparent);
+    --color-lightsecondary: color-mix(in oklab, var(--color-secondary) 12%, transparent);
+    --color-lightsuccess: color-mix(in oklab, var(--color-success) 12%, transparent);
+    --color-lightwarning: color-mix(in oklab, var(--color-warning) 12%, transparent);
+    --color-lighterror: color-mix(in oklab, var(--color-error) 12%, transparent);
+    --color-lightinfo: color-mix(in oklab, var(--color-info) 12%, transparent);
+    --color-white: #ffffff;
+    --color-dark: #1f2a3d;
+    --color-link: #2a3547;
+    --color-charcoal: #2a3547;
+    --color-darklink: #7b8893;
+    --color-muted: #EFF4FA;
+    --color-darkmuted: #2a3851;
+    --color-lightgray: #f4f7fb;
+    --color-darkgray: #1a2537;
+    --color-border: #e0e6eb;
+    --color-darkborder: #333f55;
+    --color-input: #e5e7eb;
+    --color-ld: #2a3547;
+    --radius: 10px;
+
+    /* shadcn/ui variables - Light Mode */
+    --color-background: #ffffff;
+    --color-foreground: #2a3547;
+    --color-card: #ffffff;
+    --color-card-foreground: #2a3547;
+    --color-popover: #ffffff;
+    --color-popover-foreground: #2a3547;
+    --color-primary-foreground: #ffffff;
+    --color-secondary-foreground: #ffffff;
+    --color-muted-foreground: #737373;
+    --color-accent: var(--color-lightprimary);
+    --color-accent-foreground: var(--color-primary);
+    --color-destructive: var(--color-error);
+    --color-destructive-foreground: #ffffff;
+    --color-border: #e5e5e5;
+    --color-ring: var(--color-lightprimary);
+}
+
+/* Dark Mode - MatDash Dark Theme */
+.dark {
+    --color-background: var(--color-darkgray);
+    --color-foreground: var(--color-white);
+    --color-card: var(--color-dark);
+    --color-card-foreground: var(--color-white);
+    --color-popover: var(--color-darkgray);
+    --color-popover-foreground: var(--color-white);
+    --color-border: var(--color-darkborder);
+    --color-input: var(--color-darkborder);
+    --color-ring: var(--color-lightprimary);
+    --color-link: #7b8893;
+    --color-charcoal: #7b8893;
+    --color-darklink: #7b8893;
+    --color-lightprimary: #635bff20;
 }

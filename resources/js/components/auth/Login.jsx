@@ -1,18 +1,29 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import CardBox from '../shared/CardBox';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
 const Login = () => {
     const { login } = useAuth();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
+        remember: false,
     });
     const [error, setError] = useState('');
     const [pendingApproval, setPendingApproval] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value, type, checked } = e.target;
+        setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+    };
+
+    const handleCheckboxChange = (checked) => {
+        setFormData({ ...formData, remember: checked });
     };
 
     const handleSubmit = async (e) => {
@@ -36,62 +47,99 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-                    Welcome Back
-                </h2>
-
-                {error && (
-                    <div className={`mb-4 p-3 rounded ${pendingApproval ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                        {error}
+        <div className="dark h-screen w-full flex justify-center items-center bg-darkgray">
+            <div className="md:min-w-[450px] min-w-max px-4">
+                <CardBox className="p-8 bg-dark border-darkborder">
+                    <div className="flex justify-center mb-4">
+                        <div className="text-2xl font-bold text-primary">
+                            Souk AI
+                        </div>
                     </div>
-                )}
+                    <p className="text-sm text-charcoal text-center mb-6">
+                        Your Social Campaigns
+                    </p>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Email
-                        </label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
+                    {error && (
+                        <div className={`mb-4 p-3 rounded text-sm ${pendingApproval ? 'bg-lightwarning text-warning' : 'bg-lighterror text-error'}`}>
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <div className="mb-2 block">
+                                <Label htmlFor="email" className="font-medium">
+                                    Email
+                                </Label>
+                            </div>
+                            <Input
+                                id="email"
+                                type="email"
+                                name="email"
+                                placeholder="Enter your email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <div className="mb-2 block">
+                                <Label htmlFor="password" className="font-medium">
+                                    Password
+                                </Label>
+                            </div>
+                            <Input
+                                id="password"
+                                type="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+
+                        <div className="flex flex-wrap gap-6 items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <Checkbox 
+                                    id="remember" 
+                                    checked={formData.remember}
+                                    onCheckedChange={handleCheckboxChange}
+                                />
+                                <Label
+                                    className="text-link font-normal text-sm"
+                                    htmlFor="remember">
+                                    Remember this device
+                                </Label>
+                            </div>
+                            <a
+                                href="#"
+                                className="text-sm font-medium text-primary hover:text-primaryemphasis">
+                                Forgot Password?
+                            </a>
+                        </div>
+
+                        <Button 
+                            type="submit"
+                            className="w-full"
+                            disabled={loading}
+                        >
+                            {loading ? 'Signing in...' : 'Sign In'}
+                        </Button>
+                    </form>
+
+                    <div className="flex items-center gap-2 justify-center mt-6 flex-wrap">
+                        <p className="text-base font-medium text-link dark:text-darklink">
+                            New to Souk AI?
+                        </p>
+                        <a
+                            href="/register"
+                            className="text-sm font-medium text-primary hover:text-primaryemphasis">
+                            Create an account
+                        </a>
                     </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Signing in...' : 'Sign In'}
-                    </button>
-                </form>
-
-                <p className="mt-4 text-center text-sm text-gray-600">
-                    Don't have an account?{' '}
-                    <a href="/register" className="text-blue-600 hover:underline">
-                        Sign up
-                    </a>
-                </p>
+                </CardBox>
             </div>
         </div>
     );
