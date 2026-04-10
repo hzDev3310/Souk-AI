@@ -17,6 +17,11 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
+import Stores from './pages/admin/Stores';
+import Influencers from './pages/admin/Influencers';
+import Clients from './pages/admin/Clients';
+import ShippingCompanies from './pages/admin/ShippingCompanies';
+import ShippingEmployees from './pages/admin/ShippingEmployees';
 
 // Simple router based on current path
 const App = () => {
@@ -83,6 +88,11 @@ const RouterApp = () => {
                     }
                 >
                     <Route index element={<Dashboard />} />
+                    <Route path="stores" element={<Stores />} />
+                    <Route path="influencers" element={<Influencers />} />
+                    <Route path="clients" element={<Clients />} />
+                    <Route path="shipping-companies" element={<ShippingCompanies />} />
+                    <Route path="shipping-employees" element={<ShippingEmployees />} />
                 </Route>
 
                 {/* Default Route */}

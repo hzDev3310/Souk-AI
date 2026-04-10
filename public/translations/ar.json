@@ -1,0 +1,241 @@
+{
+  "admin": {
+    "stores": {
+      "title": "إدارة المتاجر",
+      "subtitle": "إدارة جميع المتاجر في المنصة",
+      "add": "إضافة متجر",
+      "search": "البحث في المتاجر...",
+      "table": {
+        "storeName": "اسم المتجر",
+        "owner": "المالك",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "matricule": "الرقم الضريبي",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "form": {
+        "addTitle": "إضافة متجر جديد",
+        "editTitle": "تعديل المتجر",
+        "ownerFirstName": "اسم المالك",
+        "ownerLastName": "لقب المالك",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "storeNameFr": "اسم المتجر (FR)",
+        "storeNameAr": "اسم المتجر (AR)",
+        "storePhone": "هاتف المتجر",
+        "address": "العنوان",
+        "matriculeFiscale": "الرقم الضريبي",
+        "rib": "رقم الحساب البنكي",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "update": "تحديث"
+      },
+      "messages": {
+        "confirmDelete": "هل أنت متأكد من حذف هذا المتجر؟",
+        "noStores": "لا يوجد متاجر"
+      }
+    },
+    "influencers": {
+      "title": "إدارة المؤثرين",
+      "subtitle": "إدارة جميع المؤثرين في المنصة",
+      "add": "إضافة مؤثر",
+      "search": "البحث في المؤثرين...",
+      "table": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "commission": "العمولة",
+        "referralCode": "كود الإحالة",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "active": "نشط",
+        "inactive": "غير نشط"
+      },
+      "form": {
+        "addTitle": "إضافة مؤثر جديد",
+        "editTitle": "تعديل المؤثر",
+        "firstName": "الاسم",
+        "lastName": "اللقب",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "phone": "الهاتف",
+        "city": "المدينة",
+        "address": "العنوان",
+        "cin": "رقم الهوية",
+        "rib": "رقم الحساب البنكي",
+        "commissionRate": "نسبة العمولة (%)",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "update": "تحديث"
+      },
+      "messages": {
+        "confirmDelete": "هل أنت متأكد من حذف هذا المؤثر؟",
+        "noInfluencers": "لا يوجد مؤثرين"
+      }
+    },
+    "clients": {
+      "title": "إدارة العملاء",
+      "subtitle": "إدارة جميع العملاء في المنصة",
+      "add": "إضافة عميل",
+      "search": "البحث في العملاء...",
+      "table": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "city": "المدينة",
+        "postalCode": "الرمز البريدي",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "active": "نشط",
+        "blocked": "محظور"
+      },
+      "form": {
+        "addTitle": "إضافة عميل جديد",
+        "editTitle": "تعديل العميل",
+        "firstName": "الاسم",
+        "lastName": "اللقب",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "city": "المدينة",
+        "postalCode": "الرمز البريدي",
+        "address": "العنوان",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "update": "تحديث"
+      },
+      "messages": {
+        "confirmDelete": "هل أنت متأكد من حذف هذا العميل؟",
+        "noClients": "لا يوجد عملاء"
+      }
+    },
+    "shippingCompanies": {
+      "title": "شركات الشحن",
+      "subtitle": "إدارة شركات الشحن وموظفيها",
+      "add": "إضافة شركة",
+      "search": "البحث في الشركات...",
+      "table": {
+        "companyName": "اسم الشركة",
+        "responsible": "المسؤول",
+        "email": "البريد الإلكتروني",
+        "companyPhone": "هاتف الشركة",
+        "matricule": "الرقم الضريبي",
+        "actions": "الإجراءات"
+      },
+      "form": {
+        "addTitle": "إضافة شركة جديدة",
+        "editTitle": "تعديل الشركة",
+        "responsibleFirstName": "اسم المسؤول",
+        "responsibleLastName": "لقب المسؤول",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "companyName": "اسم الشركة",
+        "companyPhone": "هاتف الشركة",
+        "responsiblePhone": "هاتف المسؤول",
+        "address": "العنوان",
+        "matriculeFiscale": "الرقم الضريبي",
+        "rib": "رقم الحساب البنكي",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "update": "تحديث"
+      },
+      "messages": {
+        "confirmDelete": "هل أنت متأكد من حذف هذه الشركة؟",
+        "noCompanies": "لا يوجد شركات",
+        "viewEmployees": "عرض الموظفين"
+      }
+    },
+    "shippingEmployees": {
+      "title": "موظفي الشحن",
+      "subtitle": "إدارة جميع موظفي الشحن",
+      "subtitleWithCompany": "موظفو {companyName}",
+      "add": "إضافة موظف",
+      "search": "البحث في الموظفين...",
+      "filterByCompany": "تصفية حسب الشركة",
+      "allCompanies": "جميع الشركات",
+      "table": {
+        "name": "الاسم",
+        "email": "البريد الإلكتروني",
+        "phone": "الهاتف",
+        "cin": "رقم الهوية",
+        "address": "العنوان",
+        "actions": "الإجراءات"
+      },
+      "form": {
+        "addTitle": "إضافة موظف جديد",
+        "editTitle": "تعديل الموظف",
+        "firstName": "الاسم",
+        "lastName": "اللقب",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "phone": "الهاتف",
+        "cin": "رقم الهوية",
+        "address": "العنوان",
+        "rib": "رقم الحساب البنكي",
+        "company": "الشركة",
+        "selectCompany": "اختيار الشركة",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "update": "تحديث"
+      },
+      "messages": {
+        "confirmDelete": "هل أنت متأكد من حذف هذا الموظف؟",
+        "noEmployees": "لا يوجد موظفين",
+        "viewAllCompanies": "عرض جميع الشركات",
+        "back": "العودة للشركات"
+      }
+    },
+    "common": {
+      "loading": "جاري التحميل...",
+      "save": "حفظ",
+      "cancel": "إلغاء",
+      "delete": "حذف",
+      "edit": "تعديل",
+      "view": "عرض",
+      "search": "بحث",
+      "add": "إضافة",
+      "create": "إنشاء",
+      "update": "تحديث",
+      "close": "إغلاق",
+      "confirm": "تأكيد",
+      "actions": "إجراءات",
+      "status": "الحالة",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "blocked": "محظور"
+    }
+  },
+  "sidebar": {
+    "main": "رئيسي",
+    "dashboard": "لوحة التحكم",
+    "products": "المنتجات",
+    "orders": "الطلبات",
+    "userManagement": "إدارة المستخدمين",
+    "stores": "المتاجر",
+    "influencers": "المؤثرون",
+    "clients": "العملاء",
+    "shippingCompanies": "شركات الشحن",
+    "shippingEmployees": "موظفو الشحن",
+    "system": "النظام",
+    "analytics": "التحليلات",
+    "settings": "الإعدادات",
+    "account": "الحساب",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج"
+  },
+  "header": {
+    "search": "بحث...",
+    "myAccount": "حسابي",
+    "profile": "الملف الشخصي",
+    "settings": "الإعدادات",
+    "logout": "تسجيل الخروج",
+    "notifications": "الإشعارات"
+  }
+}

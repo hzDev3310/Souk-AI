@@ -17,26 +17,41 @@ export const SidebarContent = [
         icon: "ShoppingCart",
         url: "/orders",
       },
-      {
-        name: "Customers",
-        icon: "Users",
-        url: "/customers",
-      },
     ],
   },
   {
-    heading: 'Management',
+    heading: 'User Management',
     children: [
       {
         name: 'Stores',
         icon: 'Store',
-        url: '/stores',
+        url: '/dashboard/stores',
       },
       {
         name: 'Influencers',
         icon: 'Sparkles',
-        url: '/influencers',
+        url: '/dashboard/influencers',
       },
+      {
+        name: 'Clients',
+        icon: 'Users',
+        url: '/dashboard/clients',
+      },
+      {
+        name: 'Shipping Companies',
+        icon: 'Truck',
+        url: '/dashboard/shipping-companies',
+      },
+      {
+        name: 'Shipping Employees',
+        icon: 'UserCog',
+        url: '/dashboard/shipping-employees',
+      },
+    ],
+  },
+  {
+    heading: 'System',
+    children: [
       {
         name: 'Analytics',
         icon: 'BarChart3',
