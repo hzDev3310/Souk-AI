@@ -37,7 +37,9 @@
       },
       "messages": {
         "confirmDelete": "هل أنت متأكد من حذف هذا المتجر؟",
-        "noStores": "لا يوجد متاجر"
+        "noStores": "لا يوجد متاجر",
+        "validationError": "خطأ في التحقق:",
+        "errorSaving": "خطأ في حفظ المتجر. يرجى المحاولة مرة أخرى."
       }
     },
     "influencers": {

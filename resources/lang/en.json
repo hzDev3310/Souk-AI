@@ -37,7 +37,9 @@
       },
       "messages": {
         "confirmDelete": "Are you sure you want to delete this store?",
-        "noStores": "No stores found"
+        "noStores": "No stores found",
+        "validationError": "Validation Error:",
+        "errorSaving": "Error saving store. Please try again."
       }
     },
     "influencers": {

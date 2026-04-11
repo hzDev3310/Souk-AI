@@ -60,10 +60,15 @@ const Stores = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log('formData:', formData);
       if (editingStore) {
-        await axios.put(`/api/admin/users/stores/${editingStore.id}`, formData);
+        const response = await axios.put(`/api/admin/users/stores/${editingStore.id}`, formData);
+        console.log('responseData:', response.data);
+        console.log('responseDataText:', response.data.toString());
       } else {
-        await axios.post('/api/admin/users/stores', formData);
+        const response = await axios.post('/api/admin/users/stores', formData);
+        console.log('responseData:', response.data);
+        console.log('responseDataText:', response.data.toString());
       }
       setIsDialogOpen(false);
       setEditingStore(null);
@@ -71,7 +76,16 @@ const Stores = () => {
       fetchStores();
     } catch (error) {
       console.error('Error saving store:', error);
-      alert(error.response?.data?.errors ? JSON.stringify(error.response.data.errors) : 'Error saving store');
+      const errors = error.response?.data?.errors;
+      const message = error.response?.data?.message;
+      if (errors) {
+        const errorText = Object.entries(errors).map(([key, value]) => `${key}: ${value.join(', ')}`).join('\n');
+        alert(t('admin.stores.messages.validationError') + '\n\n' + errorText);
+      } else if (message) {
+        alert(message);
+      } else {
+        alert(t('admin.stores.messages.errorSaving'));
+      }
     }
   };
 

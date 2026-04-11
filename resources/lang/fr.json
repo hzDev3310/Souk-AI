@@ -37,7 +37,9 @@
       },
       "messages": {
         "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce magasin ?",
-        "noStores": "Aucun magasin trouvé"
+        "noStores": "Aucun magasin trouvé",
+        "validationError": "Erreur de Validation:",
+        "errorSaving": "Erreur lors de l'enregistrement du magasin. Veuillez réessayer."
       }
     },
     "influencers": {

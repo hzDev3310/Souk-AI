@@ -44,6 +44,7 @@ const Login = () => {
         }
         
         setLoading(false);
+        window.location.href = '/dashboard';
     };
 
     return (
