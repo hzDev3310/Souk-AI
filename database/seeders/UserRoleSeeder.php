@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserRoleSeeder extends Seeder
 {
@@ -13,30 +14,36 @@ class UserRoleSeeder extends Seeder
      */
     public function run(): void
     {
+        // Admin
         User::updateOrCreate(
-            ['email' => 'admin@ecomarket.test'],
+            ['email' => 'admin@souk.tn'],
             [
-                'name' => 'Admin User',
-                'password' => Hash::make('password'),
-                'role' => 'admin',
+                'name' => 'Admin',
+                'family_name' => 'System',
+                'password' => Hash::make('123456789'),
+                'role' => 'ADMIN',
             ]
         );
 
+        // Store Owner
         User::updateOrCreate(
-            ['email' => 'owner@ecomarket.test'],
+            ['email' => 'store@souk.tn'],
             [
-                'name' => 'Store Owner',
-                'password' => Hash::make('password'),
-                'role' => 'store_owner',
+                'name' => 'Store',
+                'family_name' => 'Owner',
+                'password' => Hash::make('123456789'),
+                'role' => 'STORE',
             ]
         );
 
+        // Client
         User::updateOrCreate(
-            ['email' => 'customer@ecomarket.test'],
+            ['email' => 'client@souk.tn'],
             [
-                'name' => 'Customer User',
-                'password' => Hash::make('password'),
-                'role' => 'customer',
+                'name' => 'John',
+                'family_name' => 'Doe',
+                'password' => Hash::make('123456789'),
+                'role' => 'CLIENT',
             ]
         );
     }

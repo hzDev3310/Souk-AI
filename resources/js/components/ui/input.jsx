@@ -3,27 +3,49 @@ import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const inputVariants = cva(
-  'flex h-10 w-full border rounded-sm px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50 file:border-0 file:rounded-sm file:text-sm file:font-medium file:text-primary file:mr-5 focus-visible:outline-0',
+  'flex h-10 w-full rounded-sm px-3 py-2 text-sm transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 file:border-0 file:rounded-sm file:text-sm file:font-medium file:text-primary file:mr-5 focus-visible:outline-0',
   {
     variants: {
       variant: {
         default:
-          'border-ld bg-transparent text-ld placeholder:text-muted-foreground dark:placeholder:text-white/30 focus-visible:border-primary focus-visible:ring-0',
-        gray: 'border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500 focus-visible:ring',
+          'border-2 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-foreground placeholder:text-muted-foreground/60 hover:border-primary/50 hover:bg-white/80 dark:hover:bg-gray-800/80 focus-visible:border-primary focus-visible:bg-white dark:focus-visible:bg-gray-800 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:shadow-lg rounded-xl backdrop-blur-sm',
+        gray: 'border-gray-300 bg-gray-100 text-gray-900 placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-500 dark:focus:ring-primary-500 focus-visible:ring',
+        outline: 'border-2 border-border bg-transparent hover:border-primary/50 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/20 rounded-xl',
+        filled: 'border-0 bg-primary/10 hover:bg-primary/15 focus-visible:bg-primary/20 focus-visible:ring-2 focus-visible:ring-primary/30 rounded-xl',
+        error: 'border-2 border-red-500 bg-red-50/50 dark:bg-red-950/20 text-foreground placeholder:text-muted-foreground/60 hover:border-red-600 focus-visible:border-red-500 focus-visible:ring-2 focus-visible:ring-red-500/20 rounded-xl',
+        success: 'border-2 border-green-500 bg-green-50/50 dark:bg-green-950/20 text-foreground hover:border-green-600 focus-visible:border-green-500 focus-visible:ring-2 focus-visible:ring-green-500/20 rounded-xl',
+      },
+      size: {
+        default: 'h-10 px-3 py-2 text-sm',
+        sm: 'h-8 px-2 py-1 text-xs',
+        lg: 'h-12 px-4 py-3 text-base',
+        xl: 'h-14 px-5 py-4 text-lg',
+      },
+      rounded: {
+        default: 'rounded-xl',
+        none: 'rounded-none',
+        sm: 'rounded-sm',
+        md: 'rounded-md',
+        lg: 'rounded-lg',
+        xl: 'rounded-xl',
+        '2xl': 'rounded-2xl',
+        full: 'rounded-full',
       },
     },
     defaultVariants: {
       variant: 'default',
+      size: 'default',
+      rounded: 'default',
     },
   }
 );
 
 const Input = React.forwardRef(
-  ({ className, type = 'text', variant, ...props }, ref) => {
+  ({ className, type = 'text', variant, size, rounded, ...props }, ref) => {
     return (
       <input
         type={type}
-        className={cn(inputVariants({ variant }), className)}
+        className={cn(inputVariants({ variant, size, rounded }), className)}
         ref={ref}
         {...props}
       />

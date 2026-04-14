@@ -1,29 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { 
+    Moon, Sun, Languages, Mail, Lock, Eye, EyeOff, Sparkles, Shield, Zap, 
+    User, Smartphone, CreditCard, Building, MapPin, ChevronLeft, ArrowRight
+} from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
-import CardBox from '../shared/CardBox';
-import { Label } from '@/components/ui/label';
+import { useNotification } from '../../context/NotificationContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import CardBox from '../shared/CardBox';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Register = () => {
     const { register } = useAuth();
+    const { isDarkMode, toggleTheme, language, changeLanguage } = useTheme();
+    const { t } = useTranslation();
+    const { showToast } = useNotification();
+    const navigate = useNavigate();
+    
     const [step, setStep] = useState(1);
     const [role, setRole] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         family_name: '',
         email: '',
         password: '',
         password_confirmation: '',
-        // Client fields
         address: '',
         city: '',
         code_postal: '',
-        // Influencer fields
         referral_code: '',
         phone: '',
         cin: '',
-        // Store fields
         store_name_fr: '',
         store_name_ar: '',
         store_name_en: '',
@@ -32,10 +51,18 @@ const Register = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            setMousePosition({ x: e.clientX, y: e.clientY });
+        };
+        window.addEventListener('mousemove', handleMouseMove);
+        return () => window.removeEventListener('mousemove', handleMouseMove);
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        // Clear error for this field
         if (errors[e.target.name]) {
             setErrors({ ...errors, [e.target.name]: null });
         }
@@ -51,15 +78,12 @@ const Register = () => {
         setErrors({});
         setLoading(true);
 
-        const data = {
-            ...formData,
-            role,
-        };
-
+        const data = { ...formData, role };
         const result = await register(data);
 
         if (result.success) {
             setSuccess(true);
+            showToast(t('auth.register.successToast') || 'Registration successful!', 'success');
         } else {
             if (result.errors) {
                 setErrors(result.errors);
@@ -67,377 +91,264 @@ const Register = () => {
                 setErrors({ general: result.message });
             }
         }
-
         setLoading(false);
     };
 
+    // Background Elements (Same as Login)
+    const saulLetters = [
+        { char: 'S', x: 10, y: 30, size: 100, rotation: -10 },
+        { char: 'O', x: 35, y: 10, size: 130, rotation: 15 },
+        { char: 'U', x: 60, y: 40, size: 110, rotation: -5 },
+        { char: 'K', x: 90, y: 15, size: 120, rotation: 20 },
+    ];
+
+    const particles = Array.from({ length: 25 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        duration: 25 + Math.random() * 35,
+        delay: Math.random() * 10,
+        size: 2 + Math.random() * 3,
+    }));
+
     const renderRoleSelection = () => (
-        <div className="space-y-4">
-            <h3 className="text-lg font-medium text-center mb-4 text-charcoal">Select your account type</h3>
-            <button
-                onClick={() => selectRole('CLIENT')}
-                className="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-lightprimary transition duration-200"
-            >
-                <div className="font-semibold text-link">Client</div>
-                <div className="text-sm text-darklink">Shop and order products</div>
-            </button>
-            <button
-                onClick={() => selectRole('INFLUENCER')}
-                className="w-full p-4 border-2 border-border rounded-lg hover:border-secondary hover:bg-lightsecondary transition duration-200"
-            >
-                <div className="font-semibold text-link">Influencer</div>
-                <div className="text-sm text-darklink">Promote products and earn commission</div>
-            </button>
-            <button
-                onClick={() => selectRole('STORE')}
-                className="w-full p-4 border-2 border-border rounded-lg hover:border-success hover:bg-lightsuccess transition duration-200"
-            >
-                <div className="font-semibold text-link">Store</div>
-                <div className="text-sm text-darklink">Sell your products on our platform</div>
-            </button>
-        </div>
+        <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="space-y-6"
+        >
+            <div className="text-center mb-8">
+                <h3 className="text-xl font-bold text-foreground mb-2">
+                    {t('auth.register.selectRoleTitle') || 'Choose Your Path'}
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                    {t('auth.register.selectRoleSubtitle') || 'Select the account type that best fits your needs.'}
+                </p>
+            </div>
+
+            <div className="grid gap-4">
+                {[
+                    { id: 'CLIENT', icon: User, label: t('auth.register.client'), desc: t('auth.register.clientDesc'), color: 'bg-primary/5 border-primary/20 hover:bg-primary/10 hover:border-primary' },
+                    { id: 'INFLUENCER', icon: Sparkles, label: t('auth.register.influencer'), desc: t('auth.register.influencerDesc'), color: 'bg-secondary/5 border-secondary/20 hover:bg-secondary/10 hover:border-secondary' },
+                    { id: 'STORE', icon: Building, label: t('auth.register.store'), desc: t('auth.register.storeDesc'), color: 'bg-success/5 border-success/20 hover:bg-success/10 hover:border-success' }
+                ].map((item) => (
+                    <motion.button
+                        key={item.id}
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => selectRole(item.id)}
+                        className={`w-full p-5 flex items-center gap-4 text-left border-2 rounded-2xl transition-all duration-300 ${item.color}`}
+                    >
+                        <div className="w-12 h-12 rounded-full bg-white dark:bg-muted/30 flex items-center justify-center shadow-sm">
+                            <item.icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                            <div className="font-bold text-foreground">{item.label}</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>
+                        </div>
+                        <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground opacity-50" />
+                    </motion.button>
+                ))}
+            </div>
+        </motion.div>
     );
 
     const renderCommonFields = () => (
-        <>
+        <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-                <div>
-                    <div className="mb-2 block">
-                        <Label htmlFor="name" className="font-medium">First Name *</Label>
-                    </div>
-                    <Input
-                        id="name"
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="First name"
-                        required
-                    />
-                    {errors.name && <p className="text-error text-xs mt-1">{errors.name[0]}</p>}
+                <div className="space-y-1.5">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.firstName')}</Label>
+                    <Input name="name" value={formData.name} onChange={handleChange} required placeholder="John" className="bg-muted/30 border-border/50 rounded-xl" />
+                    {errors.name && <p className="text-error text-[10px] px-1 font-bold">{errors.name[0]}</p>}
                 </div>
-                <div>
-                    <div className="mb-2 block">
-                        <Label htmlFor="family_name" className="font-medium">Last Name *</Label>
-                    </div>
-                    <Input
-                        id="family_name"
-                        type="text"
-                        name="family_name"
-                        value={formData.family_name}
-                        onChange={handleChange}
-                        placeholder="Last name"
-                        required
-                    />
-                    {errors.family_name && <p className="text-error text-xs mt-1">{errors.family_name[0]}</p>}
+                <div className="space-y-1.5">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.lastName')}</Label>
+                    <Input name="family_name" value={formData.family_name} onChange={handleChange} required placeholder="Doe" className="bg-muted/30 border-border/50 rounded-xl" />
+                    {errors.family_name && <p className="text-error text-[10px] px-1 font-bold">{errors.family_name[0]}</p>}
                 </div>
             </div>
 
-            <div>
-                <div className="mb-2 block">
-                    <Label htmlFor="email" className="font-medium">Email *</Label>
-                </div>
-                <Input
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter your email"
-                    required
-                />
-                {errors.email && <p className="text-error text-xs mt-1">{errors.email[0]}</p>}
+            <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.email')}</Label>
+                <Input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="john@example.com" className="bg-muted/30 border-border/50 rounded-xl" />
+                {errors.email && <p className="text-error text-[10px] px-1 font-bold">{errors.email[0]}</p>}
             </div>
 
-            <div>
-                <div className="mb-2 block">
-                    <Label htmlFor="password" className="font-medium">Password *</Label>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.password')}</Label>
+                    <Input type="password" name="password" value={formData.password} onChange={handleChange} required placeholder="••••••••" className="bg-muted/30 border-border/50 rounded-xl" />
+                    {errors.password && <p className="text-error text-[10px] px-1 font-bold">{errors.password[0]}</p>}
                 </div>
-                <Input
-                    id="password"
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter password"
-                    required
-                    minLength={8}
-                />
-                {errors.password && <p className="text-error text-xs mt-1">{errors.password[0]}</p>}
-            </div>
-
-            <div>
-                <div className="mb-2 block">
-                    <Label htmlFor="password_confirmation" className="font-medium">Confirm Password *</Label>
+                <div className="space-y-1.5">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.confirmPassword')}</Label>
+                    <Input type="password" name="password_confirmation" value={formData.password_confirmation} onChange={handleChange} required placeholder="••••••••" className="bg-muted/30 border-border/50 rounded-xl" />
                 </div>
-                <Input
-                    id="password_confirmation"
-                    type="password"
-                    name="password_confirmation"
-                    value={formData.password_confirmation}
-                    onChange={handleChange}
-                    placeholder="Confirm password"
-                    required
-                />
             </div>
-        </>
+        </div>
     );
 
     const renderRoleSpecificFields = () => {
         switch (role) {
             case 'CLIENT':
                 return (
-                    <>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="address" className="font-medium">Address</Label>
-                            </div>
-                            <Input
-                                id="address"
-                                type="text"
-                                name="address"
-                                value={formData.address}
-                                onChange={handleChange}
-                                placeholder="Your address"
-                            />
+                    <div className="space-y-4 pt-4 border-t border-border/50">
+                        <div className="space-y-1.5">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.address')}</Label>
+                            <Input name="address" value={formData.address} onChange={handleChange} placeholder="123 Street..." className="bg-muted/30 border-border/50 rounded-xl" />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <div className="mb-2 block">
-                                    <Label htmlFor="city" className="font-medium">City</Label>
-                                </div>
-                                <Input
-                                    id="city"
-                                    type="text"
-                                    name="city"
-                                    value={formData.city}
-                                    onChange={handleChange}
-                                    placeholder="City"
-                                />
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.city')}</Label>
+                                <Input name="city" value={formData.city} onChange={handleChange} placeholder="City" className="bg-muted/30 border-border/50 rounded-xl" />
                             </div>
-                            <div>
-                                <div className="mb-2 block">
-                                    <Label htmlFor="code_postal" className="font-medium">Postal Code</Label>
-                                </div>
-                                <Input
-                                    id="code_postal"
-                                    type="text"
-                                    name="code_postal"
-                                    value={formData.code_postal}
-                                    onChange={handleChange}
-                                    placeholder="Postal code"
-                                />
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.postalCode')}</Label>
+                                <Input name="code_postal" value={formData.code_postal} onChange={handleChange} placeholder="0000" className="bg-muted/30 border-border/50 rounded-xl" />
                             </div>
                         </div>
-                    </>
+                    </div>
                 );
-
             case 'INFLUENCER':
                 return (
-                    <>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="referral_code" className="font-medium">Referral Code *</Label>
+                    <div className="space-y-4 pt-4 border-t border-border/50">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.phone')}</Label>
+                                <Input name="phone" value={formData.phone} onChange={handleChange} required placeholder="+216..." className="bg-muted/30 border-border/50 rounded-xl" />
+                                {errors.phone && <p className="text-error text-[10px] px-1 font-bold">{errors.phone[0]}</p>}
                             </div>
-                            <Input
-                                id="referral_code"
-                                type="text"
-                                name="referral_code"
-                                value={formData.referral_code}
-                                onChange={handleChange}
-                                placeholder="Referral code"
-                                required
-                            />
-                            {errors.referral_code && <p className="text-error text-xs mt-1">{errors.referral_code[0]}</p>}
-                        </div>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="phone" className="font-medium">Phone *</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.cin')}</Label>
+                                <Input name="cin" value={formData.cin} onChange={handleChange} required placeholder="ID Number" className="bg-muted/30 border-border/50 rounded-xl" />
+                                {errors.cin && <p className="text-error text-[10px] px-1 font-bold">{errors.cin[0]}</p>}
                             </div>
-                            <Input
-                                id="phone"
-                                type="tel"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                placeholder="Phone number"
-                                required
-                            />
-                            {errors.phone && <p className="text-error text-xs mt-1">{errors.phone[0]}</p>}
                         </div>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="cin" className="font-medium">CIN (ID Number) *</Label>
-                            </div>
-                            <Input
-                                id="cin"
-                                type="text"
-                                name="cin"
-                                value={formData.cin}
-                                onChange={handleChange}
-                                placeholder="CIN number"
-                                required
-                            />
-                            {errors.cin && <p className="text-error text-xs mt-1">{errors.cin[0]}</p>}
+                        <div className="space-y-1.5">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.referralCode')}</Label>
+                            <Input name="referral_code" value={formData.referral_code} onChange={handleChange} required placeholder="CODE123" className="bg-muted/30 border-border/50 rounded-xl" />
+                            {errors.referral_code && <p className="text-error text-[10px] px-1 font-bold">{errors.referral_code[0]}</p>}
                         </div>
-                    </>
+                    </div>
                 );
-
             case 'STORE':
                 return (
-                    <>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="store_name_fr" className="font-medium">Store Name (FR) *</Label>
-                            </div>
-                            <Input
-                                id="store_name_fr"
-                                type="text"
-                                name="store_name_fr"
-                                value={formData.store_name_fr}
-                                onChange={handleChange}
-                                placeholder="Store name in French"
-                                required
-                            />
-                            {errors.store_name_fr && <p className="text-error text-xs mt-1">{errors.store_name_fr[0]}</p>}
+                    <div className="space-y-4 pt-4 border-t border-border/50">
+                        <div className="space-y-1.5">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.storeName')}</Label>
+                            <Input name="store_name_fr" value={formData.store_name_fr} onChange={handleChange} required placeholder="My Store" className="bg-muted/30 border-border/50 rounded-xl" />
+                            {errors.store_name_fr && <p className="text-error text-[10px] px-1 font-bold">{errors.store_name_fr[0]}</p>}
                         </div>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="store_name_ar" className="font-medium">Store Name (AR)</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.taxId')}</Label>
+                                <Input name="matricule_fiscale" value={formData.matricule_fiscale} onChange={handleChange} required placeholder="12345/A" className="bg-muted/30 border-border/50 rounded-xl" />
+                                {errors.matricule_fiscale && <p className="text-error text-[10px] px-1 font-bold">{errors.matricule_fiscale[0]}</p>}
                             </div>
-                            <Input
-                                id="store_name_ar"
-                                type="text"
-                                name="store_name_ar"
-                                value={formData.store_name_ar}
-                                onChange={handleChange}
-                                placeholder="Store name in Arabic"
-                            />
-                        </div>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="store_name_en" className="font-medium">Store Name (EN)</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.phone')}</Label>
+                                <Input name="phone" value={formData.phone} onChange={handleChange} required placeholder="+216..." className="bg-muted/30 border-border/50 rounded-xl" />
                             </div>
-                            <Input
-                                id="store_name_en"
-                                type="text"
-                                name="store_name_en"
-                                value={formData.store_name_en}
-                                onChange={handleChange}
-                                placeholder="Store name in English"
-                            />
                         </div>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="matricule_fiscale" className="font-medium">Tax Registration (Matricule Fiscale) *</Label>
-                            </div>
-                            <Input
-                                id="matricule_fiscale"
-                                type="text"
-                                name="matricule_fiscale"
-                                value={formData.matricule_fiscale}
-                                onChange={handleChange}
-                                placeholder="Tax registration number"
-                                required
-                            />
-                            {errors.matricule_fiscale && <p className="text-error text-xs mt-1">{errors.matricule_fiscale[0]}</p>}
-                        </div>
-                    </>
+                    </div>
                 );
-
-            default:
-                return null;
+            default: return null;
         }
     };
 
-    const renderRegistrationForm = () => (
-        <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="mb-4">
-                <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="text-sm text-darklink hover:text-link flex items-center"
-                >
-                    ← Back to role selection
-                </button>
-                <div className="mt-2 inline-block px-3 py-1 rounded-full text-sm font-medium bg-lightprimary text-primary">
-                    {role === 'CLIENT' && '👤 Client'}
-                    {role === 'INFLUENCER' && '🌟 Influencer'}
-                    {role === 'STORE' && '🏪 Store'}
-                </div>
-            </div>
-
-            {renderCommonFields()}
-            {renderRoleSpecificFields()}
-
-            {errors.general && (
-                <div className="p-3 bg-lighterror text-error rounded-md text-sm">
-                    {errors.general}
-                </div>
-            )}
-
-            <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-            >
-                {loading ? 'Creating account...' : 'Create Account'}
-            </Button>
-        </form>
-    );
-
-    if (success) {
-        return (
-            <div className="dark min-h-screen flex items-center justify-center bg-darkgray py-8">
-                <div className="md:min-w-[450px] min-w-max px-4">
-                    <CardBox className="p-8 text-center bg-dark border-darkborder">
-                        <div className="w-20 h-20 bg-lightsuccess rounded-full flex items-center justify-center mx-auto mb-4">
-                            <svg className="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-bold mb-4 text-link">Registration Successful!</h2>
-                        <p className="text-darklink mb-6">
-                            {role === 'CLIENT'
-                                ? 'Welcome! You can now start shopping.'
-                                : 'Your account is pending admin approval. You will be notified once approved.'}
-                        </p>
-                        <Button asChild className="w-full">
-                            <a href="/login">Go to Login</a>
-                        </Button>
-                    </CardBox>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="dark min-h-screen flex items-center justify-center bg-darkgray py-8">
-            <div className="md:min-w-[450px] min-w-max px-4">
-                <CardBox className="p-8 bg-dark border-darkborder">
-                    <div className="flex justify-center mb-4">
-                        <div className="text-2xl font-bold text-primary">
-                            Souk AI
-                        </div>
-                    </div>
-                    <p className="text-sm text-charcoal text-center mb-6">
-                        Create your account
-                    </p>
+        <div className="min-h-screen w-full flex flex-col justify-center items-center bg-background text-foreground transition-colors duration-500 relative overflow-hidden py-12">
+            
+            {/* Background (Same as Login) */}
+            <motion.div className="absolute top-[-10%] right-[-5%] w-[50%] h-[50%] bg-gradient-to-br from-primary/30 via-blue-400/20 to-transparent rounded-full blur-[120px] pointer-events-none" />
+            <motion.div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] bg-gradient-to-tr from-secondary/30 via-primary/10 to-transparent rounded-full blur-[120px] pointer-events-none" />
+            
+            {saulLetters.map((letter, idx) => (
+                <motion.div
+                    key={`saul-${idx}`}
+                    className="absolute font-black text-primary/10 pointer-events-none select-none"
+                    style={{ left: `${letter.x}%`, top: `${letter.y}%`, fontSize: `${letter.size}px` }}
+                    animate={{ opacity: [0.05, 0.12, 0.05], y: [0, -20, 0], rotate: [letter.rotation, letter.rotation + 5, letter.rotation] }}
+                    transition={{ duration: 10, delay: idx * 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                    {letter.char}
+                </motion.div>
+            ))}
 
-                    {step === 1 ? renderRoleSelection() : renderRegistrationForm()}
+            {/* Top Bar */}
+            <motion.div initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="absolute top-6 right-6 flex items-center gap-3 z-50 px-4 py-2 bg-background/40 backdrop-blur-md rounded-full border border-border/50 shadow-sm">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 hover:bg-primary/10 transition-colors"><Languages className="h-4 w-4" /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-popover/90 backdrop-blur-lg border-border">
+                        <DropdownMenuItem onClick={() => changeLanguage('en')}>English</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeLanguage('fr')}>Français</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => changeLanguage('ar')}>العربية</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+                <div className="w-[1px] h-4 bg-border" />
+                <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full w-9 h-9 hover:bg-primary/10 transition-colors">
+                    {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
+            </motion.div>
 
-                    <div className="flex items-center gap-2 justify-center mt-6 flex-wrap">
-                        <p className="text-base font-medium text-link">
-                            Already have an account?
-                        </p>
-                        <a
-                            href="/login"
-                            className="text-sm font-medium text-primary hover:text-primaryemphasis">
-                            Sign in
-                        </a>
+            {/* Register Card */}
+            <motion.div initial={{ scale: 0.95, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} className="relative z-10 w-full max-w-[550px] px-6">
+                <CardBox className="p-0 backdrop-blur-2xl bg-card/75 border-border/60 shadow-2xl overflow-hidden rounded-[32px]">
+                    <div className="h-2 w-full bg-gradient-to-r from-primary via-blue-400 to-secondary opacity-80" />
+                    
+                    <div className="p-10">
+                        {success ? (
+                            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
+                                <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+                                </div>
+                                <h2 className="text-3xl font-black text-foreground mb-4">{t('auth.register.successTitle')}</h2>
+                                <p className="text-muted-foreground mb-8 text-lg">{role === 'CLIENT' ? t('auth.register.successClient') : t('auth.register.successOther')}</p>
+                                <Button asChild className="w-full h-14 rounded-2xl bg-primary hover:bg-primaryemphasis text-lg font-bold shadow-xl shadow-primary/20">
+                                    <Link to="/login">{t('auth.register.goToLogin')}</Link>
+                                </Button>
+                            </motion.div>
+                        ) : (
+                            <>
+                                <div className="text-center mb-10">
+                                    <h1 className="text-4xl font-black bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent mb-2">Souk AI</h1>
+                                    <p className="text-muted-foreground font-medium text-sm">{t('auth.register.subtitle')}</p>
+                                </div>
+
+                                <AnimatePresence mode="wait">
+                                    {step === 1 ? renderRoleSelection() : (
+                                        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+                                            <button onClick={() => setStep(1)} className="mb-6 flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all">
+                                                <ChevronLeft className="w-5 h-5" /> {t('auth.register.back')}
+                                            </button>
+                                            
+                                            <form onSubmit={handleSubmit} className="space-y-6">
+                                                {renderCommonFields()}
+                                                {renderRoleSpecificFields()}
+                                                
+                                                {errors.general && <div className="p-4 bg-error/10 text-error rounded-xl text-sm font-bold border border-error/20">{errors.general}</div>}
+
+                                                <Button type="submit" disabled={loading} className="w-full h-14 rounded-2xl bg-primary hover:bg-primaryemphasis text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                                                    {loading ? t('auth.register.submitting') : t('auth.register.submit')}
+                                                </Button>
+                                            </form>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                <div className="mt-10 pt-8 border-t border-border/50 text-center">
+                                    <p className="text-muted-foreground font-medium">
+                                        {t('auth.register.haveAccount')} <Link to="/login" className="text-primary font-bold hover:text-primaryemphasis ml-1">{t('auth.register.signIn')}</Link>
+                                    </p>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </CardBox>
-            </div>
+            </motion.div>
         </div>
     );
 };

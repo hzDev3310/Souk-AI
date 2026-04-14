@@ -29,6 +29,7 @@ export const ThemeProvider = ({ children }) => {
         i18n.changeLanguage(language);
         localStorage.setItem('language', language);
         document.documentElement.setAttribute('lang', language);
+        document.documentElement.setAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
     }, [language]);
 
     const toggleTheme = () => setIsDarkMode(!isDarkMode);

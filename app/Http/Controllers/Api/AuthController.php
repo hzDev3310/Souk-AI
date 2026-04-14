@@ -178,7 +178,23 @@ class AuthController extends Controller
     public function check(Request $request)
     {
         if (Auth::check()) {
-            $user = Auth::user()->load(strtolower(Auth::user()->role));
+            $user = Auth::user();
+            $role = strtolower($user->role);
+            
+            // Handle relationship name mapping
+            $relationMap = [
+                'shipping_company' => 'shippingCompany',
+                'shipping_emp' => 'shippingEmp',
+            ];
+            
+            $relation = $relationMap[$role] ?? $role;
+            
+            try {
+                $user->load($relation);
+            } catch (\Exception $e) {
+                // Ignore if relation doesn't exist
+            }
+
             return response()->json([
                 'authenticated' => true,
                 'user' => $user,

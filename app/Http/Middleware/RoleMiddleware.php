@@ -18,6 +18,7 @@ class RoleMiddleware
         if (!$request->user() || strtoupper($request->user()->role) !== strtoupper($role)) {
             return response()->json([
                 'message' => 'Unauthorized. Required role: ' . $role,
+                'current_role' => $request->user() ? $request->user()->role : 'null',
             ], 403);
         }
 

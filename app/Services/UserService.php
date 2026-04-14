@@ -156,8 +156,8 @@ class UserService
             Store::create([
                 'user_id' => $user->id,
                 'name_fr' => $data['name_fr'] ?? $user->name,
-                'name_ar' => $data['name_ar'] ?? null,
-                'name_en' => $data['name_en'] ?? null,
+                'name_ar' => $data['name_ar'] ?? ($data['name_fr'] ?? $user->name),
+                'name_en' => $data['name_en'] ?? ($data['name_fr'] ?? $user->name),
                 'description_fr' => $data['description_fr'] ?? null,
                 'description_ar' => $data['description_ar'] ?? null,
                 'description_en' => $data['description_en'] ?? null,
@@ -413,8 +413,23 @@ class UserService
     
     public function getAllUsersByRole(string $role): array
     {
-        $users = User::where('role', $role)->with(strtolower($role))->get();
+        $relation = $this->getRelationName($role);
+        $users = User::where('role', $role)->with($relation)->get();
         return $users->toArray();
+    }
+    
+    private function getRelationName(string $role): string
+    {
+        $map = [
+            'CLIENT' => 'client',
+            'INFLUENCER' => 'influencer',
+            'STORE' => 'store',
+            'ADMIN' => 'admin',
+            'SHIPPING_COMPANY' => 'shippingCompany',
+            'SHIPPING_EMP' => 'shippingEmp',
+        ];
+
+        return $map[strtoupper($role)] ?? strtolower($role);
     }
     
     public function getUserById(string $userId): ?User

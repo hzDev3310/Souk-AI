@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -20,22 +21,20 @@ import {
   Settings,
   ChevronDown,
   Globe,
+  Sparkles
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Header = ({ onMenuClick }) => {
   const { isDarkMode, toggleTheme, language, changeLanguage } = useTheme();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [isSticky, setIsSticky] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setIsSticky(true);
-      } else {
-        setIsSticky(false);
-      }
+      setIsSticky(window.scrollY > 20);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -46,102 +45,124 @@ const Header = ({ onMenuClick }) => {
 
   return (
     <header
-      className={`sticky top-0 z-30 transition-all duration-300 ${
+      className={`sticky top-0 z-40 transition-all duration-500 ${
         isSticky
-          ? isDarkMode ? 'bg-dark shadow-md' : 'bg-white shadow-md'
+          ? 'bg-background/80 backdrop-blur-md border-b border-border/50 shadow-sm'
           : 'bg-transparent'
       }`}
     >
-      <nav className="flex items-center justify-between h-20 px-6">
-        {/* Left side - Mobile Toggle */}
+      <nav className="flex items-center justify-between h-20 px-4 md:px-8">
+        {/* Left side - Mobile Toggle & Search Trigger */}
         <div className="flex items-center gap-4">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={onMenuClick}
-            className="xl:hidden p-2 rounded-lg hover:bg-lightprimary text-link hover:text-primary transition-colors"
+            className="xl:hidden p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm"
           >
-            <Menu size={24} />
-          </button>
+            <Menu size={22} />
+          </motion.button>
+          
+          <div className="hidden md:flex items-center gap-2 group cursor-pointer px-4 py-2 rounded-2xl bg-muted/40 border border-transparent hover:border-primary/20 hover:bg-muted/60 transition-all">
+            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">
+                {t('common.actions.search') || 'Search'}
+            </span>
+            <kbd className="hidden lg:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+                <span className="text-xs">⌘</span>K
+            </kbd>
+          </div>
         </div>
 
-        {/* Right side */}
-        <div className="flex items-center gap-2">
+        {/* Right side - Controls */}
+        <div className="flex items-center gap-2 md:gap-3">
           {/* Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-lightprimary text-link hover:text-primary transition-colors">
-                <Globe size={18} />
-                <span className="text-sm font-medium uppercase">{language}</span>
-                <ChevronDown size={14} className="text-darklink" />
-              </button>
+              <Button variant="ghost" className="h-10 px-3 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all gap-2">
+                <Globe size={18} className="text-primary" />
+                <span className="text-xs font-black uppercase tracking-widest hidden sm:inline">{language}</span>
+                <ChevronDown size={14} className="text-muted-foreground" />
+              </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className={`w-32 border-darkborder ${isDarkMode ? 'bg-dark' : 'bg-white'}`}>
-              <DropdownMenuItem
-                onClick={() => changeLanguage('en')}
-                className={`cursor-pointer ${language === 'en' ? 'text-primary bg-lightprimary' : isDarkMode ? 'text-link hover:bg-lightprimary' : 'text-foreground hover:bg-lightprimary'}`}
-              >
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => changeLanguage('fr')}
-                className={`cursor-pointer ${language === 'fr' ? 'text-primary bg-lightprimary' : isDarkMode ? 'text-link hover:bg-lightprimary' : 'text-foreground hover:bg-lightprimary'}`}
-              >
-                Français
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => changeLanguage('ar')}
-                className={`cursor-pointer ${language === 'ar' ? 'text-primary bg-lightprimary' : isDarkMode ? 'text-link hover:bg-lightprimary' : 'text-foreground hover:bg-lightprimary'}`}
-              >
-                العربية
-              </DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-48 bg-card/95 backdrop-blur-md border-border rounded-2xl p-1 shadow-xl">
+              {['en', 'fr', 'ar'].map((lang) => (
+                <DropdownMenuItem
+                    key={lang}
+                    onClick={() => changeLanguage(lang)}
+                    className={`rounded-xl px-3 py-2 text-sm font-bold cursor-pointer transition-colors ${language === lang ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-foreground'}`}
+                >
+                    <div className="flex items-center justify-between w-full">
+                        {lang === 'en' ? 'English' : lang === 'fr' ? 'Français' : 'العربية'}
+                        {language === lang && <Sparkles size={12} className="text-primary" />}
+                    </div>
+                </DropdownMenuItem>
+              ))}
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* Theme Toggle */}
-          <button
+          <motion.button
+            whileTap={{ rotate: 180 }}
             onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-lightprimary text-link hover:text-primary transition-colors"
+            className="p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm"
           >
-            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
+            <AnimatePresence mode="wait">
+                {isDarkMode ? (
+                    <motion.div key="sun" initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }}><Sun size={20} className="text-amber-500" /></motion.div>
+                ) : (
+                    <motion.div key="moon" initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }}><Moon size={20} className="text-primary" /></motion.div>
+                )}
+            </AnimatePresence>
+          </motion.button>
 
           {/* Notifications */}
-          <button className="p-2 rounded-lg hover:bg-lightprimary text-link hover:text-primary transition-colors relative">
-            <Bell size={20} />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
-          </button>
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            className="p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm relative"
+          >
+            <Bell size={20} className="text-muted-foreground" />
+            <motion.span 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full shadow-lg shadow-primary/50"
+            />
+          </motion.button>
 
-          {/* Profile */}
+          <div className="w-[1px] h-8 bg-border/50 mx-1 hidden sm:block" />
+
+          {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 p-2 rounded-lg hover:bg-lightprimary text-link hover:text-primary transition-colors ml-2">
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium">
+              <button className="flex items-center gap-3 p-1 rounded-2xl hover:bg-muted transition-all group">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-all font-black">
                   {user?.name?.charAt(0) || 'U'}
                 </div>
-                <div className="hidden sm:block text-left">
-                  <p className="text-sm font-medium text-link">{user?.name || 'User'}</p>
-                  <p className="text-xs text-darklink">{user?.role || 'Admin'}</p>
+                <div className="hidden lg:block text-start">
+                  <p className="text-sm font-black text-foreground tracking-tight leading-none mb-1">{user?.name || 'User'}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-none">{user?.role || 'Admin'}</p>
                 </div>
-                <ChevronDown size={16} className="text-darklink" />
+                <ChevronDown size={14} className="text-muted-foreground hidden lg:block group-hover:text-primary transition-colors" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className={`w-56 border-darkborder ${isDarkMode ? 'bg-dark' : 'bg-white'}`}>
-              <DropdownMenuLabel className={isDarkMode ? 'text-link' : 'text-foreground'}>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-darkborder" />
-              <DropdownMenuItem className={`cursor-pointer ${isDarkMode ? 'text-link hover:text-primary hover:bg-lightprimary' : 'text-foreground hover:text-primary hover:bg-lightprimary'}`}>
-                <User size={16} className="mr-2" />
-                Profile
+            <DropdownMenuContent align="end" className="w-64 bg-card/95 backdrop-blur-md border-border rounded-[24px] p-2 shadow-2xl overflow-hidden">
+              <div className="px-4 py-3 bg-muted/40 rounded-xl mb-2">
+                <DropdownMenuLabel className="p-0 text-sm font-black text-foreground tracking-tight">{t('header.myAccount') || 'My Account'}</DropdownMenuLabel>
+                <p className="text-[11px] text-muted-foreground font-bold mt-1 uppercase tracking-wider">{user?.email}</p>
+              </div>
+              <DropdownMenuItem className="rounded-lg py-2.5 cursor-pointer font-bold text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+                <User size={16} strokeWidth={2.5} className="mr-3 ml-1" />
+                {t('header.profile')}
               </DropdownMenuItem>
-              <DropdownMenuItem className={`cursor-pointer ${isDarkMode ? 'text-link hover:text-primary hover:bg-lightprimary' : 'text-foreground hover:text-primary hover:bg-lightprimary'}`}>
-                <Settings size={16} className="mr-2" />
-                Settings
+              <DropdownMenuItem className="rounded-lg py-2.5 cursor-pointer font-bold text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+                <Settings size={16} strokeWidth={2.5} className="mr-3 ml-1" />
+                {t('header.settings')}
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-darkborder" />
+              <DropdownMenuSeparator className="bg-border/50 my-2" />
               <DropdownMenuItem
                 onClick={handleLogout}
-                className={`cursor-pointer ${isDarkMode ? 'text-link hover:text-error hover:bg-lighterror' : 'text-foreground hover:text-error hover:bg-lighterror'}`}
+                className="rounded-lg py-2.5 cursor-pointer font-bold text-sm text-red-500 hover:bg-red-500/10 transition-colors"
               >
-                <LogOut size={16} className="mr-2" />
-                Logout
+                <LogOut size={16} strokeWidth={2.5} className="mr-3 ml-1" />
+                {t('header.logout')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

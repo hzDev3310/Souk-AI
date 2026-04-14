@@ -1,52 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import api from '../lib/api';
 
 const AuthContext = createContext();
 
-// Cookie-based axios instance with CSRF support
-const api = axios.create({
-    baseURL: '/api',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-    },
-    withCredentials: true, // Send cookies with requests
-});
-
 // Fetch CSRF token before state-changing requests
-let csrfToken = null;
+let csrfTokenFetched = false;
 
-const fetchCsrfToken = async () => {
-    if (!csrfToken) {
+const fetchCsrfToken = async (force = false) => {
+    if (!csrfTokenFetched || force) {
         await axios.get('/api/sanctum/csrf-cookie', { withCredentials: true });
-        csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 'fetched';
+        csrfTokenFetched = true;
     }
-    return csrfToken;
 };
-
-// Add CSRF token to mutation requests
-api.interceptors.request.use(async (config) => {
-    if (['post', 'put', 'patch', 'delete'].includes(config.method?.toLowerCase())) {
-        config.headers['X-XSRF-TOKEN'] = decodeURIComponent(
-            document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || ''
-        );
-    }
-    return config;
-});
-
-// Handle auth errors
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
-        if ((error.response?.status === 401 || error.response?.status === 419) && !isAuthPage) {
-            // Session expired or CSRF mismatch - redirect to login (unless already there)
-            window.location.href = '/login';
-        }
-        return Promise.reject(error);
-    }
-);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -94,15 +60,19 @@ export const AuthProvider = ({ children }) => {
         try {
             // Get CSRF cookie first
             await fetchCsrfToken();
-            
+
             const response = await api.post('/login', { email, password });
             const { user } = response.data;
-            
+
             setUser(user);
             setIsAuthenticated(true);
-            
+
             return { success: true, user };
         } catch (error) {
+            if (error.response?.status === 419) {
+                await fetchCsrfToken(true);
+                return login(email, password); // Retry once
+            }
             const message = error.response?.data?.message || 'Login failed';
             const pendingApproval = error.response?.data?.pending_approval || false;
             return { success: false, message, pendingApproval };
@@ -113,13 +83,13 @@ export const AuthProvider = ({ children }) => {
         try {
             // Get CSRF cookie first
             await fetchCsrfToken();
-            
+
             const response = await api.post('/register', data);
             const { user } = response.data;
-            
+
             setUser(user);
             setIsAuthenticated(true);
-            
+
             return { success: true, user };
         } catch (error) {
             const message = error.response?.data?.message || 'Registration failed';

@@ -8,9 +8,9 @@ import fr from '../lang/fr.json';
 import ar from '../lang/ar.json';
 
 const resources = {
-  en: { translation: en },
-  fr: { translation: fr },
-  ar: { translation: ar },
+    en: { translation: en },
+    fr: { translation: fr },
+    ar: { translation: ar },
 };
 
 // Get locale from URL or HTML lang attribute

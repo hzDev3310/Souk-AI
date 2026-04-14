@@ -1,201 +1,10 @@
 {
-  "admin": {
-    "stores": {
-      "title": "Stores Management",
-      "subtitle": "Manage all stores in the platform",
-      "add": "Add Store",
-      "search": "Search stores...",
-      "table": {
-        "storeName": "Store Name",
-        "owner": "Owner",
-        "email": "Email",
-        "phone": "Phone",
-        "matricule": "Matricule",
-        "status": "Status",
-        "actions": "Actions"
-      },
-      "status": {
-        "active": "Active",
-        "inactive": "Inactive"
-      },
-      "form": {
-        "addTitle": "Add New Store",
-        "editTitle": "Edit Store",
-        "ownerFirstName": "Owner First Name",
-        "ownerLastName": "Owner Last Name",
-        "email": "Email",
-        "password": "Password",
-        "storeNameFr": "Store Name (FR)",
-        "storeNameAr": "Store Name (AR)",
-        "storePhone": "Store Phone",
-        "address": "Address",
-        "matriculeFiscale": "Matricule Fiscale",
-        "rib": "RIB",
-        "cancel": "Cancel",
-        "create": "Create",
-        "update": "Update"
-      },
-      "messages": {
-        "confirmDelete": "Are you sure you want to delete this store?",
-        "noStores": "No stores found",
-        "validationError": "Validation Error:",
-        "errorSaving": "Error saving store. Please try again."
-      }
-    },
-    "influencers": {
-      "title": "Influencers Management",
-      "subtitle": "Manage all influencers in the platform",
-      "add": "Add Influencer",
-      "search": "Search influencers...",
-      "table": {
-        "name": "Name",
-        "email": "Email",
-        "phone": "Phone",
-        "commission": "Commission",
-        "referralCode": "Referral Code",
-        "status": "Status",
-        "actions": "Actions"
-      },
-      "status": {
-        "active": "Active",
-        "inactive": "Inactive"
-      },
-      "form": {
-        "addTitle": "Add New Influencer",
-        "editTitle": "Edit Influencer",
-        "firstName": "First Name",
-        "lastName": "Last Name",
-        "email": "Email",
-        "password": "Password",
-        "phone": "Phone",
-        "city": "City",
-        "address": "Address",
-        "cin": "CIN",
-        "rib": "RIB",
-        "commissionRate": "Commission Rate (%)",
-        "cancel": "Cancel",
-        "create": "Create",
-        "update": "Update"
-      },
-      "messages": {
-        "confirmDelete": "Are you sure you want to delete this influencer?",
-        "noInfluencers": "No influencers found"
-      }
-    },
-    "clients": {
-      "title": "Clients Management",
-      "subtitle": "Manage all clients in the platform",
-      "add": "Add Client",
-      "search": "Search clients...",
-      "table": {
-        "name": "Name",
-        "email": "Email",
-        "city": "City",
-        "postalCode": "Postal Code",
-        "status": "Status",
-        "actions": "Actions"
-      },
-      "status": {
-        "active": "Active",
-        "blocked": "Blocked"
-      },
-      "form": {
-        "addTitle": "Add New Client",
-        "editTitle": "Edit Client",
-        "firstName": "First Name",
-        "lastName": "Last Name",
-        "email": "Email",
-        "password": "Password",
-        "city": "City",
-        "postalCode": "Postal Code",
-        "address": "Address",
-        "cancel": "Cancel",
-        "create": "Create",
-        "update": "Update"
-      },
-      "messages": {
-        "confirmDelete": "Are you sure you want to delete this client?",
-        "noClients": "No clients found"
-      }
-    },
-    "shippingCompanies": {
-      "title": "Shipping Companies",
-      "subtitle": "Manage shipping companies and their employees",
-      "add": "Add Company",
-      "search": "Search shipping companies...",
-      "table": {
-        "companyName": "Company Name",
-        "responsible": "Responsible",
-        "email": "Email",
-        "companyPhone": "Company Phone",
-        "matricule": "Matricule",
-        "actions": "Actions"
-      },
-      "form": {
-        "addTitle": "Add New Shipping Company",
-        "editTitle": "Edit Shipping Company",
-        "responsibleFirstName": "Responsible First Name",
-        "responsibleLastName": "Responsible Last Name",
-        "email": "Email",
-        "password": "Password",
-        "companyName": "Company Name",
-        "companyPhone": "Company Phone",
-        "responsiblePhone": "Responsible Phone",
-        "address": "Address",
-        "matriculeFiscale": "Matricule Fiscale",
-        "rib": "RIB",
-        "cancel": "Cancel",
-        "create": "Create",
-        "update": "Update"
-      },
-      "messages": {
-        "confirmDelete": "Are you sure you want to delete this shipping company?",
-        "noCompanies": "No shipping companies found",
-        "viewEmployees": "View Employees"
-      }
-    },
-    "shippingEmployees": {
-      "title": "Shipping Employees",
-      "subtitle": "Manage all shipping employees",
-      "subtitleWithCompany": "Employees of {companyName}",
-      "add": "Add Employee",
-      "search": "Search employees...",
-      "filterByCompany": "Filter by Company",
-      "allCompanies": "All Companies",
-      "table": {
-        "name": "Name",
-        "email": "Email",
-        "phone": "Phone",
-        "cin": "CIN",
-        "address": "Address",
-        "actions": "Actions"
-      },
-      "form": {
-        "addTitle": "Add New Employee",
-        "editTitle": "Edit Employee",
-        "firstName": "First Name",
-        "lastName": "Last Name",
-        "email": "Email",
-        "password": "Password",
-        "phone": "Phone",
-        "cin": "CIN",
-        "address": "Address",
-        "rib": "RIB",
-        "company": "Company",
-        "selectCompany": "Select Company",
-        "cancel": "Cancel",
-        "create": "Create",
-        "update": "Update"
-      },
-      "messages": {
-        "confirmDelete": "Are you sure you want to delete this employee?",
-        "noEmployees": "No shipping employees found",
-        "viewAllCompanies": "View All Companies",
-        "back": "Back to Companies"
-      }
-    },
-    "common": {
-      "loading": "Loading...",
+  "common": {
+    "welcome": "Welcome to Souk AI",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "actions": {
       "save": "Save",
       "cancel": "Cancel",
       "delete": "Delete",
@@ -211,7 +20,9 @@
       "status": "Status",
       "active": "Active",
       "inactive": "Inactive",
-      "blocked": "Blocked"
+      "blocked": "Blocked",
+      "filter": "Filter",
+      "export": "Export"
     }
   },
   "sidebar": {
@@ -219,12 +30,12 @@
     "dashboard": "Dashboard",
     "products": "Products",
     "orders": "Orders",
-    "userManagement": "User Management",
+    "usermanagement": "User Management",
     "stores": "Stores",
     "influencers": "Influencers",
     "clients": "Clients",
-    "shippingCompanies": "Shipping Companies",
-    "shippingEmployees": "Shipping Employees",
+    "shippingcompanies": "Shipping Companies",
+    "shippingemployees": "Shipping Employees",
     "system": "System",
     "analytics": "Analytics",
     "settings": "Settings",
@@ -239,5 +50,255 @@
     "settings": "Settings",
     "logout": "Logout",
     "notifications": "Notifications"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account to continue",
+      "email": "Email Address",
+      "password": "Password",
+      "remember": "Remember Me",
+      "forgotPassword": "Forgot Password?",
+      "submit": "Sign In",
+      "submitting": "Signing in...",
+      "noAccount": "New here?",
+      "createAccount": "Create an account",
+      "successToast": "Success! Welcome back.",
+      "errorPending": "Your account is pending admin approval.",
+      "errorInvalid": "Invalid email or password."
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join Souk AI and grow your business",
+      "selectRoleTitle": "Choose Your Path",
+      "selectRoleSubtitle": "Select the account type that best fits your needs.",
+      "client": "Client",
+      "clientDesc": "Shop and order products",
+      "influencer": "Influencer",
+      "influencerDesc": "Earn commissions by promoting",
+      "store": "Store",
+      "storeDesc": "Sell your products globally",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "address": "Address",
+      "city": "City",
+      "postalCode": "Postal Code",
+      "referralCode": "Referral Code",
+      "phone": "Phone Number",
+      "cin": "CIN / ID Card",
+      "storeName": "Store Name",
+      "taxId": "Tax Registration (Matricule Fiscale)",
+      "submit": "Create Account",
+      "submitting": "Creating account...",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign In",
+      "back": "Back",
+      "successTitle": "Registration Successful!",
+      "successClient": "Welcome! You can now start shopping.",
+      "successOther": "Your account is pending admin approval.",
+      "goToLogin": "Go to Login",
+      "successToast": "Account created successfully!"
+    }
+  },
+  "admin": {
+    "common": {
+      "loading": "Loading data...",
+      "noResults": "No results found"
+    },
+    "stores": {
+      "title": "Stores Management",
+      "subtitle": "Manage all shopping stores on the platform",
+      "add": "Add Store",
+      "search": "Search stores...",
+      "table": {
+        "storeName": "Store Name",
+        "owner": "Owner",
+        "email": "Email",
+        "phone": "Phone",
+        "matricule": "Tax ID",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
+      },
+      "form": {
+        "addTitle": "Add New Store",
+        "editTitle": "Edit Store",
+        "ownerFirstName": "Owner First Name",
+        "ownerLastName": "Owner Last Name",
+        "email": "Email Address",
+        "password": "Password",
+        "storeNameFr": "Store Name (FR)",
+        "storeNameAr": "Store Name (AR)",
+        "storeNameEn": "Store Name (EN)",
+        "storePhone": "Store Phone",
+        "address": "Store Address",
+        "matriculeFiscale": "Tax ID",
+        "rib": "RIB / Bank Account",
+        "cancel": "Cancel",
+        "create": "Create Store",
+        "update": "Update Store"
+      },
+      "messages": {
+        "confirmDelete": "Are you sure you want to delete this store?",
+        "noStores": "No stores found",
+        "validationError": "Validation error:",
+        "errorSaving": "Error saving store. Please try again."
+      }
+    },
+    "clients": {
+        "title": "Clients Management",
+        "subtitle": "Overview of all registered customers",
+        "add": "Add Client",
+        "search": "Search clients...",
+        "table": {
+            "name": "Full Name",
+            "email": "Email",
+            "city": "City",
+            "postalCode": "Postal Code",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "status": {
+            "active": "Active",
+            "blocked": "Blocked"
+        },
+        "form": {
+            "addTitle": "Register New Client",
+            "editTitle": "Modify Client Info",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "email": "Email",
+            "password": "Password",
+            "city": "City",
+            "postalCode": "Postal Code",
+            "address": "Address",
+            "cancel": "Cancel",
+            "create": "Register",
+            "update": "Save Changes"
+        },
+        "messages": {
+            "confirmDelete": "Delete this client account?",
+            "noClients": "No clients record found"
+        }
+    },
+    "influencers": {
+        "title": "Influencers Pool",
+        "subtitle": "Track your promoters and their performance",
+        "add": "Add Influencer",
+        "search": "Find influencers...",
+        "table": {
+            "name": "Name",
+            "email": "Email",
+            "phone": "Phone",
+            "commission": "Commission",
+            "referralCode": "Ref Code",
+            "status": "Status",
+            "actions": "Actions"
+        },
+        "status": {
+            "active": "Active",
+            "inactive": "Inactive"
+        },
+        "form": {
+            "addTitle": "Add New Partner",
+            "editTitle": "Update Partner",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "email": "Email",
+            "password": "Password",
+            "phone": "Phone",
+            "city": "City",
+            "address": "Address",
+            "cin": "CIN Number",
+            "rib": "RIB",
+            "commissionRate": "Commission (%)",
+            "cancel": "Cancel",
+            "create": "Add Partner",
+            "update": "Update Details"
+        },
+        "messages": {
+            "confirmDelete": "Remove this influencer from platform?",
+            "noInfluencers": "No partners registered yet"
+        }
+    },
+    "shippingCompanies": {
+      "title": "Shipping Partners",
+      "subtitle": "National and international logistics providers",
+      "add": "Add Company",
+      "search": "Search logistics...",
+      "table": {
+        "companyName": "Company Name",
+        "responsible": "Responsible",
+        "email": "Email",
+        "companyPhone": "Company Phone",
+        "matricule": "MAT",
+        "actions": "Actions"
+      },
+      "form": {
+        "addTitle": "Partner with Company",
+        "editTitle": "Edit Partnership",
+        "responsibleFirstName": "First Name",
+        "responsibleLastName": "Last Name",
+        "email": "Official Email",
+        "password": "Password",
+        "companyName": "Company Name",
+        "companyPhone": "Direct Line",
+        "responsiblePhone": "Responsible Phone",
+        "address": "HQ Address",
+        "matriculeFiscale": "Tax ID",
+        "rib": "RIB",
+        "cancel": "Cancel",
+        "create": "Onboard Partner",
+        "update": "Save Changes"
+      },
+      "messages": {
+        "confirmDelete": "Terminate partnership with this company?",
+        "noCompanies": "No shipping partners found"
+      }
+    },
+    "shippingEmployees": {
+      "title": "Delivery Fleet",
+      "subtitle": "Management of field operators and couriers",
+      "subtitleWithCompany": "Delivery fleet for {{companyName}}",
+      "add": "Add Courier",
+      "search": "Search employees...",
+      "filterByCompany": "Filter by Company",
+      "table": {
+        "name": "Courier Name",
+        "email": "Email",
+        "phone": "Phone",
+        "cin": "CIN",
+        "address": "Base Address",
+        "actions": "Actions"
+      },
+      "form": {
+        "addTitle": "Register New Courier",
+        "editTitle": "Update Courier Info",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Email",
+        "password": "Password",
+        "phone": "Mobile",
+        "cin": "CIN",
+        "address": "Address",
+        "rib": "RIB",
+        "company": "Assigned Company",
+        "selectCompany": "Choose a Company",
+        "cancel": "Cancel",
+        "create": "Register Courier",
+        "update": "Save Changes"
+      },
+      "messages": {
+        "confirmDelete": "Remove courier from platform?",
+        "noEmployees": "No couriers found for this selection",
+        "viewAllCompanies": "Return to Companies"
+      }
+    }
   }
 }

@@ -1,16 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
+import api from '@/lib/api';
 import CardBox from '@/components/shared/CardBox';
+import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
 import {
   Table,
   TableBody,
@@ -19,7 +13,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Store } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Store, Activity, Filter, Download } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Modal from '@/components/shared/Modal';
 
 const Stores = () => {
   const { t } = useTranslation();
@@ -35,6 +31,7 @@ const Stores = () => {
     password: '',
     name_fr: '',
     name_ar: '',
+    name_en: '',
     storePhone: '',
     address: '',
     matriculeFiscale: '',
@@ -44,7 +41,7 @@ const Stores = () => {
   const fetchStores = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('/api/admin/users/stores');
+      const response = await api.get('/admin/users/stores');
       setStores(response.data.data || []);
     } catch (error) {
       console.error('Error fetching stores:', error);
@@ -60,15 +57,10 @@ const Stores = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('formData:', formData);
       if (editingStore) {
-        const response = await axios.put(`/api/admin/users/stores/${editingStore.id}`, formData);
-        console.log('responseData:', response.data);
-        console.log('responseDataText:', response.data.toString());
+        await api.put(`/admin/users/stores/${editingStore.id}`, formData);
       } else {
-        const response = await axios.post('/api/admin/users/stores', formData);
-        console.log('responseData:', response.data);
-        console.log('responseDataText:', response.data.toString());
+        await api.post('/admin/users/stores', formData);
       }
       setIsDialogOpen(false);
       setEditingStore(null);
@@ -92,7 +84,7 @@ const Stores = () => {
   const handleDelete = async (id) => {
     if (!confirm(t('admin.stores.messages.confirmDelete'))) return;
     try {
-      await axios.delete(`/api/admin/users/stores/${id}`);
+      await api.delete(`/admin/users/stores/${id}`);
       fetchStores();
     } catch (error) {
       console.error('Error deleting store:', error);
@@ -108,6 +100,7 @@ const Stores = () => {
       password: '',
       name_fr: store.store?.name_fr || '',
       name_ar: store.store?.name_ar || '',
+      name_en: store.store?.name_en || '',
       storePhone: store.store?.storePhone || '',
       address: store.store?.address || '',
       matriculeFiscale: store.store?.matriculeFiscale || '',
@@ -124,6 +117,7 @@ const Stores = () => {
       password: '',
       name_fr: '',
       name_ar: '',
+      name_en: '',
       storePhone: '',
       address: '',
       matriculeFiscale: '',
@@ -144,217 +138,245 @@ const Stores = () => {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-link flex items-center gap-2">
-            <Store className="text-primary" />
-            {t('admin.stores.title')}
-          </h1>
-          <p className="text-darklink">{t('admin.stores.subtitle')}</p>
+    <AdminPageLayout
+        title="admin.stores.title"
+        subtitle="admin.stores.subtitle"
+        icon={Store}
+        onAdd={handleAdd}
+        addLabel="admin.stores.add"
+    >
+      <div className="space-y-6">
+        {/* Filters & Actions Bar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="relative flex-1 max-w-md group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
+                <Input
+                    placeholder={t('admin.stores.search')}
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-12 h-12 bg-card border-border/60 rounded-2xl focus:shadow-xl focus:shadow-primary/5 transition-all"
+                />
+            </div>
+            
+            <div className="flex items-center gap-2">
+                <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted font-bold text-sm gap-2">
+                    <Filter size={18} className="text-muted-foreground" />
+                    {t('common.actions.filter') || 'Filter'}
+                </Button>
+                <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted font-bold text-sm gap-2">
+                    <Download size={18} className="text-muted-foreground" />
+                    {t('common.actions.export') || 'Export'}
+                </Button>
+            </div>
         </div>
-        <Button onClick={handleAdd} className="bg-primary hover:bg-primaryemphasis">
-          <Plus size={18} className="mr-1" />
-          {t('admin.stores.add')}
-        </Button>
+
+        {/* Table Container */}
+        <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden">
+            <div className="overflow-x-auto">
+                <Table>
+                    <TableHeader className="bg-muted/30">
+                        <TableRow className="border-border/50 hover:bg-transparent">
+                            <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.stores.table.storeName')}</TableHead>
+                            <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.stores.table.owner')}</TableHead>
+                            <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.stores.table.email')}</TableHead>
+                            <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.stores.table.phone')}</TableHead>
+                            <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.stores.table.status')}</TableHead>
+                            <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground text-end">{t('admin.stores.table.actions')}</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <AnimatePresence mode="popLayout">
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="h-32 text-center">
+                                    <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
+                                        <Activity className="w-5 h-5 animate-spin text-primary" />
+                                        {t('admin.common.loading')}
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ) : filteredStores.map((store, idx) => (
+                            <motion.tr 
+                                key={store.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ delay: idx * 0.05 }}
+                                className="border-border/40 hover:bg-primary/5 transition-colors group cursor-pointer"
+                            >
+                                <TableCell className="py-4 px-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black uppercase">
+                                            {(store.store?.name_fr || store.name).charAt(0)}
+                                        </div>
+                                        <div>
+                                            <p className="font-black text-foreground tracking-tight">{store.store?.name_fr || store.name}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase">{store.store?.matriculeFiscale || '-'}</p>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="py-4 px-6 font-bold text-sm text-foreground">
+                                    {store.name} {store.family_name}
+                                </TableCell>
+                                <TableCell className="py-4 px-6 text-sm text-muted-foreground font-medium">{store.email}</TableCell>
+                                <TableCell className="py-4 px-6 text-sm text-muted-foreground font-medium">{store.store?.storePhone || '-'}</TableCell>
+                                <TableCell className="py-4 px-6">
+                                    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${store.store?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
+                                        {store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
+                                    </span>
+                                </TableCell>
+                                <TableCell className="py-4 px-6 text-end">
+                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleEdit(store)}
+                                            className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20"
+                                        >
+                                            <Pencil size={18} strokeWidth={2.5} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleDelete(store.id)}
+                                            className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20"
+                                        >
+                                            <Trash2 size={18} strokeWidth={2.5} />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </motion.tr>
+                        ))}
+                        </AnimatePresence>
+                    </TableBody>
+                </Table>
+                {!loading && filteredStores.length === 0 && (
+                    <div className="py-20 text-center space-y-3">
+                        <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground">
+                            <Store size={32} />
+                        </div>
+                        <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t('admin.stores.messages.noStores')}</p>
+                    </div>
+                )}
+            </div>
+        </CardBox>
+
+        {/* Premium Modal for Add/Edit */}
+        <Modal
+            isOpen={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            title={editingStore ? t('admin.stores.form.editTitle') : t('admin.stores.form.addTitle')}
+            subtitle={editingStore ? `Editing ${editingStore.email}` : "Create a new partner store"}
+            icon={Store}
+            maxWidth="max-w-2xl"
+            footer={
+                <>
+                    <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 rounded-xl font-bold border border-border/50 hover:bg-muted transition-all">
+                        {t('admin.stores.form.cancel')}
+                    </Button>
+                    <Button onClick={handleSubmit} className="h-12 px-8 rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20 hover:bg-primaryemphasis transition-all">
+                        {editingStore ? t('admin.stores.form.update') : t('admin.stores.form.create')}
+                    </Button>
+                </>
+            }
+        >
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.ownerFirstName')} *</label>
+                        <Input
+                            required
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.ownerLastName')}</label>
+                        <Input
+                            value={formData.family_name}
+                            onChange={(e) => setFormData({ ...formData, family_name: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
+                        />
+                    </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.email')} *</label>
+                        <Input
+                            type="email"
+                            required
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.storePhone')}</label>
+                        <Input
+                            value={formData.storePhone}
+                            onChange={(e) => setFormData({ ...formData, storePhone: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
+                        />
+                    </div>
+                </div>
+
+                {!editingStore && (
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.password')} *</label>
+                        <Input
+                            type="password"
+                            required={!editingStore}
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
+                        />
+                    </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.storeNameFr')}</label>
+                        <Input
+                            value={formData.name_fr}
+                            onChange={(e) => setFormData({ ...formData, name_fr: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.storeNameAr')}</label>
+                        <Input
+                            value={formData.name_ar}
+                            onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl text-end"
+                            dir="rtl"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.matriculeFiscale')}</label>
+                        <Input
+                            value={formData.matriculeFiscale}
+                            onChange={(e) => setFormData({ ...formData, matriculeFiscale: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.rib')}</label>
+                        <Input
+                            value={formData.rib}
+                            onChange={(e) => setFormData({ ...formData, rib: e.target.value })}
+                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
+                        />
+                    </div>
+                </div>
+            </form>
+        </Modal>
       </div>
-
-      {/* Search */}
-      <CardBox className="p-4">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-darklink" size={18} />
-            <Input
-              placeholder={t('admin.stores.search')}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-dark border-darkborder text-link"
-            />
-          </div>
-        </div>
-      </CardBox>
-
-      {/* Stores Table */}
-      <CardBox className="p-6">
-        {loading ? (
-          <div className="text-center py-8 text-darklink">{t('admin.common.loading')}</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-darkborder">
-                  <TableHead className="text-darklink">{t('admin.stores.table.storeName')}</TableHead>
-                  <TableHead className="text-darklink">{t('admin.stores.table.owner')}</TableHead>
-                  <TableHead className="text-darklink">{t('admin.stores.table.email')}</TableHead>
-                  <TableHead className="text-darklink">{t('admin.stores.table.phone')}</TableHead>
-                  <TableHead className="text-darklink">{t('admin.stores.table.matricule')}</TableHead>
-                  <TableHead className="text-darklink">{t('admin.stores.table.status')}</TableHead>
-                  <TableHead className="text-darklink text-right">{t('admin.stores.table.actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredStores.map((store) => (
-                  <TableRow key={store.id} className="border-darkborder/50">
-                    <TableCell className="text-link font-medium">
-                      {store.store?.name_fr || store.name}
-                    </TableCell>
-                    <TableCell className="text-link">
-                      {store.name} {store.family_name}
-                    </TableCell>
-                    <TableCell className="text-darklink">{store.email}</TableCell>
-                    <TableCell className="text-darklink">{store.store?.storePhone || '-'}</TableCell>
-                    <TableCell className="text-darklink">{store.store?.matriculeFiscale || '-'}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${store.store?.isActive ? 'bg-lightsuccess text-success' : 'bg-lighterror text-error'}`}>
-                        {store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(store)}
-                          className="text-primary hover:text-primaryemphasis hover:bg-lightprimary"
-                        >
-                          <Pencil size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(store.id)}
-                          className="text-error hover:text-erroremphasis hover:bg-lighterror"
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            {filteredStores.length === 0 && (
-              <div className="text-center py-8 text-darklink">{t('admin.stores.messages.noStores')}</div>
-            )}
-          </div>
-        )}
-      </CardBox>
-
-      {/* Add/Edit Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="bg-dark border-darkborder max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-link">
-              {editingStore ? t('admin.stores.form.editTitle') : t('admin.stores.form.addTitle')}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm text-darklink">{t('admin.stores.form.ownerFirstName')} *</label>
-                <Input
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="bg-dark border-darkborder text-link"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-darklink">{t('admin.stores.form.ownerLastName')}</label>
-                <Input
-                  value={formData.family_name}
-                  onChange={(e) => setFormData({ ...formData, family_name: e.target.value })}
-                  className="bg-dark border-darkborder text-link"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm text-darklink">{t('admin.stores.form.email')} *</label>
-              <Input
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="bg-dark border-darkborder text-link"
-              />
-            </div>
-            {!editingStore && (
-              <div className="space-y-2">
-                <label className="text-sm text-darklink">{t('admin.stores.form.password')} *</label>
-                <Input
-                  type="password"
-                  required={!editingStore}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="bg-dark border-darkborder text-link"
-                />
-              </div>
-            )}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm text-darklink">{t('admin.stores.form.storeNameFr')}</label>
-                <Input
-                  value={formData.name_fr}
-                  onChange={(e) => setFormData({ ...formData, name_fr: e.target.value })}
-                  className="bg-dark border-darkborder text-link"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-darklink">{t('admin.stores.form.storeNameAr')}</label>
-                <Input
-                  value={formData.name_ar}
-                  onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
-                  className="bg-dark border-darkborder text-link"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm text-darklink">{t('admin.stores.form.storePhone')}</label>
-              <Input
-                value={formData.storePhone}
-                onChange={(e) => setFormData({ ...formData, storePhone: e.target.value })}
-                className="bg-dark border-darkborder text-link"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm text-darklink">{t('admin.stores.form.address')}</label>
-              <Input
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                className="bg-dark border-darkborder text-link"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm text-darklink">{t('admin.stores.form.matriculeFiscale')}</label>
-                <Input
-                  value={formData.matriculeFiscale}
-                  onChange={(e) => setFormData({ ...formData, matriculeFiscale: e.target.value })}
-                  className="bg-dark border-darkborder text-link"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-darklink">{t('admin.stores.form.rib')}</label>
-                <Input
-                  value={formData.rib}
-                  onChange={(e) => setFormData({ ...formData, rib: e.target.value })}
-                  className="bg-dark border-darkborder text-link"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                {t('admin.stores.form.cancel')}
-              </Button>
-              <Button type="submit" className="bg-primary hover:bg-primaryemphasis">
-                {editingStore ? t('admin.stores.form.update') : t('admin.stores.form.create')}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </AdminPageLayout>
   );
 };
 

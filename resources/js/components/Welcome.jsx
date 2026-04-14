@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 const Welcome = () => {
     const { t, i18n } = useTranslation();
@@ -67,12 +68,12 @@ const Welcome = () => {
 
             {!isAuthenticated && (
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-                    <a href="/login" style={{...buttonStyle, backgroundColor: isDarkMode ? '#3182ce' : '#4299e1', color: 'white', textDecoration: 'none'}}>
+                    <Link to="/login" style={{...buttonStyle, backgroundColor: isDarkMode ? '#3182ce' : '#4299e1', color: 'white', textDecoration: 'none'}}>
                         Login
-                    </a>
-                    <a href="/register" style={{...buttonStyle, backgroundColor: isDarkMode ? '#38a169' : '#48bb78', color: 'white', textDecoration: 'none'}}>
+                    </Link>
+                    <Link to="/register" style={{...buttonStyle, backgroundColor: isDarkMode ? '#38a169' : '#48bb78', color: 'white', textDecoration: 'none'}}>
                         Register
-                    </a>
+                    </Link>
                 </div>
             )}
 

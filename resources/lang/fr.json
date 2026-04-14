@@ -1,201 +1,10 @@
 {
-  "admin": {
-    "stores": {
-      "title": "Gestion des Magasins",
-      "subtitle": "Gérer tous les magasins de la plateforme",
-      "add": "Ajouter Magasin",
-      "search": "Rechercher des magasins...",
-      "table": {
-        "storeName": "Nom du Magasin",
-        "owner": "Propriétaire",
-        "email": "Email",
-        "phone": "Téléphone",
-        "matricule": "Matricule",
-        "status": "Statut",
-        "actions": "Actions"
-      },
-      "status": {
-        "active": "Actif",
-        "inactive": "Inactif"
-      },
-      "form": {
-        "addTitle": "Ajouter Nouveau Magasin",
-        "editTitle": "Modifier Magasin",
-        "ownerFirstName": "Prénom du Propriétaire",
-        "ownerLastName": "Nom du Propriétaire",
-        "email": "Email",
-        "password": "Mot de passe",
-        "storeNameFr": "Nom du Magasin (FR)",
-        "storeNameAr": "Nom du Magasin (AR)",
-        "storePhone": "Téléphone du Magasin",
-        "address": "Adresse",
-        "matriculeFiscale": "Matricule Fiscale",
-        "rib": "RIB",
-        "cancel": "Annuler",
-        "create": "Créer",
-        "update": "Mettre à jour"
-      },
-      "messages": {
-        "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce magasin ?",
-        "noStores": "Aucun magasin trouvé",
-        "validationError": "Erreur de Validation:",
-        "errorSaving": "Erreur lors de l'enregistrement du magasin. Veuillez réessayer."
-      }
-    },
-    "influencers": {
-      "title": "Gestion des Influenceurs",
-      "subtitle": "Gérer tous les influenceurs de la plateforme",
-      "add": "Ajouter Influenceur",
-      "search": "Rechercher des influenceurs...",
-      "table": {
-        "name": "Nom",
-        "email": "Email",
-        "phone": "Téléphone",
-        "commission": "Commission",
-        "referralCode": "Code Parrainage",
-        "status": "Statut",
-        "actions": "Actions"
-      },
-      "status": {
-        "active": "Actif",
-        "inactive": "Inactif"
-      },
-      "form": {
-        "addTitle": "Ajouter Nouveau Influenceur",
-        "editTitle": "Modifier Influenceur",
-        "firstName": "Prénom",
-        "lastName": "Nom",
-        "email": "Email",
-        "password": "Mot de passe",
-        "phone": "Téléphone",
-        "city": "Ville",
-        "address": "Adresse",
-        "cin": "CIN",
-        "rib": "RIB",
-        "commissionRate": "Taux de Commission (%)",
-        "cancel": "Annuler",
-        "create": "Créer",
-        "update": "Mettre à jour"
-      },
-      "messages": {
-        "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet influenceur ?",
-        "noInfluencers": "Aucun influenceur trouvé"
-      }
-    },
-    "clients": {
-      "title": "Gestion des Clients",
-      "subtitle": "Gérer tous les clients de la plateforme",
-      "add": "Ajouter Client",
-      "search": "Rechercher des clients...",
-      "table": {
-        "name": "Nom",
-        "email": "Email",
-        "city": "Ville",
-        "postalCode": "Code Postal",
-        "status": "Statut",
-        "actions": "Actions"
-      },
-      "status": {
-        "active": "Actif",
-        "blocked": "Bloqué"
-      },
-      "form": {
-        "addTitle": "Ajouter Nouveau Client",
-        "editTitle": "Modifier Client",
-        "firstName": "Prénom",
-        "lastName": "Nom",
-        "email": "Email",
-        "password": "Mot de passe",
-        "city": "Ville",
-        "postalCode": "Code Postal",
-        "address": "Adresse",
-        "cancel": "Annuler",
-        "create": "Créer",
-        "update": "Mettre à jour"
-      },
-      "messages": {
-        "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce client ?",
-        "noClients": "Aucun client trouvé"
-      }
-    },
-    "shippingCompanies": {
-      "title": "Sociétés de Livraison",
-      "subtitle": "Gérer les sociétés de livraison et leurs employés",
-      "add": "Ajouter Société",
-      "search": "Rechercher des sociétés...",
-      "table": {
-        "companyName": "Nom de la Société",
-        "responsible": "Responsable",
-        "email": "Email",
-        "companyPhone": "Téléphone Société",
-        "matricule": "Matricule",
-        "actions": "Actions"
-      },
-      "form": {
-        "addTitle": "Ajouter Nouvelle Société",
-        "editTitle": "Modifier Société",
-        "responsibleFirstName": "Prénom du Responsable",
-        "responsibleLastName": "Nom du Responsable",
-        "email": "Email",
-        "password": "Mot de passe",
-        "companyName": "Nom de la Société",
-        "companyPhone": "Téléphone Société",
-        "responsiblePhone": "Téléphone Responsable",
-        "address": "Adresse",
-        "matriculeFiscale": "Matricule Fiscale",
-        "rib": "RIB",
-        "cancel": "Annuler",
-        "create": "Créer",
-        "update": "Mettre à jour"
-      },
-      "messages": {
-        "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette société ?",
-        "noCompanies": "Aucune société trouvée",
-        "viewEmployees": "Voir Employés"
-      }
-    },
-    "shippingEmployees": {
-      "title": "Employés de Livraison",
-      "subtitle": "Gérer tous les employés de livraison",
-      "subtitleWithCompany": "Employés de {companyName}",
-      "add": "Ajouter Employé",
-      "search": "Rechercher des employés...",
-      "filterByCompany": "Filtrer par Société",
-      "allCompanies": "Toutes les Sociétés",
-      "table": {
-        "name": "Nom",
-        "email": "Email",
-        "phone": "Téléphone",
-        "cin": "CIN",
-        "address": "Adresse",
-        "actions": "Actions"
-      },
-      "form": {
-        "addTitle": "Ajouter Nouvel Employé",
-        "editTitle": "Modifier Employé",
-        "firstName": "Prénom",
-        "lastName": "Nom",
-        "email": "Email",
-        "password": "Mot de passe",
-        "phone": "Téléphone",
-        "cin": "CIN",
-        "address": "Adresse",
-        "rib": "RIB",
-        "company": "Société",
-        "selectCompany": "Sélectionner Société",
-        "cancel": "Annuler",
-        "create": "Créer",
-        "update": "Mettre à jour"
-      },
-      "messages": {
-        "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet employé ?",
-        "noEmployees": "Aucun employé trouvé",
-        "viewAllCompanies": "Voir Toutes les Sociétés",
-        "back": "Retour aux Sociétés"
-      }
-    },
-    "common": {
-      "loading": "Chargement...",
+  "common": {
+    "welcome": "Bienvenue sur Souk AI",
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "success": "Succès",
+    "actions": {
       "save": "Enregistrer",
       "cancel": "Annuler",
       "delete": "Supprimer",
@@ -211,7 +20,9 @@
       "status": "Statut",
       "active": "Actif",
       "inactive": "Inactif",
-      "blocked": "Bloqué"
+      "blocked": "Bloqué",
+      "filter": "Filtrer",
+      "export": "Exporter"
     }
   },
   "sidebar": {
@@ -219,12 +30,12 @@
     "dashboard": "Tableau de Bord",
     "products": "Produits",
     "orders": "Commandes",
-    "userManagement": "Gestion Utilisateurs",
+    "usermanagement": "Gestion Utilisateurs",
     "stores": "Magasins",
     "influencers": "Influenceurs",
     "clients": "Clients",
-    "shippingCompanies": "Sociétés de Livraison",
-    "shippingEmployees": "Employés de Livraison",
+    "shippingcompanies": "Sociétés de Livraison",
+    "shippingemployees": "Employés de Livraison",
     "system": "Système",
     "analytics": "Analytique",
     "settings": "Paramètres",
@@ -239,5 +50,264 @@
     "settings": "Paramètres",
     "logout": "Déconnexion",
     "notifications": "Notifications"
+  },
+  "dashboard": {
+    "welcome": "Content de vous revoir ! Voici un résumé de vos performances.",
+    "stats": {
+        "revenue": "Chiffre d'affaires",
+        "orders": "Commandes",
+        "customers": "Clients",
+        "growth": "Croissance"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Bon retour",
+      "subtitle": "Connectez-vous à votre compte pour continuer",
+      "email": "Adresse Email",
+      "password": "Mot de passe",
+      "remember": "Se souvenir de moi",
+      "forgotPassword": "Mot de passe oublié ?",
+      "submit": "Se connecter",
+      "submitting": "Connexion...",
+      "noAccount": "Nouveau ici ?",
+      "createAccount": "Créer un compte",
+      "successToast": "Succès ! Bon retour parmi nous.",
+      "errorPending": "Votre compte est en attente d'approbation.",
+      "errorInvalid": "Email ou mot de passe invalide."
+    },
+    "register": {
+      "title": "Créer un compte",
+      "subtitle": "Rejoignez Souk AI et développez votre activité",
+      "selectRoleTitle": "Choisissez votre voie",
+      "selectRoleSubtitle": "Sélectionnez le type de compte qui correspond le mieux à vos besoins.",
+      "client": "Client",
+      "clientDesc": "Acheter et commander des produits",
+      "influencer": "Influenceur",
+      "influencerDesc": "Gagnez des commissions en promouvant",
+      "store": "Magasin",
+      "storeDesc": "Vendez vos produits mondialement",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Adresse Email",
+      "password": "Mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "address": "Adresse",
+      "city": "Ville",
+      "postalCode": "Code Postal",
+      "referralCode": "Code de Parrainage",
+      "phone": "Numéro de Téléphone",
+      "cin": "CIN / Carte d'Identité",
+      "storeName": "Nom du Magasin",
+      "taxId": "Matricule Fiscale",
+      "submit": "Créer un compte",
+      "submitting": "Création du compte...",
+      "haveAccount": "Déjà un compte ?",
+      "signIn": "Se connecter",
+      "back": "Retour",
+      "successTitle": "Inscription Réussie !",
+      "successClient": "Bienvenue ! Vous pouvez maintenant commencer vos achats.",
+      "successOther": "Votre compte est en attente d'approbation par l'administrateur.",
+      "goToLogin": "Aller à la page de connexion",
+      "successToast": "Compte créé avec succès !"
+    }
+  },
+  "admin": {
+    "common": {
+        "loading": "Chargement des données...",
+        "noResults": "Aucun résultat trouvé"
+    },
+    "stores": {
+      "title": "Gestion des Magasins",
+      "subtitle": "Gérez tous les magasins de la plateforme",
+      "add": "Ajouter un magasin",
+      "search": "Rechercher des magasins...",
+      "table": {
+        "storeName": "Nom du Magasin",
+        "owner": "Propriétaire",
+        "email": "Email",
+        "phone": "Téléphone",
+        "matricule": "Matricule",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      },
+      "form": {
+        "addTitle": "Ajouter un nouveau magasin",
+        "editTitle": "Modifier le magasin",
+        "ownerFirstName": "Prénom du propriétaire",
+        "ownerLastName": "Nom du propriétaire",
+        "email": "Adresse e-mail",
+        "password": "Mot de passe",
+        "storeNameFr": "Nom du magasin (FR)",
+        "storeNameAr": "Nom du magasin (AR)",
+        "storeNameEn": "Nom du magasin (EN)",
+        "storePhone": "Téléphone du magasin",
+        "address": "Adresse du magasin",
+        "matriculeFiscale": "Matricule fiscale",
+        "rib": "RIB / Compte bancaire",
+        "cancel": "Annuler",
+        "create": "Créer le magasin",
+        "update": "Mettre à jour le magasin"
+      },
+      "messages": {
+        "confirmDelete": "Voulez-vous vraiment supprimer ce magasin ?",
+        "noStores": "Aucun magasin trouvé",
+        "validationError": "Erreur de validation :",
+        "errorSaving": "Erreur lors de l'enregistrement du magasin. Veuillez réessayer."
+      }
+    },
+    "clients": {
+        "title": "Gestion des Clients",
+        "subtitle": "Vue d'ensemble de tous les clients enregistrés",
+        "add": "Ajouter un client",
+        "search": "Rechercher des clients...",
+        "table": {
+            "name": "Nom complet",
+            "email": "Email",
+            "city": "Ville",
+            "postalCode": "Code Postal",
+            "status": "Statut",
+            "actions": "Actions"
+        },
+        "status": {
+            "active": "Actif",
+            "blocked": "Bloqué"
+        },
+        "form": {
+            "addTitle": "Enregistrer un nouveau client",
+            "editTitle": "Modifier les infos du client",
+            "firstName": "Prénom",
+            "lastName": "Nom",
+            "email": "Email",
+            "password": "Mot de passe",
+            "city": "Ville",
+            "postalCode": "Code Postal",
+            "address": "Adresse",
+            "cancel": "Annuler",
+            "create": "Enregistrer",
+            "update": "Enregistrer les modifications"
+        },
+        "messages": {
+            "confirmDelete": "Supprimer ce compte client ?",
+            "noClients": "Aucun enregistrement client trouvé"
+        }
+    },
+    "influencers": {
+        "title": "Pool d'Influenceurs",
+        "subtitle": "Suivez vos promoteurs et leurs performances",
+        "add": "Ajouter un influenceur",
+        "search": "Trouver des influenceurs...",
+        "table": {
+            "name": "Nom",
+            "email": "Email",
+            "phone": "Téléphone",
+            "commission": "Commission",
+            "referralCode": "Code Ref",
+            "status": "Statut",
+            "actions": "Actions"
+        },
+        "status": {
+            "active": "Actif",
+            "inactive": "Inactif"
+        },
+        "form": {
+            "addTitle": "Ajouter un nouveau partenaire",
+            "editTitle": "Mettre à jour le partenaire",
+            "firstName": "Prénom",
+            "lastName": "Nom",
+            "email": "Email",
+            "password": "Mot de passe",
+            "phone": "Téléphone",
+            "city": "Ville",
+            "address": "Adresse",
+            "cin": "Numéro CIN",
+            "rib": "RIB",
+            "commissionRate": "Taux de commission (%)",
+            "cancel": "Annuler",
+            "create": "Ajouter un partenaire",
+            "update": "Mettre à jour les détails"
+        },
+        "messages": {
+            "confirmDelete": "Supprimer cet influenceur de la plateforme ?",
+            "noInfluencers": "Aucun partenaire enregistré pour le moment"
+        }
+    },
+    "shippingCompanies": {
+      "title": "Partenaires de Livraison",
+      "subtitle": "Prestataires logistiques nationaux et internationaux",
+      "add": "Ajouter une société",
+      "search": "Rechercher logistique...",
+      "table": {
+        "companyName": "Nom de la société",
+        "responsible": "Responsable",
+        "email": "Email",
+        "companyPhone": "Tél Société",
+        "matricule": "MAT",
+        "actions": "Actions"
+      },
+      "form": {
+        "addTitle": "Partenariat avec société",
+        "editTitle": "Modifier partenariat",
+        "responsibleFirstName": "Prénom",
+        "responsibleLastName": "Nom",
+        "email": "Email officiel",
+        "password": "Mot de passe",
+        "companyName": "Nom de la société",
+        "companyPhone": "Ligne directe",
+        "responsiblePhone": "Tél responsable",
+        "address": "Adresse siège",
+        "matriculeFiscale": "Matricule fiscale",
+        "rib": "RIB",
+        "cancel": "Annuler",
+        "create": "Enregistrer partenaire",
+        "update": "Enregistrer modifications"
+      },
+      "messages": {
+        "confirmDelete": "Mettre fin au partenariat avec cette société ?",
+        "noCompanies": "Aucun partenaire de livraison trouvé"
+      }
+    },
+    "shippingEmployees": {
+      "title": "Flotte de Livraison",
+      "subtitle": "Gestion des opérateurs de terrain et livreurs",
+      "subtitleWithCompany": "Flotte de livraison pour {{companyName}}",
+      "add": "Ajouter un livreur",
+      "search": "Rechercher employés...",
+      "filterByCompany": "Filtrer par société",
+      "table": {
+        "name": "Nom du livreur",
+        "email": "Email",
+        "phone": "Téléphone",
+        "cin": "CIN",
+        "address": "Adresse de base",
+        "actions": "Actions"
+      },
+      "form": {
+        "addTitle": "Enregistrer nouveau livreur",
+        "editTitle": "Info livreur",
+        "firstName": "Prénom",
+        "lastName": "Nom",
+        "email": "Email",
+        "password": "Mot de passe",
+        "phone": "Mobile",
+        "cin": "CIN",
+        "address": "Adresse",
+        "rib": "RIB",
+        "company": "Société assignée",
+        "selectCompany": "Choisir une société",
+        "cancel": "Annuler",
+        "create": "Enregistrer livreur",
+        "update": "Mettre à jour"
+      },
+      "messages": {
+        "confirmDelete": "Supprimer le livreur de la plateforme ?",
+        "noEmployees": "Aucun livreur trouvé pour cette sélection",
+        "viewAllCompanies": "Retour aux sociétés"
+      }
+    }
   }
 }
