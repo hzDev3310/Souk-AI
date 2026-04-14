@@ -23,6 +23,8 @@ import Influencers from './pages/admin/Influencers';
 import Clients from './pages/admin/Clients';
 import ShippingCompanies from './pages/admin/ShippingCompanies';
 import ShippingEmployees from './pages/admin/ShippingEmployees';
+import Categories from './pages/admin/Categories';
+import Products from './pages/admin/Products';
 
 const MainContent = () => {
     const { isAuthenticated, user, loading } = useAuth();
@@ -79,8 +81,8 @@ const App = () => {
                     <Route path="clients" element={<Clients />} />
                     <Route path="shipping-companies" element={<ShippingCompanies />} />
                     <Route path="shipping-employees" element={<ShippingEmployees />} />
-                    {/* Placeholder routes for missing pages to avoid broken navigation */}
-                    <Route path="products" element={<div className="p-6 text-link">Products Page (Work in Progress)</div>} />
+                    <Route path="categories" element={<Categories />} />
+                    <Route path="products" element={<Products />} />
                     <Route path="orders" element={<div className="p-6 text-link">Orders Page (Work in Progress)</div>} />
                     <Route path="analytics" element={<div className="p-6 text-link">Analytics Page (Work in Progress)</div>} />
                     <Route path="settings" element={<div className="p-6 text-link">Settings Page (Work in Progress)</div>} />

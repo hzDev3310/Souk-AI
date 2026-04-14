@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\EmployeeController;
 use App\Http\Controllers\Api\Admin\InfluencerController;
 use App\Http\Controllers\Api\Admin\ProductController;
@@ -23,15 +24,22 @@ Route::middleware('web')->group(function () {
     Route::get('/check', [AuthController::class, 'check']);
 });
 
+// Public Category Routes
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{category}', [CategoryController::class, 'show']);
+
 // Auth routes (protected with Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 });
 
+// Admin Routes
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('users', function () {
         return \App\Models\User::all(['id', 'name']);
     });
+    Route::get('categories/all', [CategoryController::class, 'list']);
+    Route::apiResource('categories', CategoryController::class);
     Route::apiResource('stores', StoreController::class);
     Route::apiResource('products', ProductController::class);
     Route::apiResource('influencers', InfluencerController::class);

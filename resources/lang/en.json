@@ -36,6 +36,7 @@
     "clients": "Clients",
     "shippingcompanies": "Shipping Companies",
     "shippingemployees": "Shipping Employees",
+    "categories": "Categories",
     "system": "System",
     "analytics": "Analytics",
     "settings": "Settings",
@@ -149,6 +150,106 @@
         "noStores": "No stores found",
         "validationError": "Validation error:",
         "errorSaving": "Error saving store. Please try again."
+      }
+    },
+    "categories": {
+      "title": "Categories Management",
+      "subtitle": "Organize your products by categories and sub-categories",
+      "add": "Add Category",
+      "search": "Search categories...",
+      "table": {
+        "nameInfo": "NAME / INFO",
+        "slug": "SLUG",
+        "parent": "PARENT",
+        "status": "STATUS",
+        "actions": "ACTIONS",
+        "main": "Main",
+        "active": "Active",
+        "inactive": "Inactive",
+        "noLogo": "No logo configured",
+        "noCover": "No cover configured"
+      },
+      "form": {
+        "addTitle": "New Category",
+        "addSubtitle": "Category details and visual branding",
+        "editTitle": "Edit Category",
+        "parentCategory": "Parent Category",
+        "topLevel": "Main (Top Level)",
+        "configuration": "Configuration",
+        "activateCategory": "Activate Category",
+        "french": "French (Français)",
+        "arabic": "Arabic (العربية)",
+        "english": "English",
+        "frenchPlaceholder": "ex: Vêtements",
+        "arabicPlaceholder": "الملابس",
+        "englishPlaceholder": "ex: Clothing",
+        "brandingLogo": "Branding: Logo",
+        "upload": "Upload",
+        "visionCover": "Vision: Cover",
+        "bannerText": "Banner 1200x400",
+        "cancel": "Cancel",
+        "create": "Create Category",
+        "update": "Update Category",
+        "logoHint": "Max 2MB. 512x512px recommended.",
+        "coverHint": "Max 4MB. 1200x400px recommended."
+      },
+      "view": {
+        "title": "Visual Details",
+        "close": "Close",
+        "logo": "Logo",
+        "cover": "Cover (Banner)"
+      },
+      "messages": {
+        "confirmDelete": "Are you sure you want to delete category {{name}}?",
+        "noCategories": "No categories found",
+        "loading": "Loading..."
+      }
+    },
+    "products": {
+      "title": "Products Management",
+      "subtitle": "Manage all your products securely",
+      "add": "Add Product",
+      "search": "Search a product...",
+      "table": {
+        "nameInfo": "PRODUCT / INFO",
+        "store": "STORE",
+        "price": "PRICE & STOCK",
+        "actions": "ACTIONS",
+        "inStock": "in stock"
+      },
+      "form": {
+        "editTitle": "Edit Product",
+        "addTitle": "New Product",
+        "addSubtitle": "Fill in product details",
+        "cancel": "Cancel",
+        "create": "Create",
+        "update": "Update",
+        "store": "Store",
+        "selectStore": "Select Store",
+        "condition": "Condition",
+        "condNew": "New",
+        "condGood": "Good",
+        "condUsed": "Used",
+        "nameFr": "Name (FR)",
+        "nameAr": "Name (AR)",
+        "nameEn": "Name (EN)",
+        "price": "Price",
+        "stock": "Stock Quantity",
+        "promo": "Promo %",
+        "images": "Images (JPG/PNG)",
+        "uploadImages": "Select Images"
+      },
+      "view": {
+        "title": "Product Details",
+        "close": "Close",
+        "details": "Details",
+        "images": "Images",
+        "noImages": "No images available"
+      },
+      "messages": {
+        "confirmDelete": "Are you sure you want to delete {{name}}?",
+        "loading": "Loading...",
+        "noProducts": "No products found"
       }
     },
     "clients": {

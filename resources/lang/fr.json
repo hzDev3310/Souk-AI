@@ -36,6 +36,7 @@
     "clients": "Clients",
     "shippingcompanies": "Sociétés de Livraison",
     "shippingemployees": "Employés de Livraison",
+    "categories": "Catégories",
     "system": "Système",
     "analytics": "Analytique",
     "settings": "Paramètres",
@@ -158,6 +159,106 @@
         "noStores": "Aucun magasin trouvé",
         "validationError": "Erreur de validation :",
         "errorSaving": "Erreur lors de l'enregistrement du magasin. Veuillez réessayer."
+      }
+    },
+    "categories": {
+      "title": "Gestion des Catégories",
+      "subtitle": "Organisez vos produits par catégories et sous-catégories",
+      "add": "Ajouter une catégorie",
+      "search": "Rechercher une catégorie...",
+      "table": {
+        "nameInfo": "NOM / INFO",
+        "slug": "SLUG",
+        "parent": "PARENT",
+        "status": "STATUT",
+        "actions": "ACTIONS",
+        "main": "Principal",
+        "active": "Actif",
+        "inactive": "Inactif",
+        "noLogo": "Aucun logo configuré",
+        "noCover": "Aucune couverture configurée"
+      },
+      "form": {
+        "addTitle": "Nouveauté",
+        "addSubtitle": "Détails de la catégorie et branding visuel",
+        "editTitle": "Modifier la catégorie",
+        "parentCategory": "Catégorie Parente",
+        "topLevel": "Principal (Top Level)",
+        "configuration": "Configuration",
+        "activateCategory": "Activer la catégorie",
+        "french": "Français",
+        "arabic": "العربية",
+        "english": "English",
+        "frenchPlaceholder": "ex: Vêtements",
+        "arabicPlaceholder": "الملابس",
+        "englishPlaceholder": "ex: Clothing",
+        "brandingLogo": "Branding: Logo",
+        "upload": "Uploader",
+        "visionCover": "Vision: Couverture",
+        "bannerText": "Bannière 1200x400",
+        "cancel": "Annuler",
+        "create": "Créer la catégorie",
+        "update": "Mettre à jour",
+        "logoHint": "Max 2MB. 512x512px recommandé.",
+        "coverHint": "Max 4MB. 1200x400px recommandé."
+      },
+      "view": {
+        "title": "Détails Visuels",
+        "close": "Fermer",
+        "logo": "Logo",
+        "cover": "Couverture (Bannière)"
+      },
+      "messages": {
+        "confirmDelete": "Voulez-vous vraiment supprimer cette catégorie ?",
+        "noCategories": "Aucune catégorie trouvée",
+        "loading": "Chargement..."
+      }
+    },
+    "products": {
+      "title": "Gestion des Produits",
+      "subtitle": "Gérez tous vos produits en toute sécurité",
+      "add": "Ajouter un produit",
+      "search": "Rechercher un produit...",
+      "table": {
+        "nameInfo": "PRODUIT / INFO",
+        "store": "BOUTIQUE",
+        "price": "PRIX & STOCK",
+        "actions": "ACTIONS",
+        "inStock": "en stock"
+      },
+      "form": {
+        "editTitle": "Modifier le produit",
+        "addTitle": "Nouveau produit",
+        "addSubtitle": "Détails du produit",
+        "cancel": "Annuler",
+        "create": "Créer",
+        "update": "Mettre à jour",
+        "store": "Boutique",
+        "selectStore": "Sélectionner une boutique",
+        "condition": "État",
+        "condNew": "Neuf",
+        "condGood": "Bon état",
+        "condUsed": "Occasion",
+        "nameFr": "Nom (FR)",
+        "nameAr": "Nom (AR)",
+        "nameEn": "Nom (EN)",
+        "price": "Prix",
+        "stock": "Quantité en stock",
+        "promo": "Promo %",
+        "images": "Images (JPG/PNG)",
+        "uploadImages": "Sélectionner des images"
+      },
+      "view": {
+        "title": "Détails du Produit",
+        "close": "Fermer",
+        "details": "Détails",
+        "images": "Images",
+        "noImages": "Aucune image disponible"
+      },
+      "messages": {
+        "confirmDelete": "Voulez-vous vraiment supprimer {{name}} ?",
+        "loading": "Chargement...",
+        "noProducts": "Aucun produit trouvé"
       }
     },
     "clients": {

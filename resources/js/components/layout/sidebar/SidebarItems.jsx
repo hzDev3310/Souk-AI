@@ -15,6 +15,12 @@ export const SidebarContent = [
         roles: ['ADMIN', 'STORE_OWNER', 'CLIENT'],
       },
       {
+        name: "Categories",
+        icon: "Layers",
+        url: "/dashboard/categories",
+        roles: ['ADMIN'],
+      },
+      {
         name: "Orders",
         icon: "ShoppingCart",
         url: "/dashboard/orders",

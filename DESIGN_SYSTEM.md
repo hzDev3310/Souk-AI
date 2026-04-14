@@ -94,3 +94,31 @@ Never use legacy `Dialog` components. Use the `Modal` component for consistency.
 - **READ FIRST**: Before any code modification, run `view_file` on this document.
 - **IDENTICAL DESIGN**: No ad-hoc styling. Use established utility classes (`backdrop-blur-md`, `bg-card/40`) to maintain the system integrity.
 - **AUTO-SYNC**: If any global style in `app.css` or component structure is changed, this file must be updated immediately in the same turn.
+
+## 6. Page Creation Workflow (Frontend & Localization)
+
+When adding a new page or feature module to the application, follow this exact sequence to ensure architectural and visual consistency:
+
+### 1. Route Registration (Backend & Frontend)
+- **Backend API (`routes/api.php`)**: Ensure the respective endpoint exists inside the `auth:sanctum` and `ability:admin` middleware groups for secure access. Use the correct URL structures (e.g., `/admin/categories`).
+- **Frontend Routing (`app.jsx`)**: Import the new component inside `resources/js/app.jsx` and map it to a specific route inside the `<DashboardLayout>` wrapper. Make sure to define proper permissions or middleware (if applicable in the router setup).
+
+### 2. Localization Strategy (i18n)
+All text in the user interface **MUST** be fully localizable from Day 1. Avoid writing hardcoded strings. Use `react-i18next` efficiently.
+1. **Import Hook**: Destructure the translation function in your component:
+   ```javascript
+   import { useTranslation } from 'react-i18next';
+   const { t } = useTranslation();
+   ```
+2. **Setup Translation Keys**: Map UI copy inside `en.json`, `fr.json`, and `ar.json` simultaneously. Structure it logically: `pageName.sectionName.stringName`.
+3. **Usage**:
+   ```javascript
+   <h2 className="text-xl font-bold">{t('admin.categories.title')}</h2>
+   ```
+   **Important Rule for Forms**: Ensure input placeholders, dropdown options, table headers, and modal text (submit/cancel) are all passed into the `t()` function. Do not omit any files. If you add a key to `fr.json`, you **must** append the exact same structure to `ar.json` and `en.json` in the same turn.
+
+### 3. Component Hierarchy & Logic
+- Utilize the design components precisely as defined in section 4.
+- Make optimal use of `AdminPageLayout` for the outer shell to guarantee the global top-right action buttons and standardized heading.
+- For lists or CRUD operations, keep state management within the main page container (e.g., `Categories.jsx`), and pass handlers conditionally into the standardized `Modal` component.
+- **RTL Integrity**: Because `ar.json` is heavily utilized, ensure inputs dynamically respect directionality via `dir="rtl"` in local overrides or by relying on global i18next document attribute shifting. Use directional classes (like `text-start` or `text-end` instead of `text-left` / `text-right` where appropriate).

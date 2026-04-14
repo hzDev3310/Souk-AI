@@ -108,6 +108,106 @@
         "loading": "جاري تحميل البيانات...",
         "noResults": "لا توجد نتائج"
     },
+    "categories": {
+      "title": "إدارة الفئات",
+      "subtitle": "تنظيم منتجاتك حسب الفئات والفئات الفرعية",
+      "add": "إضافة فئة",
+      "search": "البحث في الفئات...",
+      "table": {
+        "nameInfo": "الاسم / معلومات",
+        "slug": "الرابط",
+        "parent": "الفئة الأم",
+        "status": "الحالة",
+        "actions": "الإجراءات",
+        "main": "الرئيسية",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "noLogo": "لا يوجد شعار",
+        "noCover": "لا يوجد غلاف"
+      },
+      "form": {
+        "addTitle": "فئة جديدة",
+        "addSubtitle": "تفاصيل الفئة والعلامة التجارية المرئية",
+        "editTitle": "تعديل الفئة",
+        "parentCategory": "الفئة الأم",
+        "topLevel": "الرئيسية (الطبقة العليا)",
+        "configuration": "إعدادات",
+        "activateCategory": "تفعيل الفئة",
+        "french": "الفرنسية (Français)",
+        "arabic": "العربية",
+        "english": "الإنجليزية (English)",
+        "frenchPlaceholder": "ex: Vêtements",
+        "arabicPlaceholder": "الملابس",
+        "englishPlaceholder": "ex: Clothing",
+        "brandingLogo": "العلامة التجارية: الشعار",
+        "upload": "رفع",
+        "visionCover": "الرؤية: الغلاف",
+        "bannerText": "لافتة 1200x400",
+        "cancel": "إلغاء",
+        "create": "إنشاء الفئة",
+        "update": "تحديث الفئة",
+        "logoHint": "الحد الأقصى 2 م.ب. 512x512 بكسل موصى به.",
+        "coverHint": "الحد الأقصى 4 م.ب. 1200x400 بكسل موصى به."
+      },
+      "view": {
+        "title": "التفاصيل المرئية",
+        "close": "إغلاق",
+        "logo": "الشعار",
+        "cover": "الغلاف (اللافتة)"
+      },
+      "messages": {
+        "confirmDelete": "هل أنت متأكد من حذف الفئة {{name}}؟",
+        "noCategories": "لم يتم العثور على فئات",
+        "loading": "جاري التحميل..."
+      }
+    },
+    "products": {
+      "title": "إدارة المنتجات",
+      "subtitle": "إدارة جميع منتجاتك بشكل آمن",
+      "add": "إضافة منتج",
+      "search": "البحث عن منتج...",
+      "table": {
+        "nameInfo": "المنتج / معلومات",
+        "store": "المتجر",
+        "price": "السعر والمخزون",
+        "actions": "الإجراءات",
+        "inStock": "في المخزن"
+      },
+      "form": {
+        "editTitle": "تعديل المنتج",
+        "addTitle": "منتج جديد",
+        "addSubtitle": "أدخل تفاصيل المنتج",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "update": "تحديث",
+        "store": "المتجر",
+        "selectStore": "اختر متجراً",
+        "condition": "الحالة",
+        "condNew": "جديد",
+        "condGood": "حالة جيدة",
+        "condUsed": "مستعمل",
+        "nameFr": "الاسم (الفرنسية)",
+        "nameAr": "الاسم (العربية)",
+        "nameEn": "الاسم (الإنجليزية)",
+        "price": "السعر",
+        "stock": "كمية المخزون",
+        "promo": "نسبة الخصم %",
+        "images": "الصور (JPG/PNG)",
+        "uploadImages": "اختر الصور"
+      },
+      "view": {
+        "title": "تفاصيل المنتج",
+        "close": "إغلاق",
+        "details": "التفاصيل",
+        "images": "الصور",
+        "noImages": "لا توجد صور متاحة"
+      },
+      "messages": {
+        "confirmDelete": "هل أنت متأكد من حذف {{name}}؟",
+        "loading": "جاري التحميل...",
+        "noProducts": "لم يتم العثور على منتجات"
+      }
+    },
     "stores": {
       "title": "إدارة المتاجر",
       "subtitle": "إدارة جميع المتاجر في المنصة",
