@@ -18,7 +18,7 @@ import {
     Plus, Pencil, Trash2, Search, Box, Image as ImageIcon,
     CheckCircle2, XCircle, Activity, Eye, Package
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Products = () => {
     const { t, i18n } = useTranslation();
@@ -370,6 +370,33 @@ const Products = () => {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.products.form.promo') || "Promo %"}</label>
                                 <Input type="number" value={formData.promo} onChange={e => setFormData({ ...formData, promo: e.target.value })} className="h-12 bg-muted/30 border-border/50 rounded-xl font-bold" />
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.products.form.categories') || "Catégories"}</label>
+                            <div className="flex flex-wrap gap-2 max-h-[140px] overflow-y-auto p-1">
+                                <AnimatePresence>
+                                    {categories.map(cat => (
+                                        <motion.div
+                                            key={cat.id}
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => handleCategoryToggle(cat.id)}
+                                            className={`cursor-pointer h-10 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${formData.categories.includes(cat.id)
+                                                    ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                                                    : 'border-border/50 bg-muted/30 hover:bg-muted/50 hover:border-primary/50 text-foreground'
+                                                }`}
+                                        >
+                                            {cat.logo ? (
+                                                <img src={`/storage/${cat.logo}`} alt="" className="w-5 h-5 rounded-[4px] object-cover" />
+                                            ) : (
+                                                <Box size={14} className="opacity-50" />
+                                            )}
+                                            <span className="text-[11px] font-black">{cat.name_fr}</span>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
                             </div>
                         </div>
 

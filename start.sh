@@ -6,6 +6,12 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
+echo "🧹 Cleaning up existing processes and containers..."
+docker compose down >/dev/null 2>&1 || true
+fuser -k 5173/tcp >/dev/null 2>&1 || true
+fuser -k 5174/tcp >/dev/null 2>&1 || true
+fuser -k 8000/tcp >/dev/null 2>&1 || true
+
 # Start Docker containers in the background
 echo "🚀 Starting Docker containers (Nginx, PHP, MySQL)..."
 docker compose up -d

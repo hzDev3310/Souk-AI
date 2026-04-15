@@ -5,6 +5,7 @@ import CardBox from '@/components/shared/CardBox';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -29,6 +30,10 @@ const Categories = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
     const [viewingCategory, setViewingCategory] = useState(null);
+
+    const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
+    const [linkingCategory, setLinkingCategory] = useState(null);
+    const [selectedToLink, setSelectedToLink] = useState([]);
 
     const [formData, setFormData] = useState({
         parent_id: '',
@@ -159,6 +164,40 @@ const Categories = () => {
         }
     };
 
+    const handleOpenLinkModal = (category) => {
+        setLinkingCategory(category);
+        setSelectedToLink([]);
+        setIsLinkModalOpen(true);
+    };
+
+    const handleLinkModalSubmit = async () => {
+        try {
+            setLoading(true);
+            for (const id of selectedToLink) {
+                const cat = allCategories.find(c => c.id === id);
+                if (!cat) continue;
+                const data = new FormData();
+                data.append('parent_id', linkingCategory.id);
+                data.append('name_fr', cat.name_fr || '');
+                data.append('name_ar', cat.name_ar || '');
+                data.append('name_en', cat.name_en || '');
+                data.append('isActive', cat.isActive ? 1 : 0);
+                data.append('_method', 'PUT');
+                await api.post(`/admin/categories/${id}`, data);
+            }
+            setIsLinkModalOpen(false);
+            fetchCategories();
+        } catch (error) {
+            console.error('Error linking categories:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const toggleToLink = (id) => {
+        setSelectedToLink(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+    };
+
     const filteredCategories = categories.filter(cat =>
         cat.name_en?.toLowerCase().includes(search.toLowerCase()) ||
         cat.name_fr?.toLowerCase().includes(search.toLowerCase())
@@ -243,6 +282,9 @@ const Categories = () => {
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-end">
                                             <div className="flex justify-end gap-2  transition-opacity">
+                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-emerald-500 hover:bg-emerald-500/20" onClick={() => handleOpenLinkModal(category)} title="Lier des sous-catégories">
+                                                    <Plus size={18} />
+                                                </Button>
                                                 <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20" onClick={() => setViewingCategory(category)}>
                                                     <Eye size={18} />
                                                 </Button>
@@ -327,33 +369,52 @@ const Categories = () => {
                     }
                 >
                     <form className="space-y-6">
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-2">
+                        <div className="space-y-4">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.categories.form.parentCategory') || "Catégorie Parente"}</label>
-                                <select
-                                    className="w-full h-12 px-4 rounded-xl bg-muted/30 border border-border/50 font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                                    value={formData.parent_id}
-                                    onChange={e => setFormData({ ...formData, parent_id: e.target.value })}
-                                >
-                                    <option value="">{t('admin.categories.form.topLevel') || "Principal (Top Level)"}</option>
-                                    {allCategories.filter(c => !c.parent_id && (!editingCategory || c.id !== editingCategory.id)).map(cat => (
-                                        <option key={cat.id} value={cat.id}>{cat.name_fr}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.categories.form.configuration') || "Configuration"}</label>
-                                <div className="flex items-center gap-4 h-12 px-4 rounded-xl bg-muted/30 border border-border/50">
-                                    <label className="flex items-center gap-3 cursor-pointer select-none">
-                                        <input
-                                            type="checkbox"
-                                            className="w-5 h-5 rounded-md border-border/50 text-primary focus:ring-primary/20 accent-primary"
-                                            checked={formData.isActive}
-                                            onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
-                                        />
-                                        <span className="text-sm font-bold text-foreground">{t('admin.categories.form.activateCategory') || "Activer la catégorie"}</span>
-                                    </label>
+                                <div className="flex flex-wrap gap-2 w-full md:flex-1 md:ml-4">
+                                    <div
+                                        onClick={() => setFormData({ ...formData, parent_id: '' })}
+                                        className={`cursor-pointer h-10 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${!formData.parent_id
+                                                ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                                                : 'border-border/50 bg-muted/30 hover:bg-muted/50 hover:border-primary/50 text-muted-foreground'
+                                            }`}
+                                    >
+                                        <Layers size={14} />
+                                        <span className="text-[11px] font-black uppercase">{t('admin.categories.form.topLevel') || "Principal"}</span>
+                                    </div>
+                                    <AnimatePresence>
+                                        {allCategories.filter(c => !c.parent_id && (!editingCategory || c.id !== editingCategory.id)).map(cat => (
+                                            <motion.div
+                                                key={cat.id}
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={() => setFormData({ ...formData, parent_id: cat.id })}
+                                                className={`cursor-pointer h-10 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${formData.parent_id == cat.id
+                                                        ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                                                        : 'border-border/50 bg-muted/30 hover:bg-muted/50 hover:border-primary/50 text-foreground'
+                                                    }`}
+                                            >
+                                                {cat.logo ? (
+                                                    <img src={`/storage/${cat.logo}`} alt="" className="w-5 h-5 rounded-[4px] object-cover" />
+                                                ) : (
+                                                    <ImageIcon size={14} className="opacity-50" />
+                                                )}
+                                                <span className="text-[11px] font-black">{cat.name_fr}</span>
+                                            </motion.div>
+                                        ))}
+                                    </AnimatePresence>
                                 </div>
+                            </div>
+                            <div className="flex items-center gap-4 h-12 px-4 rounded-xl bg-muted/30 ring-1 ring-border/50">
+                                <label className="flex items-center gap-3 cursor-pointer select-none w-full">
+                                    <Switch
+                                        checked={formData.isActive}
+                                        onCheckedChange={val => setFormData({ ...formData, isActive: val })}
+                                        className="data-[state=checked]:bg-primary"
+                                    />
+                                    <span className="text-sm font-bold text-foreground">{t('admin.categories.form.activateCategory') || "Activer la catégorie"}</span>
+                                </label>
                             </div>
                         </div>
 
@@ -459,6 +520,58 @@ const Categories = () => {
                             </div>
                         </div>
                     )}
+                </Modal>
+
+                <Modal
+                    isOpen={isLinkModalOpen}
+                    onClose={() => setIsLinkModalOpen(false)}
+                    title={t('admin.categories.link.title') || "Lier des sous-catégories"}
+                    subtitle={linkingCategory ? `Sélectionnez les catégories à ajouter sous "${linkingCategory.name_fr}"` : ""}
+                    icon={Layers}
+                    maxWidth="max-w-4xl"
+                    footer={
+                        <>
+                            <Button variant="ghost" onClick={() => setIsLinkModalOpen(false)} className="rounded-xl font-bold">
+                                {t('admin.categories.form.cancel') || "Annuler"}
+                            </Button>
+                            <Button className="bg-primary text-white rounded-xl font-black px-8" onClick={handleLinkModalSubmit} disabled={selectedToLink.length === 0 || loading}>
+                                {loading ? "..." : (t('admin.categories.link.submit') || "Ajouter la sélection")}
+                            </Button>
+                        </>
+                    }
+                >
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-2">
+                        {allCategories.filter(c => c.id !== linkingCategory?.id && c.parent_id !== linkingCategory?.id).map((c) => {
+                            const isSelected = selectedToLink.includes(c.id);
+                            return (
+                                <div
+                                    key={c.id}
+                                    onClick={() => toggleToLink(c.id)}
+                                    className={`cursor-pointer rounded-[24px] p-4 border-2 transition-all flex flex-col items-center justify-center gap-3 text-center ${isSelected
+                                            ? 'border-primary opacity-100 bg-primary/10 shadow-lg scale-[1.02]'
+                                            : 'border-border/50 opacity-50 hover:opacity-75 bg-muted/20 hover:bg-muted/30'
+                                        }`}
+                                >
+                                    <div className="w-16 h-16 rounded-2xl bg-muted overflow-hidden flex items-center justify-center border border-border/50 shadow-sm">
+                                        {c.logo ? (
+                                            <img src={`/storage/${c.logo}`} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <ImageIcon className="text-muted-foreground" size={24} />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <p className="font-black text-foreground tracking-tight text-sm line-clamp-1">{c.name_fr}</p>
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase">{c.parent_id ? 'Déjà sous-catégorie' : 'Catégorie principale'}</p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        {allCategories.filter(c => c.id !== linkingCategory?.id && c.parent_id !== linkingCategory?.id).length === 0 && (
+                            <div className="col-span-full py-10 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">
+                                Aucune catégorie disponible
+                            </div>
+                        )}
+                    </div>
                 </Modal>
             </div>
         </AdminPageLayout>

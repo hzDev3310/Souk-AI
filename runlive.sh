@@ -25,6 +25,15 @@ if [ ! -f .env ]; then
   echo -e "${GREEN}   ✔ .env created${NC}"
 fi
 
+# ── Clean up existing processes ────────────────
+echo -e "${YELLOW}🧹  Cleaning up existing processes...${NC}"
+docker compose down >/dev/null 2>&1 || true
+fuser -k 5173/tcp >/dev/null 2>&1 || true
+fuser -k 5174/tcp >/dev/null 2>&1 || true
+fuser -k 8000/tcp >/dev/null 2>&1 || true
+echo -e "${GREEN}   ✔ Cleanup complete${NC}"
+
+
 # ── Start Docker containers ───────────────────
 echo -e "${YELLOW}🐳  Starting Docker containers...${NC}"
 docker compose up -d

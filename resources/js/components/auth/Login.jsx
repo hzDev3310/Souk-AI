@@ -12,7 +12,7 @@ import {
 import { useTheme } from '../../context/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import CardBox from '../shared/CardBox';
 import { useNotification } from '../../context/NotificationContext';
@@ -48,7 +48,7 @@ const Login = () => {
         setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
     };
 
-    const handleCheckboxChange = (checked) => {
+    const handleSwitchChange = (checked) => {
         setFormData({ ...formData, remember: checked });
     };
 
@@ -367,11 +367,11 @@ const Login = () => {
                             {/* Options */}
                             <div className="flex items-center justify-between px-1">
                                 <div className="flex items-center gap-2 cursor-pointer group">
-                                    <Checkbox
+                                    <Switch
                                         id="remember"
                                         checked={formData.remember}
-                                        onCheckedChange={handleCheckboxChange}
-                                        className="rounded-md border-muted-foreground/30 data-[state=checked]:bg-primary transition-colors"
+                                        onCheckedChange={handleSwitchChange}
+                                        className="data-[state=checked]:bg-primary transition-colors"
                                     />
                                     <label htmlFor="remember" className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors cursor-pointer">
                                         {t('auth.login.remember')}

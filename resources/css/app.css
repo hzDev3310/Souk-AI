@@ -42,32 +42,39 @@
     --color-border-main-dark: #333f55;
 
     /* Base theme aliases */
-    --color-background: var(--color-main-bg);
-    --color-foreground: var(--color-text-main);
-    --color-card: var(--color-card-bg);
-    --color-card-foreground: var(--color-text-main);
-    --color-popover: var(--color-card-bg);
-    --color-popover-foreground: var(--color-text-main);
-    --color-border: var(--color-border-main);
-    --color-input: transparent; /* MODIFIED: No borders by default */
+    --color-background: var(--bg-color, var(--color-main-bg));
+    --color-foreground: var(--fg-color, var(--color-text-main));
+    --color-card: var(--card-bg-color, var(--color-card-bg));
+    --color-card-foreground: var(--fg-color, var(--color-text-main));
+    --color-popover: var(--card-bg-color, var(--color-card-bg));
+    --color-popover-foreground: var(--fg-color, var(--color-text-main));
+    --color-border: var(--border-color, var(--color-border-main));
+    --color-input: transparent;
     --color-ring: var(--color-lightprimary);
-    --color-muted: #eff4fa;
-    --color-muted-foreground: var(--color-text-muted);
+    --color-muted: var(--muted-color, #eff4fa);
+    --color-muted-foreground: var(--muted-fg-color, var(--color-text-muted));
 
-    --radius: 24px; /* MODIFIED: More rounded look */
+    --radius: 24px;
+}
+
+:root {
+    color-scheme: light;
+    --bg-color: var(--color-main-bg);
+    --fg-color: var(--color-text-main);
+    --card-bg-color: var(--color-card-bg);
+    --border-color: var(--color-border-main);
+    --muted-color: #eff4fa;
+    --muted-fg-color: var(--color-text-muted);
 }
 
 .dark {
-    --color-background: var(--color-main-bg-dark);
-    --color-foreground: var(--color-text-main-dark);
-    --color-card: var(--color-card-bg-dark);
-    --color-card-foreground: var(--color-text-main-dark);
-    --color-popover: var(--color-card-bg-dark);
-    --color-popover-foreground: var(--color-text-main-dark);
-    --color-border: var(--color-border-main-dark);
-    --color-input: transparent;
-    --color-muted: #2a3851;
-    --color-muted-foreground: var(--color-text-muted-dark);
+    color-scheme: dark;
+    --bg-color: var(--color-main-bg-dark);
+    --fg-color: var(--color-text-main-dark);
+    --card-bg-color: var(--color-card-bg-dark);
+    --border-color: var(--color-border-main-dark);
+    --muted-color: #2a3851;
+    --muted-fg-color: var(--color-text-muted-dark);
 }
 
 @layer base {
@@ -91,9 +98,7 @@ input:-webkit-autofill:active {
     transition: background-color 5000s ease-in-out 0s;
 }
 
-input {
-    color-scheme: light dark;
-}
+
 
 .card {
     border-radius: var(--radius);

@@ -131,6 +131,6 @@ class CategoryController extends Controller
      */
     public function list()
     {
-        return response()->json(Category::all(['id', 'name_en', 'name_fr', 'name_ar', 'parent_id', 'slug']));
+        return response()->json(Category::all(['id', 'name_en', 'name_fr', 'name_ar', 'parent_id', 'slug', 'isActive', 'logo']));
     }
 }

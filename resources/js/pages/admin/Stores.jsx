@@ -159,11 +159,11 @@ const Stores = () => {
             </div>
             
             <div className="flex items-center gap-2">
-                <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted font-bold text-sm gap-2">
+                <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted hover:text-foreground font-bold text-sm gap-2">
                     <Filter size={18} className="text-muted-foreground" />
                     {t('common.actions.filter') || 'Filter'}
                 </Button>
-                <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted font-bold text-sm gap-2">
+                <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted hover:text-foreground font-bold text-sm gap-2">
                     <Download size={18} className="text-muted-foreground" />
                     {t('common.actions.export') || 'Export'}
                 </Button>
@@ -271,7 +271,7 @@ const Stores = () => {
             maxWidth="max-w-2xl"
             footer={
                 <>
-                    <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 rounded-xl font-bold border border-border/50 hover:bg-muted transition-all">
+                    <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 rounded-xl font-bold border border-border/50 hover:bg-muted hover:text-foreground transition-all">
                         {t('admin.stores.form.cancel')}
                     </Button>
                     <Button onClick={handleSubmit} className="h-12 px-8 rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20 hover:bg-primaryemphasis transition-all">
