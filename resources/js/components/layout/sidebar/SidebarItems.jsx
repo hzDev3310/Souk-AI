@@ -78,6 +78,12 @@ export const SidebarContent = [
         url: '/dashboard/settings',
         roles: ['ADMIN', 'STORE', 'INFLUENCER', 'CLIENT'],
       },
+      {
+        name: 'Parameters',
+        icon: 'Sliders',
+        url: '/dashboard/parameters',
+        roles: ['ADMIN'],
+      },
     ],
   },
   {

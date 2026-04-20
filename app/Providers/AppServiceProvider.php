@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\App;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,5 +23,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useTailwind();
+        
+        // Set locale from session or default to config
+        if (Session::has('locale') && in_array(Session::get('locale'), ['en', 'fr', 'ar'])) {
+            App::setLocale(Session::get('locale'));
+        } else {
+            // Set default locale on first visit
+            $locale = config('app.locale', 'en');
+            App::setLocale($locale);
+            if (!Session::has('locale')) {
+                Session::put('locale', $locale);
+            }
+        }
     }
 }

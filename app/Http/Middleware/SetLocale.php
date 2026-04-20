@@ -15,17 +15,23 @@ class SetLocale
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Try to get locale from URL segment first
         $locale = $request->segment(1);
 
         if (in_array($locale, ['en', 'fr', 'ar'])) {
+            // Locale is in URL
             app()->setLocale($locale);
             session()->put('locale', $locale);
         }
-        elseif (session()->has('locale')) {
+        elseif (session()->has('locale') && in_array(session()->get('locale'), ['en', 'fr', 'ar'])) {
+            // Locale is in session
             app()->setLocale(session()->get('locale'));
         }
         else {
-            app()->setLocale(config('app.locale'));
+            // Use default locale
+            $defaultLocale = config('app.locale', 'en');
+            app()->setLocale($defaultLocale);
+            session()->put('locale', $defaultLocale);
         }
 
         return $next($request);

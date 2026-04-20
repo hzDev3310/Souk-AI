@@ -25,6 +25,7 @@ import AdminShippingEmployees from './pages/admin/ShippingEmployees';
 import AdminCategories from './pages/admin/Categories';
 import AdminProducts from './pages/admin/Products';
 import AdminOrders from './pages/admin/Orders';
+import Parameters from './pages/admin/Parameters';
 // Store pages
 import StoreProducts from './pages/store/Products';
 import StoreOrders from './pages/store/Orders';
@@ -81,6 +82,7 @@ const App = () => {
                     <Route path="orders" element={<RoleBasedOrders />} />
                     {/* Common routes */}
                     <Route path="analytics" element={<div className="p-6 text-link">Analytics Page (Work in Progress)</div>} />
+                    <Route path="parameters" element={<Parameters />} />
                     <Route path="settings" element={<div className="p-6 text-link">Settings Page (Work in Progress)</div>} />
                     <Route path="profile" element={<RoleBasedProfile />} />
                 </Route>

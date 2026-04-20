@@ -9,9 +9,10 @@ use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\Admin\ShippingCompanyController;
 use App\Http\Controllers\Api\Admin\StoreController;
 use App\Http\Controllers\Api\Admin\UserManagementController;
-use App\Http\Controllers\Api\Store\StoreProfileController;
-use App\Http\Controllers\Api\Store\StoreProductController;
 use App\Http\Controllers\Api\Store\StoreOrderController;
+use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\Store\StoreProductController;
+use App\Http\Controllers\Api\Store\StoreProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,7 +39,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('stores', StoreController::class);
     Route::apiResource('products', ProductController::class);
-    
+
     // Order Management
     Route::apiResource('orders', OrderController::class);
     Route::post('orders/{id}/verify', [OrderController::class, 'verify']);
@@ -49,6 +50,12 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::apiResource('influencers', InfluencerController::class);
     Route::apiResource('shipping-companies', ShippingCompanyController::class);
     Route::apiResource('employees', EmployeeController::class);
+
+    // Settings Management
+    Route::get('settings', [SettingController::class, 'index']);
+    Route::put('settings/bulk', [SettingController::class, 'bulkUpdate']);
+    Route::post('settings/upload', [SettingController::class, 'uploadImage']);
+    Route::put('settings/{id}', [SettingController::class, 'update']);
 
     // User Management Routes
     Route::prefix('users')->group(function () {

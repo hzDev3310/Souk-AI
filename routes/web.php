@@ -22,6 +22,11 @@ Route::middleware('web')->group(function () {
     Route::get('/p/{slug}', [PublicController::class, 'product'])->name('public.product');
     Route::get('/c/{slug}', [PublicController::class, 'category'])->name('public.category');
     Route::get('/search', [PublicController::class, 'search'])->name('public.search');
+    
+    // New navigation pages
+    Route::get('/products', [PublicController::class, 'allProducts'])->name('public.all-products');
+    Route::get('/categories', [PublicController::class, 'allCategories'])->name('public.all-categories');
+    Route::get('/stores', [PublicController::class, 'allStores'])->name('public.all-stores');
 
     // Cart & Favorites
     Route::get('/cart', [PublicController::class, 'cart'])->name('public.cart');
@@ -35,14 +40,18 @@ Route::middleware('web')->group(function () {
     Route::get('/checkout', [PublicController::class, 'checkout'])->name('public.checkout');
     Route::post('/checkout', [PublicController::class, 'processCheckout'])->name('public.checkout.process');
 
-    // Auth Pages (Redirect to SPA welcome)
-    Route::get('/login', function () {
-        return view('welcome');
-    })->name('login');
+    Route::middleware('auth')->group(function() {
+        Route::get('/profile', [PublicController::class, 'profile'])->name('public.profile');
+        Route::post('/profile', [PublicController::class, 'updateProfile'])->name('public.profile.update');
+        Route::get('/orders', [PublicController::class, 'orders'])->name('public.orders');
+    });
 
-    Route::get('/register', function () {
-        return view('welcome');
-    })->name('register');
+    // Auth Pages (Public Storefront)
+    Route::get('/login', [PublicController::class, 'showLogin'])->name('login');
+    Route::post('/login', [PublicController::class, 'login'])->name('public.login.submit');
+    Route::get('/register', [PublicController::class, 'showRegister'])->name('register');
+    Route::post('/register', [PublicController::class, 'register'])->name('public.register.submit');
+    Route::post('/logout', [PublicController::class, 'logout'])->name('logout');
 
     // SPA Dashboard (React)
     Route::get('/dashboard/{any?}', function () {

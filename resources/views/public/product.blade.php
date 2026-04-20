@@ -1,10 +1,10 @@
 @extends('layouts.public')
 
 @section('seo')
-    <meta name="description" content="{{ $product->description_en }}">
-    <meta name="keywords" content="{{ $product->name_en }}, {{ $product->store->name_en }}, buy">
-    <meta property="og:title" content="{{ $product->name_en }} - Souk AI">
-    <meta property="og:description" content="{{ $product->description_en }}">
+    <meta name="description" content="{{ $product->{'description_'.app()->getLocale()} }}">
+    <meta name="keywords" content="{{ $product->{'name_'.app()->getLocale()} }}, {{ $product->store->{'name_'.app()->getLocale()} }}, buy">
+    <meta property="og:title" content="{{ $product->{'name_'.app()->getLocale()} }} - Souk AI">
+    <meta property="og:description" content="{{ $product->{'description_'.app()->getLocale()} }}">
     <meta property="og:type" content="product">
     <meta property="og:url" content="{{ url()->current() }}">
     @if($product->albums->first())
@@ -18,9 +18,9 @@
         <div class="space-y-6">
             <div class="relative aspect-square bg-card glass border border-border/40 rounded-[60px] overflow-hidden premium-shadow">
                 @if($product->albums->first())
-                    <img src="/storage/{{ $product->albums->first()->file }}" alt="{{ $product->name_en }}" class="w-full h-full object-cover">
+                    <img src="/storage/{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover">
                 @else
-                    <img src="/storage/empty/empty.webp" alt="{{ $product->name_en }}" class="w-full h-full object-cover">
+                    <img src="/storage/empty/empty.webp" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover">
                 @endif
             </div>
             
@@ -44,7 +44,7 @@
             <div class="space-y-4">
                 <div class="flex items-center gap-3">
                     <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">
-                        {{ $product->store->name_en }}
+                        {{ $product->store->{'name_'.app()->getLocale()} }}
                     </span>
                     <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                         ID: {{ substr($product->id, 0, 8) }}
@@ -62,21 +62,21 @@
                         @else
                             {{ number_format($product->price, 2) }}
                         @endif
-                        <span class="text-xs font-black text-muted-foreground uppercase ml-1">TND</span>
+                        <span class="text-xs font-black text-muted-foreground uppercase ml-1">{{ __('website.currency') }}</span>
                     </p>
                     @if($product->promo > 0)
                         <p class="text-xl font-bold text-muted-foreground line-through opacity-50 pt-2">
-                             {{ number_format($product->price, 2) }} TND
+                             {{ number_format($product->price, 2) }} {{ __('website.currency') }}
                         </p>
                         <span class="px-2 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg">
-                            -{{ $product->promo }}% OFF
+                            -{{ $product->promo }}% {{ __('website.productInfo.off') }}
                         </span>
                     @endif
                 </div>
             </div>
 
             <div class="space-y-4">
-                <h4 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Description</h4>
+                <h4 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{{ __('website.productInfo.description') }}</h4>
                 <p class="text-muted-foreground font-medium leading-relaxed">
                     {{ $product->{'description_'.app()->getLocale()} }}
                 </p>
@@ -84,7 +84,7 @@
 
             @if($product->variants->count() > 0)
             <div class="space-y-4">
-                <h4 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground">Select Variant</h4>
+                <h4 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{{ __('website.productInfo.selectVariant') }}</h4>
                 <div class="flex flex-wrap gap-2">
                     @foreach($product->variants as $variant)
                         <button class="px-5 py-3 glass border-border/40 rounded-2xl font-bold text-xs hover:border-primary hover:text-primary transition-all active:scale-95">
@@ -108,12 +108,12 @@
             <!-- Additional Info -->
             <div class="grid grid-cols-2 gap-4 pt-8">
                 <div class="p-4 bg-muted/20 border border-border/20 rounded-3xl">
-                    <p class="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">Authenticity</p>
-                    <p class="text-xs font-bold">100% Genuine</p>
+                    <p class="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">{{ __('website.productInfo.authenticity') }}</p>
+                    <p class="text-xs font-bold">{{ __('website.productInfo.genuine') }}</p>
                 </div>
                 <div class="p-4 bg-muted/20 border border-border/20 rounded-3xl">
-                    <p class="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">Store Verified</p>
-                    <p class="text-xs font-bold">Trusted Seller</p>
+                    <p class="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">{{ __('website.productInfo.storeVerified') }}</p>
+                    <p class="text-xs font-bold">{{ __('website.productInfo.trustedSeller') }}</p>
                 </div>
             </div>
         </div>
@@ -122,7 +122,7 @@
     <!-- Related Products -->
     @if($relatedProducts->count() > 0)
     <section class="mt-32">
-        <h2 class="text-3xl font-black text-foreground tracking-tight mb-12">More from this Store</h2>
+        <h2 class="text-3xl font-black text-foreground tracking-tight mb-12">{{ __('website.productInfo.moreFromStore') }}</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             @foreach($relatedProducts as $related)
             <div class="product-card group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow">
@@ -135,8 +135,8 @@
                     <a href="{{ route('public.product', $related->slug) }}" class="absolute inset-0 z-10"></a>
                 </div>
                 <div class="p-4 md:p-6">
-                    <h3 class="font-bold text-foreground text-[10px] md:text-sm truncate">{{ $related->name_en }}</h3>
-                    <p class="text-sm md:text-lg font-black text-primary mt-2">{{ number_format($related->price, 2) }} TND</p>
+                    <h3 class="font-bold text-foreground text-[10px] md:text-sm truncate">{{ $related->{'name_'.app()->getLocale()} }}</h3>
+                    <p class="text-sm md:text-lg font-black text-primary mt-2">{{ number_format($related->price, 2) }} {{ __('website.currency') }}</p>
                 </div>
             </div>
             @endforeach
@@ -174,7 +174,7 @@
                             badge.classList.add('cart-pop');
                         }
                     });
-                    alert('Added to cart!');
+                    alert("{{ __('website.productInfo.addedToCart') }}");
                 }
             });
 

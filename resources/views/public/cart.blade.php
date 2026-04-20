@@ -6,8 +6,8 @@
 
 @section('content')
     <div class="mb-16">
-        <h1 class="text-5xl font-black text-foreground tracking-tight mb-4">Shopping Cart</h1>
-        <p class="text-muted-foreground font-medium">Review your items and proceed to checkout.</p>
+        <h1 class="text-5xl font-black text-foreground tracking-tight mb-4 uppercase">{{ __('website.cart.title') }}</h1>
+        <p class="text-muted-foreground font-medium">{{ __('website.cart.subtitle') }}</p>
     </div>
 
     @if(count($products) > 0)
@@ -32,9 +32,9 @@
                     </div>
                     
                     <div class="flex-1 space-y-2 text-center md:text-left">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-primary">{{ $product->store->name_en }}</p>
-                        <h3 class="font-bold text-foreground text-lg">{{ $product->name_en }}</h3>
-                        <p class="text-sm font-black text-foreground">{{ number_format($price, 2) }} TND</p>
+                        <p class="text-[10px] font-black uppercase tracking-widest text-primary">{{ $product->store->{'name_'.app()->getLocale()} }}</p>
+                        <h3 class="font-bold text-foreground text-lg">{{ $product->{'name_'.app()->getLocale()} }}</h3>
+                        <p class="text-sm font-black text-foreground">{{ number_format($price, 2) }} {{ __('website.currency') }}</p>
                     </div>
 
                     <div class="flex items-center gap-4">
@@ -60,30 +60,27 @@
 
         <!-- Summary -->
         <div class="space-y-6">
-            <div class="glass border border-border/40 rounded-[40px] p-8 premium-shadow sticky top-32 space-y-8">
-                <h3 class="text-xs font-black uppercase tracking-[0.2em] text-foreground">Order Summary</h3>
+            <div class="bg-card glass border border-border/40 rounded-[40px] p-8 premium-shadow space-y-8 sticky top-32">
+                <h3 class="text-xs font-black uppercase tracking-[0.2em] text-foreground">{{ __('website.cart.title') }}</h3>
                 
                 <div class="space-y-4">
-                    <div class="flex justify-between text-sm font-bold text-muted-foreground">
-                        <span>Subtotal</span>
-                        <span>{{ number_format($total, 2) }} TND</span>
+                    <div class="flex justify-between text-muted-foreground font-medium">
+                        <span class="text-[10px] uppercase tracking-widest">{{ __('website.cart.subtotal') }}</span>
+                        <span class="text-sm font-black text-foreground">{{ number_format($total, 2) }} {{ __('website.currency') }}</span>
                     </div>
-                    <div class="flex justify-between text-sm font-bold text-muted-foreground">
-                        <span>Shipping</span>
-                        <span class="text-primary uppercase text-[10px]">Calculated at next step</span>
+                    <div class="flex justify-between text-muted-foreground font-medium">
+                        <span class="text-[10px] uppercase tracking-widest">{{ __('website.cart.shipping') }}</span>
+                        <span class="text-[10px] font-black uppercase text-primary">{{ __('website.cart.shippingNote') }}</span>
                     </div>
-                    <div class="pt-4 border-t border-border/20 flex justify-between items-end">
-                        <span class="text-lg font-black text-foreground">Total</span>
-                        <div class="text-right">
-                             <p class="text-2xl font-black text-primary">{{ number_format($total, 2) }}</p>
-                             <p class="text-[10px] font-black text-muted-foreground uppercase">TND</p>
-                        </div>
+                    <div class="pt-4 border-t border-border/40 flex justify-between">
+                        <span class="text-xs font-black uppercase tracking-widest text-foreground">{{ __('website.cart.total') }}</span>
+                        <span class="text-xl font-black text-primary">{{ number_format($total, 2) }} {{ __('website.currency') }}</span>
                     </div>
                 </div>
 
-                <a href="{{ route('public.checkout') }}" class="w-full py-5 bg-primary text-white rounded-[32px] font-black text-sm uppercase tracking-widest hover:bg-primaryemphasis transition-all active:scale-95 shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
-                    Proceed to Checkout
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                <a href="{{ route('public.checkout') }}" class="w-full py-5 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all">
+                    {{ __('website.cart.proceed') }}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </a>
             </div>
         </div>
@@ -91,13 +88,13 @@
     @else
     <div class="py-32 text-center space-y-8 glass rounded-[60px] border border-border/40">
         <div class="w-24 h-24 bg-muted/20 rounded-full flex items-center justify-center mx-auto text-muted-foreground/30">
-             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
         </div>
         <div class="space-y-2">
-            <h3 class="text-3xl font-black text-foreground">Your cart is empty</h3>
-            <p class="text-muted-foreground font-medium">Looks like you haven't added anything yet.</p>
+            <h3 class="text-3xl font-black text-foreground">{{ __('website.cart.empty') }}</h3>
+            <p class="text-muted-foreground font-medium">{{ __('website.cart.emptyDesc') }}</p>
         </div>
-        <a href="/" class="inline-block px-12 py-5 bg-primary text-white rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:scale-105 transition-all">Start Shopping</a>
+        <a href="/" class="inline-block px-12 py-5 bg-primary text-white rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:scale-105 transition-all">{{ __('website.cart.start') }}</a>
     </div>
     @endif
 @endsection

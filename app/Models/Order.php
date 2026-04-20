@@ -29,12 +29,12 @@ class Order extends Model {
         $items = $this->items;
         if ($items->isEmpty()) return;
 
-        // Condition: If ALL items are confirme, or at least one is confirmed and the rest are cancelled
-        $allConfirmedOrCancelled = $items->every(fn($i) => in_array($i->status, ['confirme', 'annule']));
-        $atLeastOneConfirmed = $items->where('status', 'confirme')->count() > 0;
+        // Condition: If ALL items are CONFIRMED, or at least one is CONFIRMED and the rest are CANCELLED
+        $allConfirmedOrCancelled = $items->every(fn($i) => in_array($i->status, ['CONFIRMED', 'CANCELLED']));
+        $atLeastOneConfirmed = $items->where('status', 'CONFIRMED')->count() > 0;
 
         if ($allConfirmedOrCancelled && $atLeastOneConfirmed) {
-            $this->update(['status' => 'confirme']);
+            $this->update(['status' => 'CONFIRMED']);
         }
     }
 }

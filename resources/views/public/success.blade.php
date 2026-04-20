@@ -1,33 +1,44 @@
 @extends('layouts.public')
 
 @section('seo')
-    <title>Order Confirmed - Souk AI</title>
+    <title>{{ __('website.success.title') }} - Souk AI</title>
 @endsection
 
 @section('content')
-    <div class="py-32 text-center space-y-8 glass rounded-[60px] border border-border/40 premium-shadow">
-        <div class="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center mx-auto text-primary animate-bounce">
-             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div class="max-w-2xl mx-auto py-20 text-center">
+        <div class="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-10 text-green-500 scale-125">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         </div>
         
-        <div class="space-y-4 max-w-xl mx-auto px-6">
-            <h1 class="text-5xl font-black text-foreground tracking-tight">Order Confirmed!</h1>
-            <p class="text-xl text-muted-foreground font-medium">Thank you for your purchase. Your order <span class="text-primary font-black">#{{ $order->order_number }}</span> is being processed.</p>
-            
-            <div class="pt-8 space-y-4">
-                <p class="text-sm text-muted-foreground">A confirmation email has been sent to your inbox. You can track your order status in your profile.</p>
-                @if(!Auth::check())
-                    <div class="bg-primary/5 p-6 rounded-3xl border border-primary/20">
-                        <p class="text-xs font-black uppercase text-primary mb-2">Welcome to Souk AI</p>
-                        <p class="text-sm text-foreground">We've created an account for you. Check your email for your temporary password to log in and track your orders.</p>
-                    </div>
-                @endif
-            </div>
+        <div class="space-y-6 mb-12">
+            <h1 class="text-6xl font-black text-foreground tracking-tighter">{{ __('website.success.title') }}</h1>
+            <p class="text-xl text-muted-foreground font-medium max-w-lg mx-auto leading-relaxed">
+                {{ __('website.success.message') }} <span class="text-primary font-black">#{{ $order->id }}</span> {{ __('website.success.status') }}
+            </p>
+            <p class="text-sm text-muted-foreground">{{ __('website.success.emailsent') }}</p>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-            <a href="/" class="px-12 py-5 bg-primary text-white rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:scale-105 transition-all">Continue Shopping</a>
-            <a href="/login" class="px-12 py-5 glass border border-border/40 text-foreground rounded-full font-black text-xs uppercase tracking-[0.2em] hover:bg-card transition-all">View Order Status</a>
+        @if(session('guest_account'))
+        <div class="p-8 glass border border-primary/20 rounded-[40px] mb-12 text-left space-y-4 premium-shadow">
+            <h3 class="text-xl font-black text-foreground flex items-center gap-3">
+                 <span class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                 </span>
+                 {{ __('website.success.welcome') }}
+            </h3>
+            <p class="text-sm font-bold text-muted-foreground">
+                {{ __('website.success.guestWelcome') }}
+            </p>
+        </div>
+        @endif
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/" class="px-12 py-5 bg-primary text-white rounded-[24px] font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
+                {{ __('website.success.continue') }}
+            </a>
+            <a href="/profile" class="px-12 py-5 bg-card glass border border-border/40 text-foreground rounded-[24px] font-black text-xs uppercase tracking-[0.2em] hover:bg-muted/50 transition-all">
+                {{ __('website.success.viewStatus') }}
+            </a>
         </div>
     </div>
 @endsection
