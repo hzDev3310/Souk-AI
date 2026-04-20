@@ -88,7 +88,7 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             @foreach($products as $product)
             <div class="product-card group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow">
                 <!-- Promo Badge -->
@@ -115,7 +115,7 @@
                     </div>
                 </div>
 
-                <div class="p-6 space-y-3">
+                <div class="p-4 md:p-6 space-y-2 md:space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-[9px] font-black uppercase tracking-widest text-primary bg-primary/10 px-2 py-0.5 rounded-md">
                             {{ $product->store->name_en }}
@@ -126,7 +126,7 @@
                         </div>
                     </div>
 
-                    <h3 class="font-bold text-foreground text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                    <h3 class="font-bold text-foreground text-[10px] md:text-sm line-clamp-1 group-hover:text-primary transition-colors">
                         {{ $product->{'name_'.app()->getLocale()} }}
                     </h3>
 

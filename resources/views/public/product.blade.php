@@ -96,12 +96,12 @@
             @endif
 
             <div class="pt-8 flex flex-col sm:flex-row gap-4">
-                <button class="flex-1 py-5 bg-primary text-white rounded-[32px] font-black text-sm uppercase tracking-widest hover:bg-primaryemphasis transition-all active:scale-95 shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
+                <button id="add-to-cart-btn" data-product-id="{{ $product->id }}" class="flex-1 py-5 bg-primary text-white rounded-[32px] font-black text-sm uppercase tracking-widest hover:bg-primaryemphasis transition-all active:scale-95 shadow-xl shadow-primary/20 flex items-center justify-center gap-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     {{ __('website.addToCart') }}
                 </button>
-                <button class="w-16 h-16 glass border-border/40 rounded-full flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95 group">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:fill-current"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <button id="toggle-fav-btn" data-product-id="{{ $product->id }}" class="w-16 h-16 glass border-border/40 rounded-full flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all active:scale-95 group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="{{ in_array($product->id, session()->get('favorites', [])) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="favorite-icon {{ in_array($product->id, session()->get('favorites', [])) ? 'fill-current' : '' }}"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
                 </button>
             </div>
 
@@ -123,7 +123,7 @@
     @if($relatedProducts->count() > 0)
     <section class="mt-32">
         <h2 class="text-3xl font-black text-foreground tracking-tight mb-12">More from this Store</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
             @foreach($relatedProducts as $related)
             <div class="product-card group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow">
                 <div class="relative aspect-square overflow-hidden bg-muted/20">
@@ -134,9 +134,9 @@
                     @endif
                     <a href="{{ route('public.product', $related->slug) }}" class="absolute inset-0 z-10"></a>
                 </div>
-                <div class="p-6">
-                    <h3 class="font-bold text-foreground text-sm truncate">{{ $related->name_en }}</h3>
-                    <p class="text-lg font-black text-primary mt-2">{{ number_format($related->price, 2) }} TND</p>
+                <div class="p-4 md:p-6">
+                    <h3 class="font-bold text-foreground text-[10px] md:text-sm truncate">{{ $related->name_en }}</h3>
+                    <p class="text-sm md:text-lg font-black text-primary mt-2">{{ number_format($related->price, 2) }} TND</p>
                 </div>
             </div>
             @endforeach
@@ -144,3 +144,77 @@
     </section>
     @endif
 @endsection
+
+@push('scripts')
+<script>
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const toggleFavBtn = document.getElementById('toggle-fav-btn');
+
+    if(addToCartBtn) {
+        addToCartBtn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            fetch('{{ route("public.cart.add") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ product_id: productId, quantity: 1 })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    [document.getElementById('cart-count'), document.getElementById('cart-count-desktop')].forEach(badge => {
+                        if(badge) {
+                            badge.innerText = data.count;
+                            badge.classList.remove('hidden');
+                            badge.classList.remove('cart-pop');
+                            void badge.offsetWidth; // Trigger reflow
+                            badge.classList.add('cart-pop');
+                        }
+                    });
+                    alert('Added to cart!');
+                }
+            });
+
+        });
+    }
+
+    if(toggleFavBtn) {
+        toggleFavBtn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            const icon = this.querySelector('.favorite-icon');
+            fetch('{{ route("public.favorites.toggle") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    if(data.status === 'added') {
+                        icon.setAttribute('fill', 'currentColor');
+                    } else {
+                        icon.setAttribute('fill', 'none');
+                    }
+
+                    const badge = document.getElementById('fav-count-desktop');
+                    if(badge) {
+                        badge.innerText = data.count;
+                        data.count > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
+                        badge.classList.remove('cart-pop');
+                        void badge.offsetWidth;
+                        badge.classList.add('cart-pop');
+                    }
+                }
+            });
+        });
+    }
+</script>
+@endpush
+

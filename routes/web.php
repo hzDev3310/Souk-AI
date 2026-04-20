@@ -21,6 +21,19 @@ Route::middleware('web')->group(function () {
     Route::get('/', [PublicController::class, 'index'])->name('home');
     Route::get('/p/{slug}', [PublicController::class, 'product'])->name('public.product');
     Route::get('/c/{slug}', [PublicController::class, 'category'])->name('public.category');
+    Route::get('/search', [PublicController::class, 'search'])->name('public.search');
+
+    // Cart & Favorites
+    Route::get('/cart', [PublicController::class, 'cart'])->name('public.cart');
+    Route::post('/cart/add', [PublicController::class, 'addToCart'])->name('public.cart.add');
+    Route::post('/cart/remove', [PublicController::class, 'removeFromCart'])->name('public.cart.remove');
+    Route::post('/cart/update', [PublicController::class, 'updateCart'])->name('public.cart.update');
+
+    Route::get('/favorites', [PublicController::class, 'favorites'])->name('public.favorites');
+    Route::post('/favorites/toggle', [PublicController::class, 'toggleFavorite'])->name('public.favorites.toggle');
+
+    Route::get('/checkout', [PublicController::class, 'checkout'])->name('public.checkout');
+    Route::post('/checkout', [PublicController::class, 'processCheckout'])->name('public.checkout.process');
 
     // Auth Pages (Redirect to SPA welcome)
     Route::get('/login', function () {

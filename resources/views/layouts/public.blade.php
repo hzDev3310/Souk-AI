@@ -45,13 +45,30 @@
 
         <div class="flex items-center gap-4">
             <!-- Search -->
-            <div class="hidden sm:flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/50 transition-colors">
+            <form action="{{ route('public.search') }}" method="GET" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/50 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" placeholder="{{ __('website.search') }}" class="bg-transparent border-none outline-none text-xs font-bold w-24 xl:w-48 placeholder:text-muted-foreground/60">
+                <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('website.search') }}" class="bg-transparent border-none outline-none text-xs font-bold w-24 xl:w-48 placeholder:text-muted-foreground/60 text-foreground">
+            </form>
+
+            <!-- Desktop Actions -->
+            <div class="hidden lg:flex items-center gap-3">
+                <a href="/favorites" class="relative w-10 h-10 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-card hover:text-rose-500 transition-all border border-transparent hover:border-border/40">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    <span id="fav-count-desktop" class="absolute -top-1 -right-1 bg-primary text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background {{ count(session()->get('favorites', [])) > 0 ? '' : 'hidden' }}">
+                        {{ count(session()->get('favorites', [])) }}
+                    </span>
+                </a>
+                <a href="/cart" class="relative w-10 h-10 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-card hover:text-primary transition-all border border-transparent hover:border-border/40">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span id="cart-count-desktop" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background {{ count(session()->get('cart', [])) > 0 ? '' : 'hidden' }}">
+                        {{ count(session()->get('cart', [])) }}
+                    </span>
+                </a>
             </div>
 
             <!-- Toggles Group -->
             <div class="flex items-center gap-2 px-2 py-1 bg-muted/20 border border-border/40 rounded-2xl">
+
                 <!-- Theme Toggle -->
                 <button id="theme-toggle" class="w-8 h-8 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-card hover:text-primary transition-all">
                     <svg id="sun-icon" class="hidden dark:block" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
@@ -87,7 +104,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="min-h-screen pt-8 pb-20 container mx-auto px-4 md:px-12">
+    <main class="min-h-screen pt-8 pb-32 lg:pb-20 container mx-auto px-4 md:px-12">
         @yield('content')
     </main>
 
@@ -144,7 +161,40 @@
         </div>
     </footer>
 
+    <!-- Mobile Bottom Navigation -->
+    <div class="lg:hidden fixed bottom-6 left-6 right-6 z-50">
+        <div class="glass border border-border/40 rounded-[32px] p-2 flex items-center justify-around premium-shadow">
+            <a href="/" class="flex flex-col items-center gap-1 p-2 {{ request()->is('/') ? 'text-primary' : 'text-muted-foreground' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span class="text-[8px] font-black uppercase tracking-widest">Home</span>
+            </a>
+            <a href="/favorites" class="flex flex-col items-center gap-1 p-2 {{ request()->is('favorites*') ? 'text-primary' : 'text-muted-foreground' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <span class="text-[8px] font-black uppercase tracking-widest">Saved</span>
+            </a>
+            <div class="relative -top-8">
+                <a href="/cart" class="relative w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-xl shadow-primary/40 border-4 border-background hover:scale-110 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-background animate-bounce shadow-lg {{ count(session()->get('cart', [])) > 0 ? '' : 'hidden' }}">
+                        {{ count(session()->get('cart', [])) }}
+                    </span>
+                </a>
+            </div>
+
+
+            <a href="#" class="flex flex-col items-center gap-1 p-2 text-muted-foreground">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                <span class="text-[8px] font-black uppercase tracking-widest">Orders</span>
+            </a>
+            <a href="/login" class="flex flex-col items-center gap-1 p-2 text-muted-foreground">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span class="text-[8px] font-black uppercase tracking-widest">Profile</span>
+            </a>
+        </div>
+    </div>
+
     @stack('scripts')
+
     <script>
         const themeToggleBtn = document.getElementById('theme-toggle');
         
