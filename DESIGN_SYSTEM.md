@@ -47,6 +47,43 @@ The application follows a unified glassmorphism-based layout system designed for
   - Buttons/Inputs: `12px` to `16px`
 - **Blur Intensity**: Standardized on `backdrop-blur-md` for layouts and `backdrop-blur-sm` for cards/overlays.
 
+### **Image Fallback Standards**
+All product images **MUST** implement a fallback to the standard placeholder image when no image exists.
+
+**Fallback Image Path:**
+```
+/storage/empty/empty.webp
+```
+
+**Implementation Patterns:**
+
+**Blade/PHP (Laravel Views):**
+```blade
+@if($product->albums->first())
+    <img src="/storage/{{ $product->albums->first()->file }}" alt="{{ $product->name_en }}" class="w-full h-full object-cover">
+@else
+    <img src="/storage/empty/empty.webp" alt="{{ $product->name_en }}" class="w-full h-full object-cover">
+@endif
+```
+
+**React/JSX (Admin & Store Panels):**
+```jsx
+{product.albums && product.albums.length > 0 ? (
+    <img src={`/storage/${product.albums[0].file}`} alt="" className="w-full h-full object-cover" />
+) : (
+    <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
+)}
+```
+
+**Files Requiring This Standard:**
+- `resources/views/public/home.blade.php`
+- `resources/views/public/category.blade.php`
+- `resources/views/public/product.blade.php`
+- `resources/js/pages/admin/Products.jsx`
+- `resources/js/pages/admin/Orders.jsx`
+- `resources/js/pages/store/Products.jsx`
+- `resources/js/pages/store/Orders.jsx`
+
 ---
 
 ## 4. Implementation Rules

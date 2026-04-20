@@ -170,8 +170,89 @@ const Stores = () => {
             </div>
         </div>
 
-        {/* Table Container */}
-        <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden">
+        {/* Mobile View - Card List */}
+        <div className="grid grid-cols-1 gap-4 md:hidden">
+            {loading ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-3 bg-card/50 rounded-[32px] border border-border/50">
+                    <Activity className="w-8 h-8 animate-spin text-primary" />
+                    <p className="text-muted-foreground font-bold">{t('admin.common.loading')}</p>
+                </div>
+            ) : filteredStores.length === 0 ? (
+                <div className="py-20 text-center space-y-3 bg-card/50 rounded-[32px] border border-border/50">
+                    <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground">
+                        <Store size={32} />
+                    </div>
+                    <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t('admin.stores.messages.noStores')}</p>
+                </div>
+            ) : (
+                <AnimatePresence mode="popLayout">
+                    {filteredStores.map((store, idx) => (
+                        <motion.div
+                            key={store.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl uppercase">
+                                        {(store.store?.name_fr || store.name).charAt(0)}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{store.store?.name_fr || store.name}</h3>
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{store.store?.matriculeFiscale || 'No MAT'}</p>
+                                    </div>
+                                </div>
+                                <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${store.store?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
+                                    {store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
+                                <div>
+                                    <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.stores.table.owner')}</p>
+                                    <p className="text-xs font-bold text-foreground truncate">{store.name} {store.family_name}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.stores.table.phone')}</p>
+                                    <p className="text-xs font-bold text-foreground truncate">{store.store?.storePhone || '-'}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between pt-1">
+                                <div className="flex flex-col">
+                                    <p className="text-[9px] font-black text-muted-foreground uppercase mb-0.5">{t('admin.stores.table.email')}</p>
+                                    <p className="text-xs font-bold text-primary truncate max-w-[150px]">{store.email}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleEdit(store)}
+                                        className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
+                                    >
+                                        <Pencil size={18} strokeWidth={2.5} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDelete(store.id)}
+                                        className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
+                                    >
+                                        <Trash2 size={18} strokeWidth={2.5} />
+                                    </Button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            )}
+        </div>
+
+        {/* Desktop View - Table Container */}
+        <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden hidden md:block">
             <div className="overflow-x-auto">
                 <Table>
                     <TableHeader className="bg-muted/30">

@@ -8,7 +8,7 @@
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.jsx'])
     </head>
-    <body class="antialiased">
+    <body class="antialiased bg-background text-foreground transition-colors duration-500 overflow-x-hidden">
         <div id="react-root"></div>
     </body>
 </html>

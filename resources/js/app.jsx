@@ -8,61 +8,54 @@ import {
     Route,
     Navigate,
 } from 'react-router-dom';
-import Welcome from './components/Welcome';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
-import LogoutButton from './components/auth/LogoutButton';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
-import Stores from './pages/admin/Stores';
-import Influencers from './pages/admin/Influencers';
-import Clients from './pages/admin/Clients';
-import ShippingCompanies from './pages/admin/ShippingCompanies';
-import ShippingEmployees from './pages/admin/ShippingEmployees';
-import Categories from './pages/admin/Categories';
-import Products from './pages/admin/Products';
+// Admin pages
+import AdminStores from './pages/admin/Stores';
+import AdminInfluencers from './pages/admin/Influencers';
+import AdminClients from './pages/admin/Clients';
+import AdminShippingCompanies from './pages/admin/ShippingCompanies';
+import AdminShippingEmployees from './pages/admin/ShippingEmployees';
+import AdminCategories from './pages/admin/Categories';
+import AdminProducts from './pages/admin/Products';
+import AdminOrders from './pages/admin/Orders';
+// Store pages
+import StoreProducts from './pages/store/Products';
+import StoreOrders from './pages/store/Orders';
+import StoreProfile from './pages/store/Profile';
 
-const MainContent = () => {
-    const { isAuthenticated, user, loading } = useAuth();
+// Role-based route wrapper
+const RoleBasedProducts = () => {
+    const { user } = useAuth();
+    if (user?.role === 'ADMIN') return <AdminProducts />;
+    if (user?.role === 'STORE') return <StoreProducts />;
+    return <Navigate to="/dashboard" replace />;
+};
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-dark">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-            </div>
-        );
-    }
+const RoleBasedOrders = () => {
+    const { user } = useAuth();
+    if (user?.role === 'ADMIN') return <AdminOrders />;
+    if (user?.role === 'STORE') return <StoreOrders />;
+    return <Navigate to="/dashboard" replace />;
+};
 
-    return (
-        <div className="min-h-screen bg-darkgray text-white">
-            {isAuthenticated && (
-                <div className="bg-primary text-white p-4 shadow-lg flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <span className="font-bold text-xl">Souk AI</span>
-                        <span className="bg-white/20 px-2 py-0.5 rounded text-xs">
-                            {user?.role}
-                        </span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <span>Welcome, {user?.name}</span>
-                        <LogoutButton />
-                    </div>
-                </div>
-            )}
-            <Welcome />
-        </div>
-    );
+const RoleBasedProfile = () => {
+    const { user } = useAuth();
+    if (user?.role === 'STORE') return <StoreProfile />;
+    return <Navigate to="/dashboard" replace />;
 };
 
 const App = () => {
     return (
         <Router>
             <Routes>
-                {/* Public Routes */}
+                {/* Auth Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
 
@@ -76,22 +69,24 @@ const App = () => {
                     }
                 >
                     <Route index element={<Dashboard />} />
-                    <Route path="stores" element={<Stores />} />
-                    <Route path="influencers" element={<Influencers />} />
-                    <Route path="clients" element={<Clients />} />
-                    <Route path="shipping-companies" element={<ShippingCompanies />} />
-                    <Route path="shipping-employees" element={<ShippingEmployees />} />
-                    <Route path="categories" element={<Categories />} />
-                    <Route path="products" element={<Products />} />
-                    <Route path="orders" element={<div className="p-6 text-link">Orders Page (Work in Progress)</div>} />
+                    {/* Admin-only routes */}
+                    <Route path="stores" element={<AdminStores />} />
+                    <Route path="influencers" element={<AdminInfluencers />} />
+                    <Route path="clients" element={<AdminClients />} />
+                    <Route path="shipping-companies" element={<AdminShippingCompanies />} />
+                    <Route path="shipping-employees" element={<AdminShippingEmployees />} />
+                    <Route path="categories" element={<AdminCategories />} />
+                    {/* Role-based routes (products & orders) */}
+                    <Route path="products" element={<RoleBasedProducts />} />
+                    <Route path="orders" element={<RoleBasedOrders />} />
+                    {/* Common routes */}
                     <Route path="analytics" element={<div className="p-6 text-link">Analytics Page (Work in Progress)</div>} />
                     <Route path="settings" element={<div className="p-6 text-link">Settings Page (Work in Progress)</div>} />
-                    <Route path="profile" element={<div className="p-6 text-link">Profile Page (Work in Progress)</div>} />
+                    <Route path="profile" element={<RoleBasedProfile />} />
                 </Route>
 
-                {/* Default Route */}
-                <Route path="/" element={<MainContent />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                {/* Default Route: Redirect to dashboard if logged in, or handled by Blade / login */}
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
         </Router>
     );

@@ -9,7 +9,7 @@ let csrfTokenFetched = false;
 
 const fetchCsrfToken = async (force = false) => {
     if (!csrfTokenFetched || force) {
-        await axios.get('/api/sanctum/csrf-cookie', { withCredentials: true });
+        await axios.get('/sanctum/csrf-cookie', { withCredentials: true });
         csrfTokenFetched = true;
     }
 };
@@ -26,11 +26,9 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuth = async () => {
         try {
-            const response = await api.get('/check');
-            if (response.data.authenticated) {
-                setUser(response.data.user);
-                setIsAuthenticated(true);
-            }
+            const response = await api.get('/me');
+            setUser(response.data);
+            setIsAuthenticated(true);
         } catch (error) {
             // Not authenticated
         } finally {

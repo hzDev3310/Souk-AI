@@ -65,6 +65,10 @@
     --border-color: var(--color-border-main);
     --muted-color: #eff4fa;
     --muted-fg-color: var(--color-text-muted);
+
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.2);
+    --glass-blur: blur(12px);
 }
 
 .dark {
@@ -75,7 +79,11 @@
     --border-color: var(--color-border-main-dark);
     --muted-color: #2a3851;
     --muted-fg-color: var(--color-text-muted-dark);
+
+    --glass-bg: rgba(25, 34, 49, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.05);
 }
+
 
 @layer base {
     html, body {
@@ -100,6 +108,21 @@ input:-webkit-autofill:active {
 
 
 
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+}
+
+.premium-shadow {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+}
+
+.dark .premium-shadow {
+    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
+}
+
 .card {
     border-radius: var(--radius);
 }
@@ -107,3 +130,32 @@ input:-webkit-autofill:active {
 button {
     border-radius: 12px;
 }
+
+.nav-item {
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+.nav-item:hover::after {
+    width: 100%;
+}
+
+.product-card {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+}
+

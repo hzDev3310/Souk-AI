@@ -251,7 +251,7 @@ const Products = () => {
                                                 {product.albums && product.albums.length > 0 ? (
                                                     <img src={`/storage/${product.albums[0].file}`} alt="" className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <Box className="text-muted-foreground" size={20} />
+                                                    <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
                                                 )}
                                             </div>
                                             <div>
@@ -458,7 +458,9 @@ const Products = () => {
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-muted-foreground font-bold">{t('admin.products.view.noImages') || "No images available"}</p>
+                                    <div className="w-full h-40 rounded-2xl overflow-hidden">
+                                        <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
+                                    </div>
                                 )}
                             </div>
                         </div>

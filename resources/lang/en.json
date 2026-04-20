@@ -1,4 +1,21 @@
 {
+  "website": {
+    "home": "Home",
+    "trending": "Trending",
+    "flashSales": "Flash Sales",
+    "search": "Search items...",
+    "login": "Login",
+    "categories": "Categories",
+    "quickView": "Quick View",
+    "addToCart": "Add to Cart",
+    "featuredProducts": "Featured Products",
+    "browseByCategory": "Browse by Category",
+    "trust": {
+      "secure": "Secure Payments",
+      "fast": "Fast Delivery",
+      "quality": "Premium Quality"
+    }
+  },
   "common": {
     "welcome": "Welcome to Souk AI",
     "loading": "Loading...",
@@ -92,6 +109,7 @@
       "cin": "CIN / ID Card",
       "storeName": "Store Name",
       "taxId": "Tax Registration (Matricule Fiscale)",
+      "storeInfoMessage": "Your store details will be set up in your profile after registration.",
       "submit": "Create Account",
       "submitting": "Creating account...",
       "haveAccount": "Already have an account?",
@@ -252,6 +270,47 @@
         "noProducts": "No products found"
       }
     },
+    "orders": {
+      "title": "Orders Management",
+      "subtitle": "Track and manage all transactions on the platform",
+      "search": "Search an order...",
+      "table": {
+        "id": "ORDER ID",
+        "orderNumber": "ORDER #",
+        "client": "CLIENT",
+        "influencer": "INFLUENCER",
+        "amount": "AMOUNT",
+        "status": "STATUS",
+        "date": "DATE",
+        "actions": "ACTIONS"
+      },
+      "status": {
+        "pending": "Pending",
+        "en_cours": "In Progress",
+        "confirme": "Confirmed",
+        "en_shipping": "In Shipping",
+        "shipping_company": "At Shipping Company",
+        "shipped": "Shipped",
+        "annule": "Cancelled",
+        "confirmed": "Confirmed",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "view": {
+        "title": "Order Details",
+        "items": "Items",
+        "factures": "Invoices",
+        "clientInfo": "Client Info",
+        "influencerInfo": "Influencer Info",
+        "updateStatus": "Update Status",
+        "close": "Close"
+      },
+      "messages": {
+        "loading": "Loading orders...",
+        "noOrders": "No orders found",
+        "updateSuccess": "Order status updated successfully"
+      }
+    },
     "clients": {
         "title": "Clients Management",
         "subtitle": "Overview of all registered customers",
@@ -399,6 +458,119 @@
         "confirmDelete": "Remove courier from platform?",
         "noEmployees": "No couriers found for this selection",
         "viewAllCompanies": "Return to Companies"
+      }
+    }
+  },
+  "store": {
+    "nav": {
+      "products": "Products",
+      "orders": "Orders",
+      "profile": "Profile"
+    },
+    "products": {
+      "title": "My Products",
+      "subtitle": "Manage your store products",
+      "add": "Add Product",
+      "search": "Search products...",
+      "table": {
+        "nameInfo": "Product",
+        "price": "Price & Stock",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "form": {
+        "addTitle": "Add New Product",
+        "editTitle": "Edit Product",
+        "nameFr": "Name (FR)",
+        "nameAr": "Name (AR)",
+        "nameEn": "Name (EN)",
+        "descriptionFr": "Description (FR)",
+        "descriptionAr": "Description (AR)",
+        "descriptionEn": "Description (EN)",
+        "price": "Price",
+        "stock": "Stock",
+        "promo": "Promo (%)",
+        "images": "Images"
+      },
+      "messages": {
+        "confirmDelete": "Are you sure you want to delete {{name}}?",
+        "noProducts": "No products found",
+        "loading": "Loading..."
+      },
+      "view": "View Product",
+      "edit": "Edit Product"
+    },
+    "orders": {
+      "title": "My Orders",
+      "subtitle": "View and manage orders for your products",
+      "search": "Search orders...",
+      "table": {
+        "order": "Order",
+        "customer": "Customer",
+        "items": "Items",
+        "total": "Store Total",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "pending": "Pending",
+        "en_cours": "In Progress",
+        "confirme": "Confirmed",
+        "en_shipping": "In Shipping",
+        "shipping_company": "At Shipping Company",
+        "shipped": "Shipped",
+        "annule": "Cancelled",
+        "confirmed": "Confirmed",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "messages": {
+        "noOrders": "No orders found",
+        "loading": "Loading..."
+      },
+      "view": "Order Details",
+      "customerInfo": "Customer Information",
+      "yourProducts": "Your Products in this Order"
+    },
+    "profile": {
+      "title": "Store Profile",
+      "subtitle": "Update your store information and branding",
+      "sections": {
+        "branding": "Store Branding",
+        "storeInfo": "Store Information",
+        "businessInfo": "Business Information"
+      },
+      "form": {
+        "logo": "Store Logo",
+        "uploadLogo": "Upload Logo",
+        "logoHint": "Recommended: Square image, max 2MB",
+        "cover": "Store Cover",
+        "uploadCover": "Upload Cover",
+        "coverHint": "Recommended: Wide format (16:9), max 2MB",
+        "nameEn": "Store Name (English)",
+        "nameFr": "Store Name (French)",
+        "nameAr": "Store Name (Arabic)",
+        "descriptionEn": "Description (English)",
+        "descriptionFr": "Description (French)",
+        "descriptionAr": "Description (Arabic)",
+        "phone": "Store Phone",
+        "address": "Address",
+        "cin": "Responsible CIN",
+        "matriculeFiscale": "Matricule Fiscale",
+        "rib": "RIB",
+        "promo": "Promotion (%)",
+        "save": "Save Changes",
+        "saving": "Saving...",
+        "cancel": "Cancel"
+      },
+      "messages": {
+        "fetchError": "Failed to load store data",
+        "updateSuccess": "Store profile updated successfully",
+        "updateError": "Failed to update store profile",
+        "validationError": "Validation Error",
+        "noStore": "No store associated with this account",
+        "incompleteProfile": "Complete Your Store Profile",
+        "completeToAccess": "Please complete all required fields to access the full dashboard."
       }
     }
   }

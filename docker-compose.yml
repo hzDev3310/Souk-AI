@@ -48,6 +48,21 @@ services:
       # <--- Add these two lines
       - laravel-network
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: laravel-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: user
+      PMA_PASSWORD: password
+    ports:
+      - "8080:80"
+    networks:
+      - laravel-network
+    depends_on:
+      - mysql
+
 networks:
   laravel-network:
     driver: bridge

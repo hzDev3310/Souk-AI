@@ -1,4 +1,21 @@
 {
+  "website": {
+    "home": "الرئيسية",
+    "trending": "الرائج",
+    "flashSales": "عرُوض فلاش",
+    "search": "بحث ...",
+    "login": "تسجل الدخول",
+    "categories": "الفئات",
+    "quickView": "عرض سريع",
+    "addToCart": "إضافة إلى السلة",
+    "featuredProducts": "منتجات مميزة",
+    "browseByCategory": "تصفح حسب الفئة",
+    "trust": {
+      "secure": "دفع آمن",
+      "fast": "توصيل سريع",
+      "quality": "جودة ممتازة"
+    }
+  },
   "common": {
     "welcome": "مرحباً بكم في Souk AI",
     "loading": "جاري التحميل...",
@@ -91,6 +108,7 @@
       "cin": "رقم الهوية",
       "storeName": "اسم المتجر",
       "taxId": "الرقم الضريبي",
+      "storeInfoMessage": "سيتم إعداد تفاصيل متجرك في ملفك الشخصي بعد التسجيل.",
       "submit": "إنشاء حساب",
       "submitting": "جاري إنشاء الحساب...",
       "haveAccount": "لديك حساب بالفعل؟",
@@ -251,6 +269,46 @@
         "errorSaving": "خطأ في حفظ المتجر. يرجى المحاولة مرة أخرى."
       }
     },
+    "orders": {
+      "title": "إدارة الطلبات",
+      "subtitle": "تتبع وإدارة جميع المعاملات على المنصة",
+      "search": "البحث عن طلب...",
+      "table": {
+        "id": "رقم الطلب",
+        "client": "العميل",
+        "influencer": "المؤثر",
+        "amount": "المبلغ",
+        "status": "الحالة",
+        "date": "التاريخ",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "pending": "قيد الانتظار",
+        "en_cours": "قيد المعالجة",
+        "confirme": "مؤكد",
+        "en_shipping": "قيد الشحن",
+        "shipping_company": "عند شركة الشحن",
+        "shipped": "تم الشحن",
+        "annule": "ملغى",
+        "confirmed": "مؤكد",
+        "delivered": "تم التسليم",
+        "cancelled": "ملغى"
+      },
+      "view": {
+        "title": "تفاصيل الطلب",
+        "items": "الأصناف",
+        "factures": "الفواتير",
+        "clientInfo": "معلومات العميل",
+        "influencerInfo": "معلومات المؤثر",
+        "updateStatus": "تحديث الحالة",
+        "close": "إغلاق"
+      },
+      "messages": {
+        "loading": "جاري تحميل الطلبات...",
+        "noOrders": "لم يتم العثور على طلبات",
+        "updateSuccess": "تم تحديث حالة الطلب بنجاح"
+      }
+    },
     "clients": {
         "title": "إدارة العملاء",
         "subtitle": "نظرة عامة على جميع العملاء المسجلين",
@@ -398,6 +456,119 @@
         "confirmDelete": "إزالة الموزع من المنصة؟",
         "noEmployees": "لا يوجد موزعون لهذا الاختيار",
         "viewAllCompanies": "العودة إلى الشركات"
+      }
+    }
+  },
+  "store": {
+    "nav": {
+      "products": "المنتجات",
+      "orders": "الطلبات",
+      "profile": "الملف الشخصي"
+    },
+    "products": {
+      "title": "منتجاتي",
+      "subtitle": "إدارة منتجات متجرك",
+      "add": "إضافة منتج",
+      "search": "البحث عن المنتجات...",
+      "table": {
+        "nameInfo": "المنتج",
+        "price": "السعر والمخزون",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "form": {
+        "addTitle": "إضافة منتج جديد",
+        "editTitle": "تعديل المنتج",
+        "nameFr": "الاسم (FR)",
+        "nameAr": "الاسم (AR)",
+        "nameEn": "الاسم (EN)",
+        "descriptionFr": "الوصف (FR)",
+        "descriptionAr": "الوصف (AR)",
+        "descriptionEn": "الوصف (EN)",
+        "price": "السعر",
+        "stock": "المخزون",
+        "promo": "الخصم (%)",
+        "images": "الصور"
+      },
+      "messages": {
+        "confirmDelete": "هل أنت متأكد من حذف {{name}}؟",
+        "noProducts": "لم يتم العثور على منتجات",
+        "loading": "جاري التحميل..."
+      },
+      "view": "عرض المنتج",
+      "edit": "تعديل المنتج"
+    },
+    "orders": {
+      "title": "طلباتي",
+      "subtitle": "عرض وإدارة الطلبات لمنتجاتك",
+      "search": "البحث عن الطلبات...",
+      "table": {
+        "order": "الطلب",
+        "customer": "العميل",
+        "items": "المقالات",
+        "total": "إجمالي المتجر",
+        "status": "الحالة",
+        "actions": "الإجراءات"
+      },
+      "status": {
+        "pending": "قيد الانتظار",
+        "en_cours": "قيد المعالجة",
+        "confirme": "مؤكد",
+        "en_shipping": "قيد الشحن",
+        "shipping_company": "عند شركة الشحن",
+        "shipped": "تم الشحن",
+        "annule": "ملغى",
+        "confirmed": "مؤكد",
+        "delivered": "تم التسليم",
+        "cancelled": "ملغى"
+      },
+      "messages": {
+        "noOrders": "لم يتم العثور على طلبات",
+        "loading": "جاري التحميل..."
+      },
+      "view": "تفاصيل الطلب",
+      "customerInfo": "معلومات العميل",
+      "yourProducts": "منتجاتك في هذا الطلب"
+    },
+    "profile": {
+      "title": "ملف المتجر الشخصي",
+      "subtitle": "تحديث معلومات المتجر والعلامة التجارية",
+      "sections": {
+        "branding": "علامة المتجر التجارية",
+        "storeInfo": "معلومات المتجر",
+        "businessInfo": "المعلومات التجارية"
+      },
+      "form": {
+        "logo": "شعار المتجر",
+        "uploadLogo": "تحميل الشعار",
+        "logoHint": "موصى به: صورة مربعة، الحد الأقصى 2MB",
+        "cover": "غلاف المتجر",
+        "uploadCover": "تحميل الغلاف",
+        "coverHint": "موصى به: تنسيق عريض (16:9)، الحد الأقصى 2MB",
+        "nameEn": "اسم المتجر (الإنجليزية)",
+        "nameFr": "اسم المتجر (الفرنسية)",
+        "nameAr": "اسم المتجر (العربية)",
+        "descriptionEn": "الوصف (الإنجليزية)",
+        "descriptionFr": "الوصف (الفرنسية)",
+        "descriptionAr": "الوصف (العربية)",
+        "phone": "هاتف المتجر",
+        "address": "العنوان",
+        "cin": "رقم هوية المسؤول",
+        "matriculeFiscale": "الرقم الضريبي",
+        "rib": "رقم الحساب البنكي",
+        "promo": "الخصم (%)",
+        "save": "حفظ التعديلات",
+        "saving": "جاري الحفظ...",
+        "cancel": "إلغاء"
+      },
+      "messages": {
+        "fetchError": "فشل تحميل بيانات المتجر",
+        "updateSuccess": "تم تحديث ملف المتجر الشخصي بنجاح",
+        "updateError": "فشل تحديث ملف المتجر الشخصي",
+        "validationError": "خطأ في التحقق",
+        "noStore": "لا يوجد متجر مرتبط بهذا الحساب",
+        "incompleteProfile": "أكمل ملف متجرك الشخصي",
+        "completeToAccess": "يرجى ملء جميع الحقول المطلوبة للوصول إلى لوحة التحكم الكاملة."
       }
     }
   }

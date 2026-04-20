@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Navigate } from 'react-router-dom';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth } from '@/context/AuthContext';
 import Sidebar from './sidebar/Sidebar';
 import Header from './header/Header';
+import StoreBottomNav from './StoreBottomNav';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const DashboardLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDarkMode, language } = useTheme();
+  const { user } = useAuth();
   const isRTL = language === 'ar';
   const location = useLocation();
 
@@ -16,6 +19,21 @@ const DashboardLayout = () => {
     // Set RTL direction on document
     document.documentElement.setAttribute('dir', isRTL ? 'rtl' : 'ltr');
   }, [isRTL]);
+
+  // Check if store user has incomplete profile
+  const isStoreWithIncompleteProfile = user?.role === 'STORE' && (
+    !user?.store || 
+    !user?.store?.name_en || 
+    !user?.store?.name_fr || 
+    !user?.store?.name_ar ||
+    !user?.store?.matriculeFiscale ||
+    !user?.store?.storePhone
+  );
+
+  // Redirect to profile page if incomplete (but not if already on profile page)
+  if (isStoreWithIncompleteProfile && location.pathname !== '/dashboard/profile') {
+    return <Navigate to="/dashboard/profile" replace />;
+  }
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
@@ -55,6 +73,9 @@ const DashboardLayout = () => {
           </main>
         </div>
       </div>
+
+      {/* Mobile Bottom Navigation for Store Users */}
+      {user?.role === 'STORE' && <StoreBottomNav />}
 
       {/* Mobile Sidebar */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

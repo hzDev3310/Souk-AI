@@ -1,4 +1,21 @@
 {
+  "website": {
+    "home": "Accueil",
+    "trending": "Tendances",
+    "flashSales": "Ventes Flash",
+    "search": "Rechercher...",
+    "login": "Connexion",
+    "categories": "Catégories",
+    "quickView": "Aperçu rapide",
+    "addToCart": "Ajouter au panier",
+    "featuredProducts": "Produits Vedettes",
+    "browseByCategory": "Parcourir par Catégorie",
+    "trust": {
+      "secure": "Paiements Sécurisés",
+      "fast": "Livraison Rapide",
+      "quality": "Qualité Premium"
+    }
+  },
   "common": {
     "welcome": "Bienvenue sur Souk AI",
     "loading": "Chargement...",
@@ -101,6 +118,7 @@
       "cin": "CIN / Carte d'Identité",
       "storeName": "Nom du Magasin",
       "taxId": "Matricule Fiscale",
+      "storeInfoMessage": "Les détails de votre magasin seront configurés dans votre profil après l'inscription.",
       "submit": "Créer un compte",
       "submitting": "Création du compte...",
       "haveAccount": "Déjà un compte ?",
@@ -261,6 +279,46 @@
         "noProducts": "Aucun produit trouvé"
       }
     },
+    "orders": {
+      "title": "Gestion des Commandes",
+      "subtitle": "Suivez et gérez toutes les transactions de la plateforme",
+      "search": "Rechercher une commande...",
+      "table": {
+        "id": "ID COMMANDE",
+        "client": "CLIENT",
+        "influencer": "INFLUENCEUR",
+        "amount": "MONTANT",
+        "status": "STATUT",
+        "date": "DATE",
+        "actions": "ACTIONS"
+      },
+      "status": {
+        "pending": "En attente",
+        "en_cours": "En cours",
+        "confirme": "Confirmée",
+        "en_shipping": "En Expédition",
+        "shipping_company": "Chez le Transporteur",
+        "shipped": "Livrée",
+        "annule": "Annulée",
+        "confirmed": "Confirmée",
+        "delivered": "Livrée",
+        "cancelled": "Annulée"
+      },
+      "view": {
+        "title": "Détails de la Commande",
+        "items": "Articles",
+        "factures": "Factures",
+        "clientInfo": "Infos Client",
+        "influencerInfo": "Info Influenceur",
+        "updateStatus": "Mettre à jour le statut",
+        "close": "Fermer"
+      },
+      "messages": {
+        "loading": "Chargement des commandes...",
+        "noOrders": "Aucune commande trouvée",
+        "updateSuccess": "Statut de la commande mis à jour avec succès"
+      }
+    },
     "clients": {
         "title": "Gestion des Clients",
         "subtitle": "Vue d'ensemble de tous les clients enregistrés",
@@ -408,6 +466,119 @@
         "confirmDelete": "Supprimer le livreur de la plateforme ?",
         "noEmployees": "Aucun livreur trouvé pour cette sélection",
         "viewAllCompanies": "Retour aux sociétés"
+      }
+    }
+  },
+  "store": {
+    "nav": {
+      "products": "Produits",
+      "orders": "Commandes",
+      "profile": "Profil"
+    },
+    "products": {
+      "title": "Mes Produits",
+      "subtitle": "Gérer les produits de votre magasin",
+      "add": "Ajouter Produit",
+      "search": "Rechercher des produits...",
+      "table": {
+        "nameInfo": "Produit",
+        "price": "Prix & Stock",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "form": {
+        "addTitle": "Ajouter Nouveau Produit",
+        "editTitle": "Modifier Produit",
+        "nameFr": "Nom (FR)",
+        "nameAr": "Nom (AR)",
+        "nameEn": "Nom (EN)",
+        "descriptionFr": "Description (FR)",
+        "descriptionAr": "Description (AR)",
+        "descriptionEn": "Description (EN)",
+        "price": "Prix",
+        "stock": "Stock",
+        "promo": "Promo (%)",
+        "images": "Images"
+      },
+      "messages": {
+        "confirmDelete": "Êtes-vous sûr de vouloir supprimer {{name}} ?",
+        "noProducts": "Aucun produit trouvé",
+        "loading": "Chargement..."
+      },
+      "view": "Voir Produit",
+      "edit": "Modifier Produit"
+    },
+    "orders": {
+      "title": "Mes Commandes",
+      "subtitle": "Voir et gérer les commandes de vos produits",
+      "search": "Rechercher des commandes...",
+      "table": {
+        "order": "Commande",
+        "customer": "Client",
+        "items": "Articles",
+        "total": "Total Magasin",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "status": {
+        "pending": "En attente",
+        "en_cours": "En cours",
+        "confirme": "Confirmé",
+        "en_shipping": "En Expédition",
+        "shipping_company": "Chez le Transporteur",
+        "shipped": "Livré",
+        "annule": "Annulé",
+        "confirmed": "Confirmé",
+        "delivered": "Livré",
+        "cancelled": "Annulé"
+      },
+      "messages": {
+        "noOrders": "Aucune commande trouvée",
+        "loading": "Chargement..."
+      },
+      "view": "Détails Commande",
+      "customerInfo": "Informations Client",
+      "yourProducts": "Vos Produits dans cette Commande"
+    },
+    "profile": {
+      "title": "Profil du Magasin",
+      "subtitle": "Mettre à jour les informations et la marque de votre magasin",
+      "sections": {
+        "branding": "Marque du Magasin",
+        "storeInfo": "Informations du Magasin",
+        "businessInfo": "Informations Commerciales"
+      },
+      "form": {
+        "logo": "Logo du Magasin",
+        "uploadLogo": "Charger le Logo",
+        "logoHint": "Recommandé: Image carrée, max 2MB",
+        "cover": "Couverture du Magasin",
+        "uploadCover": "Charger la Couverture",
+        "coverHint": "Recommandé: Format large (16:9), max 2MB",
+        "nameEn": "Nom du Magasin (Anglais)",
+        "nameFr": "Nom du Magasin (Français)",
+        "nameAr": "Nom du Magasin (Arabe)",
+        "descriptionEn": "Description (Anglais)",
+        "descriptionFr": "Description (Français)",
+        "descriptionAr": "Description (Arabe)",
+        "phone": "Téléphone du Magasin",
+        "address": "Adresse",
+        "cin": "CIN Responsable",
+        "matriculeFiscale": "Matricule Fiscale",
+        "rib": "RIB",
+        "promo": "Promotion (%)",
+        "save": "Enregistrer les Modifications",
+        "saving": "Enregistrement...",
+        "cancel": "Annuler"
+      },
+      "messages": {
+        "fetchError": "Impossible de charger les données du magasin",
+        "updateSuccess": "Profil du magasin mis à jour avec succès",
+        "updateError": "Impossible de mettre à jour le profil du magasin",
+        "validationError": "Erreur de Validation",
+        "noStore": "Aucun magasin associé à ce compte",
+        "incompleteProfile": "Complétez Votre Profil de Magasin",
+        "completeToAccess": "Veuillez remplir tous les champs obligatoires pour accéder au tableau de bord complet."
       }
     }
   }
