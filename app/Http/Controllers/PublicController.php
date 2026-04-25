@@ -104,6 +104,20 @@ class PublicController extends Controller
         return view('public.product', compact('product', 'relatedProducts'));
     }
 
+    public function store($slug)
+    {
+        $store = Store::with(['products.albums'])
+            ->where('slug', $slug)
+            ->where('isActive', true)
+            ->firstOrFail();
+
+        $products = $store->products()
+            ->with('albums')
+            ->paginate(12);
+
+        return view('public.store', compact('store', 'products'));
+    }
+
     public function category($slug)
     {
         $category = Category::where('slug', $slug)->firstOrFail();
@@ -278,7 +292,7 @@ class PublicController extends Controller
             if(Auth::check()) {
                 $user = Auth::user();
             } else {
-                $password = Str::random(10);
+                $password = strval(random_int(1, 99999999));
                 $user = User::create([
                     'name' => $request->first_name,
                     'family_name' => $request->last_name,
@@ -287,10 +301,9 @@ class PublicController extends Controller
                     'role' => 'client'
                 ]);
                 
-                Auth::login($user);
+                Auth::login($user, true);
                 
-                // TODO: Send email with password
-                // Mail::to($user->email)->send(new WelcomeClientMail($user, $password));
+                session()->put('guest_temp_password', $password);
             }
 
             $client = Client::updateOrCreate(

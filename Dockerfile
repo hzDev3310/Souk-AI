@@ -12,11 +12,13 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libpq-dev \
     gnupg \
-    procps
+    procps \
+    sudo
 
-# Install Node.js (Latest LTS)
+# Install Node.js 20.x (LTS - required for Vite)
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+    && apt-get install -y nodejs \
+    && npm install -g npm@latest
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip

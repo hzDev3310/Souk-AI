@@ -16,21 +16,17 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import {
-    Search, 
-    Eye, 
-    ShoppingCart, 
-    User, 
-    Calendar, 
-    DollarSign,
-    Clock,
-    CheckCircle2,
-    Truck,
+    Search,
+    Eye,
+    ShoppingCart,
+    User,
     Package,
     XCircle,
     ChevronDown,
     Activity,
-    FileText,
     Store,
+    CheckCircle2,
+    Clock,
     AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -51,6 +47,8 @@ const StoreOrders = () => {
     const [search, setSearch] = useState("");
     const [viewingOrder, setViewingOrder] = useState(null);
 
+    const storeId = user?.store?.id;
+
     // Check if profile is incomplete
     const isProfileIncomplete = !user?.store?.name_en || !user?.store?.name_fr || !user?.store?.name_ar || !user?.store?.matriculeFiscale || !user?.store?.storePhone;
 
@@ -65,14 +63,11 @@ const StoreOrders = () => {
         setLoading(true);
         try {
             const response = await api.get("/store/orders");
-            // Ensure orders is always an array
             let ordersData = [];
             if (response.data?.data?.data && Array.isArray(response.data.data.data)) {
                 ordersData = response.data.data.data;
             } else if (response.data?.data && Array.isArray(response.data.data)) {
                 ordersData = response.data.data;
-            } else if (response.data?.orders && Array.isArray(response.data.orders)) {
-                ordersData = response.data.orders;
             } else if (Array.isArray(response.data)) {
                 ordersData = response.data;
             }
@@ -86,71 +81,105 @@ const StoreOrders = () => {
     };
 
     useEffect(() => {
-        fetchOrders();
-    }, []);
-
-    const updateStatus = async (orderId, status) => {
-        try {
-            await api.put(`/store/orders/${orderId}/status`, { status });
+        if (storeId) {
             fetchOrders();
+        }
+    }, [storeId]);
+
+    // Filter orders to only show those with items from this store
+    const getStoreOrders = () => {
+        if (!storeId || !orders.length) return [];
+        return orders.filter(order => {
+            if (!order.items) return false;
+            return order.items.some(item => item.store_id === storeId);
+        });
+    };
+
+    // Get only items belonging to this store from an order
+    const getStoreItems = (order) => {
+        if (!storeId || !order?.items) return [];
+        return order.items.filter(item => item.store_id === storeId);
+    };
+
+    // Update item status and trigger order status recalculation
+    const updateItemStatus = async (orderId, itemId, status) => {
+        try {
+            await api.post(`/store/orders/${orderId}/items/${itemId}/status`, { status });
+            // Refresh orders to get updated statuses
+            await fetchOrders();
+            // Update viewing order if modal is open
             if (viewingOrder && viewingOrder.id === orderId) {
-                const updated = await api.get(`/store/orders/${orderId}`);
-                setViewingOrder(updated.data);
+                const updated = getStoreOrders().find(o => o.id === orderId);
+                if (updated) setViewingOrder(updated);
             }
         } catch (error) {
-            console.error("Error updating status:", error);
+            console.error("Error updating item status:", error);
+            alert(error.response?.data?.message || "Failed to update status");
         }
     };
 
     const getStatusConfig = (status) => {
-        switch (status) {
+        switch (status?.toLowerCase()) {
             case "en_cours":
-            case "PENDING":
-                return { label: "En Cours", color: "text-amber-500", bg: "bg-amber-500/10", icon: Clock };
+            case "pending":
+                return { label: "Pending", color: "text-amber-500", bg: "bg-amber-500/10", icon: Clock };
             case "confirme":
-            case "CONFIRMED":
-                return { label: "Confirmé", color: "text-blue-500", bg: "bg-blue-500/10", icon: CheckCircle2 };
-            case "en_shipping":
-                return { label: "En Expédition", color: "text-indigo-500", bg: "bg-indigo-500/10", icon: Activity };
-            case "shipping_company":
-                return { label: "Chez le Transporteur", color: "text-purple-500", bg: "bg-purple-500/10", icon: Truck };
-            case "shipped":
-                return { label: "Livré", color: "text-emerald-500", bg: "bg-emerald-500/10", icon: Package };
+            case "confirmed":
+                return { label: "Confirmed", color: "text-emerald-500", bg: "bg-emerald-500/10", icon: CheckCircle2 };
             case "annule":
-                return { label: "Annulé", color: "text-rose-500", bg: "bg-rose-500/10", icon: XCircle };
+            case "cancelled":
+                return { label: "Cancelled", color: "text-rose-500", bg: "bg-rose-500/10", icon: XCircle };
+            case "shipped":
+                return { label: "Shipped", color: "text-blue-500", bg: "bg-blue-500/10", icon: Package };
+            case "delivered":
+                return { label: "Delivered", color: "text-green-500", bg: "bg-green-500/10", icon: CheckCircle2 };
             default:
-                return { label: status, color: "text-muted-foreground", bg: "bg-muted/10", icon: Activity };
+                return { label: status || "Unknown", color: "text-muted-foreground", bg: "bg-muted/10", icon: AlertCircle };
         }
     };
 
-    const filteredOrders = Array.isArray(orders) ? orders.filter(order => 
-        (order.order_number && order.order_number.toLowerCase().includes(search.toLowerCase())) ||
-        order.id?.toLowerCase().includes(search.toLowerCase()) ||
-        order.client?.user?.name?.toLowerCase().includes(search.toLowerCase())
-    ) : [];
-
-    const updateItemStatus = async (orderId, itemId, status) => {
-        try {
-            await api.post(`/store/orders/${orderId}/items/${itemId}/status`, { status });
-            fetchOrders();
-            if (viewingOrder && viewingOrder.id === orderId) {
-                const updated = await api.get(`/store/orders/${orderId}`);
-                setViewingOrder(updated.data);
-            }
-        } catch (error) {
-            console.error("Error updating item status:", error);
+    const getItemStatusConfig = (status) => {
+        switch (status?.toLowerCase()) {
+            case "en_cours":
+                return { label: "EN COURS", color: "text-amber-500", bg: "bg-amber-500/10" };
+            case "confirme":
+                return { label: "CONFIRMÉ", color: "text-emerald-500", bg: "bg-emerald-500/10" };
+            case "annule":
+                return { label: "ANNULÉ", color: "text-rose-500", bg: "bg-rose-500/10" };
+            default:
+                return { label: status?.toUpperCase() || "UNKNOWN", color: "text-muted-foreground", bg: "bg-muted/10" };
         }
     };
 
     const calculateStoreTotal = (order) => {
-        if (!order.items) return 0;
-        return order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const storeItems = getStoreItems(order);
+        return storeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     };
+
+    const calculateStoreItemCount = (order) => {
+        return getStoreItems(order).length;
+    };
+
+    const storeOrders = getStoreOrders();
+
+    const filteredOrders = storeOrders.filter(order =>
+        (order.order_number && order.order_number.toLowerCase().includes(search.toLowerCase())) ||
+        (order.id && order.id.toString().toLowerCase().includes(search.toLowerCase())) ||
+        (order.client?.user?.name?.toLowerCase().includes(search.toLowerCase()))
+    );
+
+    if (!storeId) {
+        return (
+            <div className="p-6 text-center">
+                <p className="text-muted-foreground">No store associated with this account.</p>
+            </div>
+        );
+    }
 
     return (
         <AdminPageLayout
             title={t("store.orders.title") || "My Orders"}
-            subtitle={t("store.orders.subtitle") || "View and manage orders for your products"}
+            subtitle={t("store.orders.subtitle") || "View and manage orders containing your products"}
             icon={ShoppingCart}
         >
             <div className="space-y-6 text-start">
@@ -185,6 +214,9 @@ const StoreOrders = () => {
                             {filteredOrders.map((order, idx) => {
                                 const status = getStatusConfig(order.status);
                                 const StatusIcon = status.icon;
+                                const storeItemCount = calculateStoreItemCount(order);
+                                const storeTotal = calculateStoreTotal(order);
+
                                 return (
                                     <motion.div
                                         key={order.id}
@@ -192,13 +224,16 @@ const StoreOrders = () => {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.95 }}
                                         transition={{ delay: idx * 0.05 }}
-                                        className="bg-card border border-border/60 rounded-[28px] p-5 space-y-4 shadow-sm active:scale-[0.99] transition-transform"
-                                        onClick={() => setViewingOrder(order)}
+                                        className="bg-card border border-border/60 rounded-[28px] p-5 space-y-4 shadow-sm"
                                     >
                                         <div className="flex items-center justify-between">
                                             <div>
-                                                <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{order.order_number || `#${order.id?.slice(-8)}`}</h3>
-                                                <p className="text-[10px] font-bold text-muted-foreground uppercase">{new Date(order.created_at).toLocaleDateString()}</p>
+                                                <h3 className="font-black text-foreground tracking-tight leading-none mb-1">
+                                                    {order.order_number || `#${order.id?.toString().slice(-8)}`}
+                                                </h3>
+                                                <p className="text-[10px] font-bold text-muted-foreground uppercase">
+                                                    {new Date(order.created_at).toLocaleDateString()}
+                                                </p>
                                             </div>
                                             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${status.bg}`}>
                                                 <StatusIcon className={`w-3.5 h-3.5 ${status.color}`} />
@@ -213,56 +248,37 @@ const StoreOrders = () => {
                                                 <User className="w-5 h-5 text-muted-foreground" />
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase mb-0.5">{t("store.orders.table.customer")}</p>
-                                                <p className="text-sm font-bold text-foreground truncate">{order.client?.user?.name || "N/A"}</p>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase mb-0.5">
+                                                    {t("store.orders.table.customer")}
+                                                </p>
+                                                <p className="text-sm font-bold text-foreground truncate">
+                                                    {order.client?.user?.name || "N/A"}
+                                                </p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase mb-0.5">{t("store.orders.table.total")}</p>
-                                                <p className="text-lg font-black text-primary">${calculateStoreTotal(order).toFixed(2)}</p>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase mb-0.5">
+                                                    {t("store.orders.table.yourItems") || "Your Items"}
+                                                </p>
+                                                <p className="text-lg font-black text-primary">{storeItemCount}</p>
                                             </div>
                                         </div>
 
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
-                                                <Package className="w-4 h-4 text-muted-foreground" />
-                                                <span className="text-xs font-bold text-muted-foreground">{order.items?.length || 0} {t("store.orders.table.items")}</span>
+                                                <Store className="w-4 h-4 text-muted-foreground" />
+                                                <span className="text-xs font-bold text-muted-foreground">
+                                                    {storeTotal.toFixed(2)} TND
+                                                </span>
                                             </div>
-                                            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button 
-                                                            size="sm" 
-                                                            variant="secondary"
-                                                            className="h-10 rounded-2xl font-black text-[10px] uppercase gap-2 px-4 shadow-sm"
-                                                        >
-                                                            Update
-                                                            <ChevronDown className="w-3 h-3" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 border-border/60 shadow-xl">
-                                                        <DropdownMenuItem className="rounded-xl h-10 font-bold text-xs" onClick={() => updateStatus(order.id, "PENDING")}>
-                                                            <Clock className="w-4 h-4 mr-2 text-amber-500" />
-                                                            Pending
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="rounded-xl h-10 font-bold text-xs" onClick={() => updateStatus(order.id, "CONFIRMED")}>
-                                                            <CheckCircle2 className="w-4 h-4 mr-2 text-blue-500" />
-                                                            Confirmed
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="rounded-xl h-10 font-bold text-xs" onClick={() => updateStatus(order.id, "SHIPPED")}>
-                                                            <Truck className="w-4 h-4 mr-2 text-indigo-500" />
-                                                            Shipped
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="rounded-xl h-10 font-bold text-xs" onClick={() => updateStatus(order.id, "DELIVERED")}>
-                                                            <Package className="w-4 h-4 mr-2 text-emerald-500" />
-                                                            Delivered
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem className="rounded-xl h-10 font-bold text-xs text-rose-500 focus:text-rose-600 focus:bg-rose-500/10" onClick={() => updateStatus(order.id, "CANCELLED")}>
-                                                            <XCircle className="w-4 h-4 mr-2" />
-                                                            Cancelled
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
-                                            </div>
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                className="h-10 rounded-2xl font-black text-[10px] uppercase gap-2 px-4"
+                                                onClick={() => setViewingOrder(order)}
+                                            >
+                                                <Eye className="w-4 h-4" />
+                                                View
+                                            </Button>
                                         </div>
                                     </motion.div>
                                 );
@@ -283,10 +299,10 @@ const StoreOrders = () => {
                                     {t("store.orders.table.customer") || "CUSTOMER"}
                                 </TableHead>
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">
-                                    {t("store.orders.table.items") || "ITEMS"}
+                                    {t("store.orders.table.yourItems") || "YOUR ITEMS"}
                                 </TableHead>
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">
-                                    {t("store.orders.table.total") || "STORE TOTAL"}
+                                    {t("store.orders.table.storeTotal") || "STORE TOTAL"}
                                 </TableHead>
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">
                                     {t("store.orders.table.status") || "STATUS"}
@@ -297,96 +313,75 @@ const StoreOrders = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {loading ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-32 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
-                                            <Activity className="w-5 h-5 animate-spin text-primary" />
-                                            {t("store.orders.messages.loading") || "Loading..."}
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : filteredOrders.map((order) => {
-                                const StatusIcon = getStatusConfig(order.status).icon;
-                                return (
-                                    <TableRow key={order.id} className="group hover:bg-primary/5 border-border/40 transition-colors">
-                                        <TableCell className="py-4 px-6">
-                                            <div className="flex flex-col">
-                                                <span className="font-black text-foreground tracking-tight">{order.order_number || `#${order.id?.slice(-8)}`}</span>
-                                                <span className="text-[10px] font-bold text-muted-foreground">
-                                                    {new Date(order.created_at).toLocaleDateString()}
-                                                </span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-4 px-6">
-                                            <div className="flex items-center gap-2">
-                                                <User className="w-4 h-4 text-muted-foreground" />
-                                                <span className="font-medium text-sm">{order.client?.user?.name || "N/A"}</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-4 px-6">
-                                            <span className="text-sm font-medium">{order.items?.length || 0} items</span>
-                                        </TableCell>
-                                        <TableCell className="py-4 px-6">
-                                            <span className="font-black text-primary">${calculateStoreTotal(order).toFixed(2)}</span>
-                                        </TableCell>
-                                        <TableCell className="py-4 px-6">
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${getStatusConfig(order.status).bg}`}>
-                                                <StatusIcon className={`w-3.5 h-3.5 ${getStatusConfig(order.status).color}`} />
-                                                <span className={`text-xs font-bold ${getStatusConfig(order.status).color}`}>
-                                                    {getStatusConfig(order.status).label}
-                                                </span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-4 px-6 text-end">
-                                            <div className="flex justify-end items-center gap-2">
-                                                <Button 
-                                                    size="icon" 
-                                                    variant="ghost" 
-                                                    className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20"
-                                                    onClick={() => setViewingOrder(order)}
-                                                >
-                                                    <Eye size={18} />
-                                                </Button>
-                                                <DropdownMenu>
-                                                    <DropdownMenuTrigger asChild>
-                                                        <Button 
-                                                            size="sm" 
-                                                            variant="ghost"
-                                                            className="h-9 rounded-xl text-primary hover:bg-primary/20"
-                                                        >
-                                                            <span className="text-xs font-bold">Update</span>
-                                                            <ChevronDown className="w-4 h-4 ml-1" />
-                                                        </Button>
-                                                    </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="w-40">
-                                                        <DropdownMenuItem onClick={() => updateStatus(order.id, "PENDING")}>
-                                                            <Clock className="w-4 h-4 mr-2 text-amber-500" />
-                                                            <span className="text-xs font-bold">Pending</span>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => updateStatus(order.id, "CONFIRMED")}>
-                                                            <CheckCircle2 className="w-4 h-4 mr-2 text-blue-500" />
-                                                            <span className="text-xs font-bold">Confirmed</span>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => updateStatus(order.id, "SHIPPED")}>
-                                                            <Truck className="w-4 h-4 mr-2 text-indigo-500" />
-                                                            <span className="text-xs font-bold">Shipped</span>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => updateStatus(order.id, "DELIVERED")}>
-                                                            <Package className="w-4 h-4 mr-2 text-emerald-500" />
-                                                            <span className="text-xs font-bold">Delivered</span>
-                                                        </DropdownMenuItem>
-                                                        <DropdownMenuItem onClick={() => updateStatus(order.id, "CANCELLED")}>
-                                                            <XCircle className="w-4 h-4 mr-2 text-rose-500" />
-                                                            <span className="text-xs font-bold text-rose-500">Cancelled</span>
-                                                        </DropdownMenuItem>
-                                                    </DropdownMenuContent>
-                                                </DropdownMenu>
+                            <AnimatePresence mode="popLayout">
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="h-32 text-center">
+                                            <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
+                                                <Activity className="w-5 h-5 animate-spin text-primary" />
+                                                {t("store.orders.messages.loading") || "Loading..."}
                                             </div>
                                         </TableCell>
                                     </TableRow>
-                                );
-                            })}
+                                ) : filteredOrders.map((order) => {
+                                    const status = getStatusConfig(order.status);
+                                    const StatusIcon = status.icon;
+                                    const storeItemCount = calculateStoreItemCount(order);
+                                    const storeTotal = calculateStoreTotal(order);
+
+                                    return (
+                                        <motion.tr
+                                            key={order.id}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            className="group hover:bg-primary/5 border-border/40 transition-colors"
+                                        >
+                                            <TableCell className="py-4 px-6">
+                                                <div className="flex flex-col">
+                                                    <span className="font-black text-foreground tracking-tight">
+                                                        {order.order_number || `#${order.id?.toString().slice(-8)}`}
+                                                    </span>
+                                                    <span className="text-[10px] font-bold text-muted-foreground">
+                                                        {new Date(order.created_at).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-4 px-6">
+                                                <div className="flex items-center gap-2">
+                                                    <User className="w-4 h-4 text-muted-foreground" />
+                                                    <span className="font-medium text-sm">{order.client?.user?.name || "N/A"}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-4 px-6">
+                                                <span className="text-sm font-medium">{storeItemCount} items</span>
+                                            </TableCell>
+                                            <TableCell className="py-4 px-6">
+                                                <span className="font-black text-primary">{storeTotal.toFixed(2)} TND</span>
+                                            </TableCell>
+                                            <TableCell className="py-4 px-6">
+                                                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${status.bg}`}>
+                                                    <StatusIcon className={`w-3.5 h-3.5 ${status.color}`} />
+                                                    <span className={`text-xs font-bold ${status.color}`}>
+                                                        {status.label}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-4 px-6 text-end">
+                                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    className="h-9 rounded-xl font-bold text-xs"
+                                                    onClick={() => setViewingOrder(order)}
+                                                >
+                                                    <Eye className="w-4 h-4 mr-2" />
+                                                    View
+                                                </Button>
+                                            </TableCell>
+                                        </motion.tr>
+                                    );
+                                })}
+                            </AnimatePresence>
                             {!loading && filteredOrders.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={6} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">
@@ -398,134 +393,165 @@ const StoreOrders = () => {
                     </Table>
                 </CardBox>
 
+                {/* Order Details Modal */}
                 <Modal
                     isOpen={!!viewingOrder}
                     onClose={() => setViewingOrder(null)}
-                    title={t("store.orders.view") || "Order Details"}
-                    subtitle={viewingOrder?.order_number || `#${viewingOrder?.id?.slice(-8)}`}
+                    title={t("store.orders.view.title") || "Order Details"}
+                    subtitle={viewingOrder?.order_number || `#${viewingOrder?.id?.toString().slice(-8)}`}
                     icon={ShoppingCart}
                     maxWidth="max-w-4xl"
                     footer={
-                        <div className="flex gap-3">
-                            <Button onClick={() => setViewingOrder(null)} className="rounded-xl font-black bg-muted text-foreground hover:bg-muted/80">
-                                {t("store.orders.view.close") || "Close"}
-                            </Button>
-                        </div>
+                        <Button onClick={() => setViewingOrder(null)} className="rounded-xl font-black bg-muted text-foreground hover:bg-muted/80">
+                            {t("store.orders.view.close") || "Close"}
+                        </Button>
                     }
                 >
                     {viewingOrder && (
-                        <div className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-start">
-                                <CardBox className="p-6 bg-muted/20 border-border/40 rounded-3xl">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                                            <User className="text-primary" size={20} />
-                                        </div>
-                                        <h3 className="text-sm font-black uppercase tracking-widest text-foreground">{t("admin.orders.view.clientInfo") || "Customer Information"}</h3>
-                                    </div>
-                                    <div className="space-y-3">
+                        <div className="space-y-6 text-start">
+                            {/* Order Status Banner */}
+                            <div className={`p-4 rounded-2xl border ${getStatusConfig(viewingOrder.status).bg} ${getStatusConfig(viewingOrder.status).color.replace('text-', 'border-')}/20`}>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        {React.createElement(getStatusConfig(viewingOrder.status).icon, { size: 20, className: getStatusConfig(viewingOrder.status).color })}
                                         <div>
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase">{t("auth.register.lastName") || "Nom"} & {t("auth.register.firstName") || "Prénom"}</p>
-                                            <p className="font-bold text-foreground">{viewingOrder.client?.user?.name} {viewingOrder.client?.user?.family_name}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase">{t("auth.register.email") || "Email"}</p>
-                                            <p className="font-bold text-foreground">{viewingOrder.client?.user?.email}</p>
-                                        </div>
-                                        {viewingOrder.shipping_address && (
-                                            <div>
-                                                <p className="text-[10px] font-black text-muted-foreground uppercase">{t("store.orders.table.address") || "Shipping Address"}</p>
-                                                <p className="font-bold text-foreground text-sm leading-tight">{viewingOrder.shipping_address}</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </CardBox>
-
-                                <CardBox className="p-6 bg-muted/20 border-border/40 rounded-3xl text-start">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 rounded-2xl bg-secondary/10 flex items-center justify-center">
-                                            <Activity className="text-secondary" size={20} />
-                                        </div>
-                                        <h3 className="text-sm font-black uppercase tracking-widest text-foreground">STATUT & INFOS</h3>
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div>
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase mt-1">STATUS DE L'ORDRE</p>
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full ${getStatusConfig(viewingOrder.status).bg} ${getStatusConfig(viewingOrder.status).color} font-black text-[10px] uppercase mt-1`}>
-                                                {React.createElement(getStatusConfig(viewingOrder.status).icon, { size: 12 })}
+                                            <p className="text-[10px] font-black uppercase opacity-70">Order Status</p>
+                                            <p className={`font-black ${getStatusConfig(viewingOrder.status).color}`}>
                                                 {getStatusConfig(viewingOrder.status).label}
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-muted-foreground uppercase">{t("admin.orders.table.date") || "Date"}</p>
-                                            <p className="font-bold text-foreground">{new Date(viewingOrder.created_at).toLocaleString()}</p>
+                                            </p>
                                         </div>
                                     </div>
-                                </CardBox>
+                                    <div className="text-right">
+                                        <p className="text-[10px] font-black uppercase opacity-70">Date</p>
+                                        <p className="font-bold">{new Date(viewingOrder.created_at).toLocaleString()}</p>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="space-y-6 text-start">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <ShoppingCart className="text-primary" size={20} />
-                                    <h3 className="text-sm font-black uppercase tracking-widest text-foreground">{t("admin.orders.view.items") || "Your Products"}</h3>
+                            {/* Customer Info */}
+                            <CardBox className="p-6 bg-muted/20 border-border/40 rounded-3xl">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                        <User className="text-primary" size={20} />
+                                    </div>
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-foreground">
+                                        {t("store.orders.view.customer") || "Customer Information"}
+                                    </h3>
                                 </div>
-                                
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase">Name</p>
+                                        <p className="font-bold text-foreground">{viewingOrder.client?.user?.name} {viewingOrder.client?.user?.family_name}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase">Email</p>
+                                        <p className="font-bold text-foreground">{viewingOrder.client?.user?.email}</p>
+                                    </div>
+                                </div>
+                                {viewingOrder.shipping_address && (
+                                    <div className="mt-4 pt-4 border-t border-border/40">
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase">{t("store.orders.view.shippingAddress") || "Shipping Address"}</p>
+                                        <p className="font-bold text-foreground text-sm">{viewingOrder.shipping_address}</p>
+                                    </div>
+                                )}
+                            </CardBox>
+
+                            {/* Your Items Section */}
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <Package className="text-primary" size={20} />
+                                    <h3 className="text-sm font-black uppercase tracking-widest text-foreground">
+                                        {t("store.orders.view.yourProducts") || "Your Products in this Order"}
+                                    </h3>
+                                    <span className="text-[10px] font-black text-muted-foreground ml-auto">
+                                        {calculateStoreItemCount(viewingOrder)} items
+                                    </span>
+                                </div>
+
                                 <CardBox className="p-0 border-border/40 rounded-[32px] overflow-hidden bg-muted/5">
                                     <Table>
                                         <TableHeader className="bg-muted/10">
                                             <TableRow className="border-border/40">
                                                 <TableHead className="py-4 px-6 text-[10px] font-black uppercase text-muted-foreground">PRODUCT</TableHead>
+                                                <TableHead className="py-4 px-6 text-center text-[10px] font-black uppercase text-muted-foreground">STATUS</TableHead>
                                                 <TableHead className="py-4 px-6 text-center text-[10px] font-black uppercase text-muted-foreground">QTY</TableHead>
                                                 <TableHead className="py-4 px-6 text-end text-[10px] font-black uppercase text-muted-foreground">SUBTOTAL</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {viewingOrder.items?.map((item, idx) => (
-                                                <TableRow key={idx} className="border-border/40">
-                                                    <TableCell className="py-4 px-6">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className="w-12 h-12 rounded-xl bg-muted overflow-hidden flex-shrink-0">
-                                                                <div className="w-10 h-10 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
+                                            {getStoreItems(viewingOrder).map((item, idx) => {
+                                                const itemStatus = getItemStatusConfig(item.status);
+                                                return (
+                                                    <TableRow key={item.id || idx} className="border-border/40">
+                                                        <TableCell className="py-4 px-6">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className="w-12 h-12 rounded-xl bg-muted overflow-hidden flex-shrink-0">
                                                                     {item.product?.albums?.[0] ? (
-                                                                        <img src={`/storage/${item.product.albums[0].file}`} className="w-full h-full object-cover" />
+                                                                        <img src={`/storage/${item.product.albums[0].file}`} className="w-full h-full object-cover" alt="" />
                                                                     ) : (
-                                                                        <img src="/storage/empty/empty.webp" className="w-full h-full object-cover" />
+                                                                        <img src="/storage/empty/empty.webp" className="w-full h-full object-cover" alt="" />
                                                                     )}
                                                                 </div>
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="font-bold text-sm text-foreground mb-1 truncate">{item.product?.name_fr || item.product?.name_en}</p>
-                                                                <div className="inline-block">
-                                                                    <DropdownMenu>
-                                                                        <DropdownMenuTrigger asChild>
-                                                                            <Button variant="ghost" size="sm" className={`h-6 text-[10px] font-black px-2 py-0 rounded-lg ${item.status === 'confirme' ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : item.status === 'annule' ? 'bg-rose-500/10 text-rose-500 hover:bg-rose-500/20' : 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20'}`}>
-                                                                                {item.status.toUpperCase()} <ChevronDown size={10} className="ml-1" />
-                                                                            </Button>
-                                                                        </DropdownMenuTrigger>
-                                                                        <DropdownMenuContent align="start" className="rounded-xl border-border/50 shadow-2xl">
-                                                                            <DropdownMenuItem onClick={() => updateItemStatus(viewingOrder.id, item.id, 'en_cours')} className="font-black text-[10px] uppercase">EN COURS</DropdownMenuItem>
-                                                                            <DropdownMenuItem onClick={() => updateItemStatus(viewingOrder.id, item.id, 'confirme')} className="font-black text-[10px] uppercase">CONFIRMER</DropdownMenuItem>
-                                                                            <DropdownMenuItem onClick={() => updateItemStatus(viewingOrder.id, item.id, 'annule')} className="font-black text-[10px] uppercase text-rose-500">ANNULER</DropdownMenuItem>
-                                                                        </DropdownMenuContent>
-                                                                    </DropdownMenu>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="font-bold text-sm text-foreground mb-1 truncate">{item.product?.name_fr || item.product?.name_en}</p>
+                                                                    <p className="text-xs text-muted-foreground">{item.product?.name_en}</p>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="py-4 px-6 text-center font-bold text-sm">x{item.quantity}</TableCell>
-                                                    <TableCell className="py-4 px-6 text-end">
-                                                        <span className="font-black text-primary text-sm">{(item.price * item.quantity).toFixed(2)} TND</span>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
+                                                        </TableCell>
+                                                        <TableCell className="py-4 px-6 text-center">
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className={`h-8 text-[10px] font-black px-3 py-0 rounded-lg ${itemStatus.bg} ${itemStatus.color} hover:opacity-80`}
+                                                                    >
+                                                                        {itemStatus.label} <ChevronDown size={12} className="ml-1" />
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent align="center" className="rounded-xl border-border/50 shadow-2xl">
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => updateItemStatus(viewingOrder.id, item.id, 'en_cours')}
+                                                                        className="font-black text-[10px] uppercase rounded-lg"
+                                                                    >
+                                                                        <Clock className="w-3 h-3 mr-2 text-amber-500" />
+                                                                        EN COURS
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => updateItemStatus(viewingOrder.id, item.id, 'confirme')}
+                                                                        className="font-black text-[10px] uppercase rounded-lg"
+                                                                    >
+                                                                        <CheckCircle2 className="w-3 h-3 mr-2 text-emerald-500" />
+                                                                        CONFIRMER
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => updateItemStatus(viewingOrder.id, item.id, 'annule')}
+                                                                        className="font-black text-[10px] uppercase rounded-lg text-rose-500"
+                                                                    >
+                                                                        <XCircle className="w-3 h-3 mr-2" />
+                                                                        ANNULER
+                                                                    </DropdownMenuItem>
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </TableCell>
+                                                        <TableCell className="py-4 px-6 text-center font-bold text-sm">x{item.quantity}</TableCell>
+                                                        <TableCell className="py-4 px-6 text-end">
+                                                            <span className="font-black text-primary text-sm">{(item.price * item.quantity).toFixed(2)} TND</span>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                );
+                                            })}
                                         </TableBody>
                                     </Table>
                                 </CardBox>
 
-                                <div className="flex justify-end p-6 bg-primary/5 rounded-[32px] border border-primary/10 mt-4">
+                                {/* Store Total */}
+                                <div className="flex justify-end p-6 bg-primary/5 rounded-[32px] border border-primary/10">
                                     <div className="text-right">
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase">STORE TOTAL</p>
-                                        <p className="text-3xl font-black text-primary leading-none mt-1">{calculateStoreTotal(viewingOrder).toFixed(2)} TND</p>
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase">{t("store.orders.view.yourTotal") || "Your Store Total"}</p>
+                                        <p className="text-3xl font-black text-primary leading-none mt-1">
+                                            {calculateStoreTotal(viewingOrder).toFixed(2)} TND
+                                        </p>
                                     </div>
                                 </div>
                             </div>

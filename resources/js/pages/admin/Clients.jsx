@@ -13,7 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Users, MapPin, Activity, Filter, Download } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Users, MapPin, Activity, Filter, Download, Eye, ShoppingCart, Package, Calendar, DollarSign } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '@/components/shared/Modal';
 
@@ -24,6 +24,9 @@ const Clients = () => {
     const [search, setSearch] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingClient, setEditingClient] = useState(null);
+    const [viewingClient, setViewingClient] = useState(null);
+    const [clientOrders, setClientOrders] = useState([]);
+    const [loadingOrders, setLoadingOrders] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         family_name: '',
@@ -90,6 +93,45 @@ const Clients = () => {
             codePostal: client.client?.codePostal || '',
         });
         setIsDialogOpen(true);
+    };
+
+    const handleView = async (client) => {
+        setViewingClient(client);
+        setLoadingOrders(true);
+        try {
+            const response = await api.get(`/admin/orders/client/${client.client?.id || client.id}`);
+            setClientOrders(response.data?.data || []);
+        } catch (error) {
+            console.error('Error fetching client orders:', error);
+            setClientOrders([]);
+        } finally {
+            setLoadingOrders(false);
+        }
+    };
+
+    const getStatusConfig = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'en_cours':
+            case 'pending':
+                return { label: 'Pending', color: 'text-amber-500', bg: 'bg-amber-500/10' };
+            case 'confirme':
+            case 'confirmed':
+                return { label: 'Confirmed', color: 'text-emerald-500', bg: 'bg-emerald-500/10' };
+            case 'annule':
+            case 'cancelled':
+                return { label: 'Cancelled', color: 'text-rose-500', bg: 'bg-rose-500/10' };
+            case 'shipped':
+                return { label: 'Shipped', color: 'text-blue-500', bg: 'bg-blue-500/10' };
+            case 'delivered':
+                return { label: 'Delivered', color: 'text-green-500', bg: 'bg-green-500/10' };
+            default:
+                return { label: status || 'Unknown', color: 'text-muted-foreground', bg: 'bg-muted/10' };
+        }
+    };
+
+    const calculateOrderTotal = (order) => {
+        if (!order.items) return 0;
+        return order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     };
 
     const resetForm = () => {
@@ -207,6 +249,15 @@ const Clients = () => {
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
+                                                    onClick={() => handleView(client)}
+                                                    className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20"
+                                                    title="View Order History"
+                                                >
+                                                    <Eye size={18} strokeWidth={2.5} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
                                                     onClick={() => handleEdit(client)}
                                                     className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20"
                                                 >
@@ -310,6 +361,115 @@ const Clients = () => {
                             </div>
                         </div>
                     </form>
+                </Modal>
+
+                {/* View Client Orders Modal */}
+                <Modal
+                    isOpen={!!viewingClient}
+                    onClose={() => { setViewingClient(null); setClientOrders([]); }}
+                    title={t('admin.clients.view.ordersTitle') || "Client Order History"}
+                    subtitle={viewingClient ? `${viewingClient.name} ${viewingClient.family_name || ''}` : ''}
+                    icon={ShoppingCart}
+                    maxWidth="max-w-4xl"
+                    footer={
+                        <Button onClick={() => { setViewingClient(null); setClientOrders([]); }} className="h-12 px-6 rounded-xl font-bold bg-muted text-foreground hover:bg-muted/80">
+                            {t('common.close') || "Close"}
+                        </Button>
+                    }
+                >
+                    {viewingClient && (
+                        <div className="space-y-6 text-start">
+                            {/* Client Info Summary */}
+                            <div className="p-4 bg-muted/20 rounded-2xl border border-border/40">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 font-black text-lg">
+                                        {viewingClient.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <p className="font-black text-foreground">{viewingClient.name} {viewingClient.family_name}</p>
+                                        <p className="text-sm text-muted-foreground">{viewingClient.email}</p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            <MapPin size={12} className="inline mr-1" />
+                                            {viewingClient.client?.city || '-'}, {viewingClient.client?.codePostal || '-'}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Orders List */}
+                            {loadingOrders ? (
+                                <div className="flex items-center justify-center py-12">
+                                    <Activity className="w-8 h-8 animate-spin text-primary" />
+                                </div>
+                            ) : clientOrders.length === 0 ? (
+                                <div className="py-12 text-center">
+                                    <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                                    <p className="text-muted-foreground font-bold">{t('admin.clients.view.noOrders') || "No orders found"}</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4 max-h-[400px] overflow-y-auto">
+                                    {clientOrders.map((order, idx) => {
+                                        const status = getStatusConfig(order.status);
+                                        const total = calculateOrderTotal(order);
+                                        return (
+                                            <motion.div
+                                                key={order.id}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ delay: idx * 0.05 }}
+                                                className="p-4 bg-card rounded-2xl border border-border/50 hover:border-primary/30 transition-colors"
+                                            >
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <span className="font-black text-foreground">
+                                                            {order.order_number || `#${order.id?.toString().slice(-8)}`}
+                                                        </span>
+                                                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${status.bg} ${status.color}`}>
+                                                            {status.label}
+                                                        </span>
+                                                    </div>
+                                                    <span className="text-xs text-muted-foreground">
+                                                        <Calendar size={12} className="inline mr-1" />
+                                                        {new Date(order.created_at).toLocaleDateString()}
+                                                    </span>
+                                                </div>
+
+                                                {/* Order Items */}
+                                                <div className="space-y-2">
+                                                    {order.items?.map((item, itemIdx) => (
+                                                        <div key={itemIdx} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
+                                                            <div className="w-10 h-10 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                                                                {item.product?.albums?.[0] ? (
+                                                                    <img src={`/storage/${item.product.albums[0].file}`} className="w-full h-full object-cover" alt="" />
+                                                                ) : (
+                                                                    <img src="/storage/empty/empty.webp" className="w-full h-full object-cover" alt="" />
+                                                                )}
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-bold text-sm text-foreground truncate">{item.product?.name_fr || item.product?.name_en}</p>
+                                                                <p className="text-xs text-muted-foreground">x{item.quantity}</p>
+                                                            </div>
+                                                            <span className="font-black text-primary text-sm">
+                                                                {(item.price * item.quantity).toFixed(2)} TND
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Order Total */}
+                                                <div className="flex justify-end pt-3 mt-3 border-t border-border/30">
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-black text-muted-foreground uppercase">{t('admin.orders.table.total') || "Total"}</p>
+                                                        <p className="text-xl font-black text-primary">{total.toFixed(2)} TND</p>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </Modal>
             </div>
         </AdminPageLayout>

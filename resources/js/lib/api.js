@@ -21,21 +21,12 @@ api.interceptors.request.use(async (config) => {
     return config;
 });
 
-// Auth Status Interceptor
+// Do not redirect on 401/419 here: a full-page jump to /dashboard/login breaks client-side
+// navigation (e.g. /dashboard/stores) and drops the intended URL. Let callers handle errors;
+// ProtectedRoute + AuthContext already gate unauthenticated access.
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response?.status === 401 || error.response?.status === 419) {
-            // Only redirect if not on login/register/root pages
-            const publicPaths = ['/login', '/register', '/'];
-            const isPublicPage = publicPaths.includes(window.location.pathname);
-            
-            if (!isPublicPage) {
-                window.location.href = '/login';
-            }
-        }
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 export default api;

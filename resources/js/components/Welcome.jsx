@@ -68,10 +68,10 @@ const Welcome = () => {
 
             {!isAuthenticated && (
                 <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-                    <Link to="/login" style={{...buttonStyle, backgroundColor: isDarkMode ? '#3182ce' : '#4299e1', color: 'white', textDecoration: 'none'}}>
+                    <Link to="/dashboard/login" style={{...buttonStyle, backgroundColor: isDarkMode ? '#3182ce' : '#4299e1', color: 'white', textDecoration: 'none'}}>
                         Login
                     </Link>
-                    <Link to="/register" style={{...buttonStyle, backgroundColor: isDarkMode ? '#38a169' : '#48bb78', color: 'white', textDecoration: 'none'}}>
+                    <Link to="/dashboard/register" style={{...buttonStyle, backgroundColor: isDarkMode ? '#38a169' : '#48bb78', color: 'white', textDecoration: 'none'}}>
                         Register
                     </Link>
                 </div>

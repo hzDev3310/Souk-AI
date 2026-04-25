@@ -43,8 +43,12 @@ export const NotificationProvider = ({ children }) => {
     }, 300); // Wait for fade out
   }, []);
 
+  const addNotification = useCallback((type, message, duration = 3000) => {
+    showToast(message, type, duration);
+  }, [showToast]);
+
   return (
-    <NotificationContext.Provider value={{ showToast, showAlert }}>
+    <NotificationContext.Provider value={{ showToast, showAlert, addNotification, showNotification: showToast }}>
       {children}
       
       {/* Toasts Container */}
@@ -62,7 +66,7 @@ export const NotificationProvider = ({ children }) => {
 
 export const useNotification = () => useContext(NotificationContext);
 
-const Toast = ({ message, type, onClose, exiting }) => {
+const Toast = ({ message, type, onClose, exiting=true }) => {
   const icons = {
     success: <CheckCircle2 className="w-5 h-5 text-success" />,
     error: <XCircle className="w-5 h-5 text-error" />,

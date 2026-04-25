@@ -24,6 +24,8 @@ i18n
         lng: locale,
         fallbackLng: 'en',
         debug: false,
+        keySeparator: false,
+        nsSeparator: false,
         interpolation: {
             escapeValue: false,
         },

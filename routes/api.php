@@ -13,22 +13,20 @@ use App\Http\Controllers\Api\Store\StoreOrderController;
 use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\Store\StoreProductController;
 use App\Http\Controllers\Api\Store\StoreProfileController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Auth routes
+// Entire file is registered with `web` middleware in bootstrap/app.php (session + CSRF for SPA cookie auth).
+
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
+
 Route::get('/check', [AuthController::class, 'check']);
 
 // Public Category Routes
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}', [CategoryController::class, 'show']);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/me', [AuthController::class, 'me']);
-});
 
 // Admin Routes
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
@@ -42,6 +40,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
 
     // Order Management
     Route::apiResource('orders', OrderController::class);
+    Route::get('orders/client/{clientId}', [OrderController::class, 'getByClient']);
     Route::post('orders/{id}/verify', [OrderController::class, 'verify']);
     Route::post('orders/{id}/confirm-manually', [OrderController::class, 'confirmManually']);
     Route::post('orders/{order}/items/{item}/status', [OrderController::class, 'updateItemStatus']);
@@ -111,11 +110,11 @@ Route::middleware(['auth:sanctum', 'role:store'])->prefix('store')->group(functi
     Route::get('/products', [StoreProductController::class, 'index']);
     Route::post('/products', [StoreProductController::class, 'store']);
     Route::get('/products/{product}', [StoreProductController::class, 'show']);
-    Route::post('/products/{product}', [StoreProductController::class, 'update']);
+    Route::put('/products/{product}', [StoreProductController::class, 'update']);
     Route::delete('/products/{product}', [StoreProductController::class, 'destroy']);
 
     Route::get('/orders', [StoreOrderController::class, 'index']);
     Route::get('/orders/{order}', [StoreOrderController::class, 'show']);
     Route::post('/orders/{order}/status', [StoreOrderController::class, 'updateStatus']); // Legacy
-    Route::post('/orders/{order}/items/{item}/status', [OrderController::class, 'updateItemStatus']);
+    Route::post('/orders/{order}/items/{item}/status', [StoreOrderController::class, 'updateItemStatus']);
 });

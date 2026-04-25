@@ -58,8 +58,8 @@ class StoreProfileController extends Controller
             'matriculeFiscale' => 'required|string|max:50',
             'rib' => 'required|string|max:100',
             'promo' => 'required|numeric|min:0|max:100',
-            'logo' => 'nullable|image|mimes:jpeg,png,gif,webp|max:2048',
-            'cover' => 'nullable|image|mimes:jpeg,png,gif,webp|max:2048',
+            'logo' => 'nullable|file|max:4096',
+            'cover' => 'nullable|file|max:4096',
         ]);
 
         if ($validator->fails()) {

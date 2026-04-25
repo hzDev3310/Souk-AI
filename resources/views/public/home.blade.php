@@ -71,8 +71,8 @@
                     
                     <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     
-                    <div class="absolute bottom-4 left-0 right-0 px-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                        <a href="{{ route('public.product', $product->slug) }}" class="w-full py-3 bg-foreground text-background rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all">
+                    <div class="absolute bottom-0 left-0 right-0 px-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                        <a href="{{ route('public.product', $product->slug) }}" class="w-full py-3 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all">
                             {{ __('website.quickView') }}
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </a>
@@ -160,63 +160,7 @@
         </div>
     </section>
 
-    <!-- SECTION 3: Top Stores by Orders -->
-    <section class="mb-20">
-        <div class="flex items-center justify-between mb-10 px-4">
-            <div>
-                <h2 class="text-3xl font-black text-foreground tracking-tight">{{ __('website.bestStores') ?? 'Best Stores' }}</h2>
-                <p class="text-sm font-bold text-muted-foreground mt-1 uppercase tracking-widest">{{ __('website.topSellers') ?? 'Top Sellers' }}</p>
-            </div>
-            <a href="{{ route('public.all-stores') }}" class="text-xs font-black uppercase tracking-widest text-primary hover:gap-2 flex items-center gap-1 transition-all">
-                {{ __('website.viewAll') }}
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            @forelse($topStores as $store)
-            <div class="group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow hover:shadow-2xl hover:shadow-primary/20 transition-all">
-                @if($store->cover)
-                <div class="h-24 overflow-hidden bg-muted/20 group-hover:scale-110 transition-transform duration-700">
-                    <img src="{{ asset($store->cover) }}" alt="" class="w-full h-full object-cover">
-                </div>
-                @else
-                <div class="h-24 bg-gradient-to-br from-primary/20 to-secondary/20"></div>
-                @endif
-                
-                <div class="p-6">
-                    <div class="flex items-center gap-3 mb-3">
-                        @if($store->logo && file_exists(public_path($store->logo)))
-                            <img src="{{ asset($store->logo) }}" alt="" class="w-12 h-12 rounded-full object-cover border-2 border-primary/20">
-                        @else
-                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black">
-                                {{ substr($store->{'name_'.app()->getLocale()}, 0, 1) }}
-                            </div>
-                        @endif
-                        <div class="flex-1">
-                            <h4 class="font-black text-sm text-foreground line-clamp-1">
-                                {{ $store->{'name_'.app()->getLocale()} }}
-                            </h4>
-                            <p class="text-[10px] text-muted-foreground font-bold">{{ $store->products->count() }} {{ __('website.products') ?? 'Products' }}</p>
-                        </div>
-                    </div>
-                    <p class="text-[10px] text-muted-foreground leading-relaxed line-clamp-2 mb-4">
-                        {{ $store->{'description_'.app()->getLocale()} }}
-                    </p>
-                    <a href="{{ route('public.all-products', ['store_id' => $store->id]) }}" class="w-full py-2 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primaryemphasis transition-all text-center">
-                        {{ __('website.visit') ?? 'Visit' }}
-                    </a>
-                </div>
-            </div>
-            @empty
-            <div class="col-span-2 lg:col-span-4 py-10 text-center text-muted-foreground">
-                No stores found
-            </div>
-            @endforelse
-        </div>
-    </section>
-
-    <!-- SECTION 4: Latest Products (Recent Additions) -->
+       <!-- SECTION 3: Latest Products (Recent Additions) -->
     <section class="mb-20">
         <div class="flex items-center justify-between mb-10 px-4">
             <div>
@@ -241,8 +185,8 @@
                     
                     <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     
-                    <div class="absolute bottom-4 left-0 right-0 px-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                        <a href="{{ route('public.product', $product->slug) }}" class="w-full py-3 bg-foreground text-background rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all">
+                    <div class="absolute bottom-0 left-0 right-0 px-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                        <a href="{{ route('public.product', $product->slug) }}" class="w-full py-3 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all">
                             {{ __('website.quickView') }}
                             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </a>
@@ -273,6 +217,64 @@
             @endforelse
         </div>
     </section>
+
+    <!-- SECTION 4: Top Stores by Orders -->
+    <section class="mb-20">
+        <div class="flex items-center justify-between mb-10 px-4">
+            <div>
+                <h2 class="text-3xl font-black text-foreground tracking-tight">{{ __('website.bestStores') ?? 'Best Stores' }}</h2>
+                <p class="text-sm font-bold text-muted-foreground mt-1 uppercase tracking-widest">{{ __('website.topSellers') ?? 'Top Sellers' }}</p>
+            </div>
+            <a href="{{ route('public.all-stores') }}" class="text-xs font-black uppercase tracking-widest text-primary hover:gap-2 flex items-center gap-1 transition-all">
+                {{ __('website.viewAll') }}
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+            @forelse($topStores as $store)
+            <div class="group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow hover:shadow-2xl hover:shadow-primary/20 transition-all">
+                @if($store->cover)
+                <div class="h-24 overflow-hidden bg-muted/20 group-hover:scale-110 transition-transform duration-700">
+                    <img src="/storage/{{ $store->cover }}" alt="" class="w-full h-full object-cover">
+                </div>
+                @else
+                <div class="h-24 bg-gradient-to-br from-primary/20 to-secondary/20"></div>
+                @endif
+
+                <div class="p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        @if($store->logo)
+                            <img src="/storage/{{ $store->logo }}" alt="" class="w-12 h-12 rounded-full object-cover border-2 border-primary/20">
+                        @else
+                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black">
+                                {{ substr($store->{'name_'.app()->getLocale()}, 0, 1) }}
+                            </div>
+                        @endif
+                        <div class="flex-1">
+                            <h4 class="font-black text-sm text-foreground line-clamp-1">
+                                {{ $store->{'name_'.app()->getLocale()} }}
+                            </h4>
+                            <p class="text-[10px] text-muted-foreground font-bold">{{ $store->products->count() }} {{ __('website.products') ?? 'Products' }}</p>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-muted-foreground leading-relaxed line-clamp-2 mb-4">
+                        {{ $store->{'description_'.app()->getLocale()} }}
+                    </p>
+                    <a href="{{ route('public.store', $store->slug) }}" class="w-full p-2 px-4 bg-primary text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primaryemphasis transition-all text-center">
+                        {{ __('website.visit') ?? 'Visit' }}
+                    </a>
+                </div>
+            </div>
+            @empty
+            <div class="col-span-2 lg:col-span-4 py-10 text-center text-muted-foreground">
+                No stores found
+            </div>
+            @endforelse
+        </div>
+    </section>
+
+ 
 
     <!-- Trust Banner -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-8 p-12 bg-card glass border border-border/40 rounded-[60px] premium-shadow">

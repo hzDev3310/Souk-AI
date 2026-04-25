@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { 
-    Moon, Sun, Languages, Mail, Lock, Eye, EyeOff, Sparkles, Shield, Zap, 
-    User, Smartphone, CreditCard, Building, MapPin, ChevronLeft, ArrowRight
-} from 'lucide-react';
+import { Moon, Sun, Languages, Building } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -21,28 +18,22 @@ import { Label } from '@/components/ui/label';
 import CardBox from '../shared/CardBox';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const ADMIN_LOGIN_PATH = '/dashboard/login';
+
 const Register = () => {
-    const { register } = useAuth();
+    const { register, isAuthenticated, loading: authLoading } = useAuth();
     const { isDarkMode, toggleTheme, language, changeLanguage } = useTheme();
     const { t } = useTranslation();
     const { showToast } = useNotification();
     const navigate = useNavigate();
     
-    const [step, setStep] = useState(1);
-    const [role, setRole] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+    const [role] = useState('STORE');
     const [formData, setFormData] = useState({
         name: '',
         family_name: '',
         email: '',
         password: '',
         password_confirmation: '',
-        address: '',
-        city: '',
-        code_postal: '',
-        referral_code: '',
-        phone: '',
-        cin: '',
         store_name_fr: '',
         store_name_ar: '',
         store_name_en: '',
@@ -51,15 +42,12 @@ const Register = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
-        const handleMouseMove = (e) => {
-            setMousePosition({ x: e.clientX, y: e.clientY });
-        };
-        window.addEventListener('mousemove', handleMouseMove);
-        return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, []);
+        if (!authLoading && isAuthenticated) {
+            navigate('/dashboard', { replace: true });
+        }
+    }, [authLoading, isAuthenticated, navigate]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -68,10 +56,6 @@ const Register = () => {
         }
     };
 
-    const selectRole = (selectedRole) => {
-        setRole(selectedRole);
-        setStep(2);
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -111,49 +95,6 @@ const Register = () => {
         size: 2 + Math.random() * 3,
     }));
 
-    const renderRoleSelection = () => (
-        <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-        >
-            <div className="text-center mb-8">
-                <h3 className="text-xl font-bold text-foreground mb-2">
-                    {t('auth.register.selectRoleTitle') || 'Choose Your Path'}
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                    {t('auth.register.selectRoleSubtitle') || 'Select the account type that best fits your needs.'}
-                </p>
-            </div>
-
-            <div className="grid gap-4">
-                {[
-                    { id: 'CLIENT', icon: User, label: t('auth.register.client'), desc: t('auth.register.clientDesc'), color: 'bg-primary/5 border-primary/20 hover:bg-primary/10 hover:border-primary' },
-                    { id: 'INFLUENCER', icon: Sparkles, label: t('auth.register.influencer'), desc: t('auth.register.influencerDesc'), color: 'bg-secondary/5 border-secondary/20 hover:bg-secondary/10 hover:border-secondary' },
-                    { id: 'STORE', icon: Building, label: t('auth.register.store'), desc: t('auth.register.storeDesc'), color: 'bg-success/5 border-success/20 hover:bg-success/10 hover:border-success' }
-                ].map((item) => (
-                    <motion.button
-                        key={item.id}
-                        whileHover={{ scale: 1.02, y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => selectRole(item.id)}
-                        className={`w-full p-5 flex items-center gap-4 text-left border-2 rounded-2xl transition-all duration-300 ${item.color}`}
-                    >
-                        <div className="w-12 h-12 rounded-full bg-white dark:bg-muted/30 flex items-center justify-center shadow-sm">
-                            <item.icon className="w-6 h-6 text-primary" />
-                        </div>
-                        <div>
-                            <div className="font-bold text-foreground">{item.label}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5">{item.desc}</div>
-                        </div>
-                        <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground opacity-50" />
-                    </motion.button>
-                ))}
-            </div>
-        </motion.div>
-    );
-
     const renderCommonFields = () => (
         <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -189,60 +130,20 @@ const Register = () => {
         </div>
     );
 
-    const renderRoleSpecificFields = () => {
-        switch (role) {
-            case 'CLIENT':
-                return (
-                    <div className="space-y-4 pt-4 border-t border-border/50">
-                        <div className="space-y-1.5">
-                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.address')}</Label>
-                            <Input name="address" value={formData.address} onChange={handleChange} placeholder="123 Street..." className="bg-muted/30 border-border/50 rounded-xl" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.city')}</Label>
-                                <Input name="city" value={formData.city} onChange={handleChange} placeholder="City" className="bg-muted/30 border-border/50 rounded-xl" />
-                            </div>
-                            <div className="space-y-1.5">
-                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.postalCode')}</Label>
-                                <Input name="code_postal" value={formData.code_postal} onChange={handleChange} placeholder="0000" className="bg-muted/30 border-border/50 rounded-xl" />
-                            </div>
-                        </div>
-                    </div>
-                );
-            case 'INFLUENCER':
-                return (
-                    <div className="space-y-4 pt-4 border-t border-border/50">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.phone')}</Label>
-                                <Input name="phone" value={formData.phone} onChange={handleChange} required placeholder="+216..." className="bg-muted/30 border-border/50 rounded-xl" />
-                                {errors.phone && <p className="text-error text-[10px] px-1 font-bold">{errors.phone[0]}</p>}
-                            </div>
-                            <div className="space-y-1.5">
-                                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.cin')}</Label>
-                                <Input name="cin" value={formData.cin} onChange={handleChange} required placeholder="ID Number" className="bg-muted/30 border-border/50 rounded-xl" />
-                                {errors.cin && <p className="text-error text-[10px] px-1 font-bold">{errors.cin[0]}</p>}
-                            </div>
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.referralCode')}</Label>
-                            <Input name="referral_code" value={formData.referral_code} onChange={handleChange} required placeholder="CODE123" className="bg-muted/30 border-border/50 rounded-xl" />
-                            {errors.referral_code && <p className="text-error text-[10px] px-1 font-bold">{errors.referral_code[0]}</p>}
-                        </div>
-                    </div>
-                );
-            case 'STORE':
-                return (
-                    <div className="space-y-4 pt-4 border-t border-border/50">
-                        <p className="text-sm text-muted-foreground">
-                            {t('auth.register.storeInfoMessage') || 'Your store details will be set up in your profile after registration.'}
-                        </p>
-                    </div>
-                );
-            default: return null;
-        }
-    };
+    const renderStoreFields = () => (
+        <div className="space-y-4 pt-4 border-t border-border/50">
+            <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.storeNameFr') || 'Store Name (FR)'}</Label>
+                <Input name="store_name_fr" value={formData.store_name_fr} onChange={handleChange} required placeholder="Mon Magasin" className="bg-muted/30 border-border/50 rounded-xl" />
+                {errors.store_name_fr && <p className="text-error text-[10px] px-1 font-bold">{errors.store_name_fr[0]}</p>}
+            </div>
+            <div className="space-y-1.5">
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-1">{t('auth.register.matriculeFiscale') || 'Tax ID (Matricule Fiscale)'}</Label>
+                <Input name="matricule_fiscale" value={formData.matricule_fiscale} onChange={handleChange} required placeholder="1234567890" className="bg-muted/30 border-border/50 rounded-xl" />
+                {errors.matricule_fiscale && <p className="text-error text-[10px] px-1 font-bold">{errors.matricule_fiscale[0]}</p>}
+            </div>
+        </div>
+    );
 
     return (
         <div className="min-h-screen w-full flex flex-col justify-center items-center bg-background text-foreground transition-colors duration-500 relative overflow-hidden py-12">
@@ -293,42 +194,41 @@ const Register = () => {
                                     <Sparkles className="w-10 h-10 text-primary animate-pulse" />
                                 </div>
                                 <h2 className="text-3xl font-black text-foreground mb-4">{t('auth.register.successTitle')}</h2>
-                                <p className="text-muted-foreground mb-8 text-lg">{role === 'CLIENT' ? t('auth.register.successClient') : t('auth.register.successOther')}</p>
+                                <p className="text-muted-foreground mb-8 text-lg">{t('auth.register.successOther')}</p>
                                 <Button asChild className="w-full h-14 rounded-2xl bg-primary hover:bg-primaryemphasis text-lg font-bold shadow-xl shadow-primary/20">
-                                    <Link to="/login">{t('auth.register.goToLogin')}</Link>
+                                    <Link to={ADMIN_LOGIN_PATH}>{t('auth.register.goToLogin')}</Link>
                                 </Button>
                             </motion.div>
                         ) : (
                             <>
                                 <div className="text-center mb-10">
-                                    <h1 className="text-4xl font-black bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent mb-2">Souk AI</h1>
-                                    <p className="text-muted-foreground font-medium text-sm">{t('auth.register.subtitle')}</p>
+                                    <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                        <Building className="w-8 h-8 text-primary" />
+                                    </div>
+                                    <h1 className="text-3xl font-black text-foreground mb-2">{t('auth.register.storeTitle') || 'Store Registration'}</h1>
+                                    <p className="text-muted-foreground font-medium text-sm">{t('auth.register.storeSubtitle') || 'Create your store account to start selling'}</p>
                                 </div>
 
-                                <AnimatePresence mode="wait">
-                                    {step === 1 ? renderRoleSelection() : (
-                                        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                                            <button onClick={() => setStep(1)} className="mb-6 flex items-center gap-2 text-primary font-bold hover:gap-3 transition-all">
-                                                <ChevronLeft className="w-5 h-5" /> {t('auth.register.back')}
-                                            </button>
-                                            
-                                            <form onSubmit={handleSubmit} className="space-y-6">
-                                                {renderCommonFields()}
-                                                {renderRoleSpecificFields()}
-                                                
-                                                {errors.general && <div className="p-4 bg-error/10 text-error rounded-xl text-sm font-bold border border-error/20">{errors.general}</div>}
+                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                                    <form onSubmit={handleSubmit} className="space-y-6">
+                                        {renderCommonFields()}
+                                        {renderStoreFields()}
+                                        
+                                        {errors.general && <div className="p-4 bg-error/10 text-error rounded-xl text-sm font-bold border border-error/20">{errors.general}</div>}
 
-                                                <Button type="submit" disabled={loading} className="w-full h-14 rounded-2xl bg-primary hover:bg-primaryemphasis text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                                                    {loading ? t('auth.register.submitting') : t('auth.register.submit')}
-                                                </Button>
-                                            </form>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                        <Button type="submit" disabled={loading} className="w-full h-14 rounded-2xl bg-primary hover:bg-primaryemphasis text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                                            {loading ? t('auth.register.submitting') : t('auth.register.submit')}
+                                        </Button>
+                                    </form>
+                                </motion.div>
 
-                                <div className="mt-10 pt-8 border-t border-border/50 text-center">
+                                <div className="mt-10 pt-8 border-t border-border/50 text-center space-y-3">
                                     <p className="text-muted-foreground font-medium">
-                                        {t('auth.register.haveAccount')} <Link to="/login" className="text-primary font-bold hover:text-primaryemphasis ml-1">{t('auth.register.signIn')}</Link>
+                                        {t('auth.register.haveAccount')} <Link to={ADMIN_LOGIN_PATH} className="text-primary font-bold hover:text-primaryemphasis ml-1">{t('auth.register.signIn')}</Link>
+                                    </p>
+                                    <p className="text-muted-foreground text-xs">
+                                        {t('auth.register.customerHint', { defaultValue: 'Customer account?' })}{' '}
+                                        <a href="/register" className="text-primary font-bold hover:underline">{t('auth.register.customerSignup', { defaultValue: 'Sign up on the shop' })}</a>
                                     </p>
                                 </div>
                             </>

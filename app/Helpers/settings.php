@@ -12,3 +12,17 @@ if (!function_exists('setting')) {
         });
     }
 }
+
+if (!function_exists('settings_group')) {
+    function settings_group($group, $defaults = [])
+    {
+        return Cache::rememberForever("settings.group.{$group}", function () use ($group, $defaults) {
+            $settings = Setting::where('group', $group)->get();
+            $result = $defaults;
+            foreach ($settings as $setting) {
+                $result[$setting->key] = $setting->value;
+            }
+            return $result;
+        });
+    }
+}

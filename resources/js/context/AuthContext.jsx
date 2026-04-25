@@ -44,7 +44,9 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error('Failed to fetch user:', error);
             // Don't redirect if already on auth pages
-            const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
+            const p = window.location.pathname;
+            const isAuthPage =
+                p === '/dashboard/login' || p === '/dashboard/register';
             if (!isAuthPage) {
                 setUser(null);
                 setIsAuthenticated(false);
@@ -113,6 +115,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         user,
+        setUser,
         isAuthenticated,
         loading,
         login,

@@ -124,4 +124,20 @@ class OrderController extends Controller
         
         return response()->json(["message" => "Order deleted successfully"]);
     }
+
+    /**
+     * Get orders by client ID
+     */
+    public function getByClient($clientId)
+    {
+        $orders = Order::where('client_id', $clientId)
+            ->with(['items.product', 'influencer.user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return response()->json([
+            'success' => true,
+            'data' => $orders
+        ]);
+    }
 }

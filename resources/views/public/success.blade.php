@@ -18,7 +18,8 @@
             <p class="text-sm text-muted-foreground">{{ __('website.success.emailsent') }}</p>
         </div>
 
-        @if(session('guest_account'))
+@if(session('guest_temp_password'))
+        @php $tempPassword = session('guest_temp_password'); @endphp
         <div class="p-8 glass border border-primary/20 rounded-[40px] mb-12 text-left space-y-4 premium-shadow">
             <h3 class="text-xl font-black text-foreground flex items-center gap-3">
                  <span class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
@@ -29,6 +30,10 @@
             <p class="text-sm font-bold text-muted-foreground">
                 {{ __('website.success.guestWelcome') }}
             </p>
+            <div class="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-xl">
+                <p class="text-xs font-black uppercase tracking-widest text-green-600 mb-2">Your Temporary Password</p>
+                <p class="text-2xl font-black text-green-600 font-mono">{{ $tempPassword }}</p>
+            </div>
         </div>
         @endif
 

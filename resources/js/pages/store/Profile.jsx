@@ -132,6 +132,8 @@ const StoreProfile = () => {
 
         try {
             setSaving(true);
+            // Remove Content-Type to let browser set multipart/form-data with boundary
+            delete api.defaults.headers['Content-Type'];
             const response = await api.post(`/store/profile`, data);
             
             if (response.data?.data) {
@@ -158,6 +160,8 @@ const StoreProfile = () => {
             }
         } finally {
             setSaving(false);
+            // Always restore default Content-Type
+            api.defaults.headers['Content-Type'] = 'application/json';
         }
     };
 

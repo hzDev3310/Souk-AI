@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/table';
 import {
     Plus, Pencil, Trash2, Search, Box, Image as ImageIcon,
-    CheckCircle2, XCircle, Activity, Eye, Package, AlertCircle, ChevronDown, ChevronUp
+    CheckCircle2, XCircle, Activity, Eye, Package, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -29,8 +29,6 @@ const StoreProducts = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingProduct, setEditingProduct] = useState(null);
     const [viewingProduct, setViewingProduct] = useState(null);
     const [expandedCardId, setExpandedCardId] = useState(null);
     const [quickEditData, setQuickEditData] = useState({});
@@ -45,23 +43,6 @@ const StoreProducts = () => {
         }
     }, [isProfileIncomplete, navigate]);
 
-    const [formData, setFormData] = useState({
-        name_fr: '',
-        name_ar: '',
-        name_en: '',
-        description_fr: '',
-        description_ar: '',
-        description_en: '',
-        price: '',
-        condition: 'NEW',
-        stock: '0',
-        promo: '0'
-    });
-
-    const [imageFiles, setImageFiles] = useState([]);
-    const [previews, setPreviews] = useState([]);
-
-    // Get store ID from user data
     const storeId = user?.store?.id;
 
     useEffect(() => {
@@ -82,89 +63,6 @@ const StoreProducts = () => {
         }
     };
 
-
-    const resetForm = () => {
-        setFormData({
-            name_fr: '',
-            name_ar: '',
-            name_en: '',
-            description_fr: '',
-            description_ar: '',
-            description_en: '',
-            price: '',
-            condition: 'NEW',
-            stock: '0',
-            promo: '0'
-        });
-        setImageFiles([]);
-        setPreviews([]);
-        setEditingProduct(null);
-    };
-
-    const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
-        setImageFiles(files);
-        const newPreviews = files.map(file => URL.createObjectURL(file));
-        setPreviews(newPreviews);
-    };
-
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        const data = new FormData();
-        Object.keys(formData).forEach(key => {
-            data.append(key, formData[key]);
-        });
-
-        imageFiles.forEach(file => {
-            data.append('images[]', file);
-        });
-
-        if (editingProduct) data.append('_method', 'PUT');
-
-        try {
-            if (editingProduct) {
-                await api.post(`/store/products/${editingProduct.id}`, data);
-            } else {
-                await api.post('/store/products', data);
-            }
-            fetchProducts();
-            setIsModalOpen(false);
-            resetForm();
-        } catch (error) {
-            console.error('Error saving product:', error);
-            if (error.response?.status === 422) {
-                const errors = error.response.data.errors;
-                const messages = Object.values(errors).flat().join('\n');
-                alert(`Validation Error:\n${messages}`);
-            } else {
-                alert("Error saving product. Check console.");
-            }
-        }
-    };
-
-    const handleEdit = (product) => {
-        setFormData({
-            name_fr: product.name_fr || '',
-            name_ar: product.name_ar || '',
-            name_en: product.name_en || '',
-            description_fr: product.description_fr || '',
-            description_ar: product.description_ar || '',
-            description_en: product.description_en || '',
-            price: product.price || '',
-            condition: product.condition || 'NEW',
-            stock: product.stock || '0',
-            promo: product.promo || '0'
-        });
-
-        const albumPreviews = product.albums?.map(a => `/storage/${a.file}`) || [];
-        setPreviews(albumPreviews);
-
-        setEditingProduct(product);
-        setIsModalOpen(true);
-    };
-
     const handleDelete = async (product) => {
         if (!confirm(t('store.products.messages.confirmDelete', { name: product.name_en }) || `Confirm deletion?`)) return;
         try {
@@ -173,6 +71,14 @@ const StoreProducts = () => {
         } catch (error) {
             console.error('Error deleting product:', error);
         }
+    };
+
+    const handleAdd = () => {
+        navigate('/dashboard/products/create');
+    };
+
+    const handleEdit = (product) => {
+        navigate(`/dashboard/products/${product.id}/edit`);
     };
 
     const handleQuickEdit = async (product) => {
@@ -214,10 +120,7 @@ const StoreProducts = () => {
             title={t('store.products.title') || "My Products"}
             subtitle={t('store.products.subtitle') || "Manage your store products"}
             icon={Box}
-            onAdd={() => { 
-                resetForm(); 
-                setIsModalOpen(true); 
-            }}
+            onAdd={handleAdd}
             addLabel={t('store.products.add') || "Add Product"}
         >
             <div className="space-y-6 text-start pb-24 xl:pb-0">
@@ -329,7 +232,7 @@ const StoreProducts = () => {
                                                             </div>
                                                         </div>
 
-                                                        {/* Status Toggle and Actions */}
+                                                        {/* Actions */}
                                                         <div className="flex items-center justify-between pt-2 border-t border-border/60">
                                                             <label className="flex items-center gap-2 cursor-pointer">
                                                                 <input type="checkbox" defaultChecked className="w-4 h-4 rounded" />
@@ -372,7 +275,7 @@ const StoreProducts = () => {
                         <TableHeader className="bg-muted/30">
                             <TableRow className="border-border/50">
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">
-                                    {t('store.products.table.nameInfo') || "PRODUCT"}
+                                    {t('store.products.table.product') || "PRODUCT"}
                                 </TableHead>
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">
                                     {t('store.products.table.price') || "PRICE & STOCK"}
@@ -386,58 +289,66 @@ const StoreProducts = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {loading ? (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="h-32 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
-                                            <Activity className="w-5 h-5 animate-spin text-primary" />
-                                            {t('store.products.messages.loading') || "Loading..."}
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : filteredProducts.map((product) => (
-                                <TableRow key={product.id} className="group hover:bg-primary/5 border-border/40 transition-colors">
-                                    <TableCell className="py-4 px-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
-                                                {product.albums && product.albums.length > 0 ? (
-                                                    <img src={`/storage/${product.albums[0].file}`} alt="" className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
-                                                )}
+                            <AnimatePresence mode="popLayout">
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="h-32 text-center">
+                                            <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
+                                                <Activity className="w-5 h-5 animate-spin text-primary" />
+                                                {t('store.products.messages.loading') || "Loading..."}
                                             </div>
-                                            <div>
-                                                <p className="font-black text-foreground tracking-tight">{product.name_fr}</p>
-                                                <p className="text-[10px] font-bold text-muted-foreground uppercase">{product.slug}</p>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : filteredProducts.map((product) => (
+                                    <motion.tr
+                                        key={product.id}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        className="group hover:bg-primary/5 border-border/40 transition-colors"
+                                    >
+                                        <TableCell className="py-4 px-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
+                                                    {product.albums && product.albums.length > 0 ? (
+                                                        <img src={`/storage/${product.albums[0].file}`} alt="" className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <p className="font-black text-foreground tracking-tight">{product.name_fr}</p>
+                                                    <p className="text-[10px] font-bold text-muted-foreground uppercase">{product.slug}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="py-4 px-6">
-                                        <div className="flex flex-col">
-                                            <span className="font-black text-primary">${product.price}</span>
-                                            <span className="text-[10px] font-bold text-muted-foreground uppercase">{product.stock} in stock</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="py-4 px-6">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${product.stock > 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
-                                            {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="py-4 px-6 text-end">
-                                        <div className="flex justify-end gap-2 transition-opacity">
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20" onClick={() => setViewingProduct(product)}>
-                                                <Eye size={18} />
-                                            </Button>
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20" onClick={() => handleEdit(product)}>
-                                                <Pencil size={18} />
-                                            </Button>
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20 hover:text-red-600" onClick={() => handleDelete(product)}>
-                                                <Trash2 size={18} />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                                        </TableCell>
+                                        <TableCell className="py-4 px-6">
+                                            <div className="flex flex-col">
+                                                <span className="font-black text-primary">${product.price}</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase">{product.stock} in stock</span>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="py-4 px-6">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${product.stock > 0 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                                                {product.stock > 0 ? 'In Stock' : 'Out of Stock'}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="py-4 px-6 text-end">
+                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20" onClick={() => setViewingProduct(product)}>
+                                                    <Eye size={18} />
+                                                </Button>
+                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20" onClick={() => handleEdit(product)}>
+                                                    <Pencil size={18} />
+                                                </Button>
+                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20 hover:text-red-600" onClick={() => handleDelete(product)}>
+                                                    <Trash2 size={18} />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </motion.tr>
+                                ))}
+                            </AnimatePresence>
                             {!loading && filteredProducts.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={4} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">
@@ -449,243 +360,50 @@ const StoreProducts = () => {
                     </Table>
                 </CardBox>
 
-                <Modal
-                    isOpen={isModalOpen}
-                    onClose={() => { setIsModalOpen(false); resetForm(); }}
-                    title={editingProduct ? t('store.products.edit') || "Edit Product" : t('store.products.add') || "Add Product"}
-                >
-                    <form onSubmit={handleSubmit} className="space-y-5 max-h-[70vh] overflow-y-auto pr-2">
-                        {/* Product Names Section */}
-                        <div className="space-y-3">
-                            <h4 className="text-sm font-semibold text-foreground/80 flex items-center gap-2">
-                                <Package size={16} />
-                                {t('store.products.form.basicInfo') || "Product Names"}
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 bg-muted/30 p-3.5 rounded-xl">
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Name (FR)</label>
-                                    <Input
-                                        value={formData.name_fr}
-                                        onChange={(e) => setFormData({...formData, name_fr: e.target.value})}
-                                        placeholder="Nom du produit"
-                                        className="h-10 rounded-lg bg-card border-border/60"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Name (AR)</label>
-                                    <Input
-                                        value={formData.name_ar}
-                                        onChange={(e) => setFormData({...formData, name_ar: e.target.value})}
-                                        placeholder="اسم المنتج"
-                                        dir="rtl"
-                                        className="h-10 rounded-lg bg-card border-border/60"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Name (EN)</label>
-                                    <Input
-                                        value={formData.name_en}
-                                        onChange={(e) => setFormData({...formData, name_en: e.target.value})}
-                                        placeholder="Product name"
-                                        className="h-10 rounded-lg bg-card border-border/60"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Descriptions Section */}
-                        <div className="space-y-3">
-                            <h4 className="text-sm font-semibold text-foreground/80">
-                                {t('store.products.form.descriptions') || "Descriptions"}
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Description (FR)</label>
-                                    <textarea
-                                        value={formData.description_fr}
-                                        onChange={(e) => setFormData({...formData, description_fr: e.target.value})}
-                                        placeholder="Description..."
-                                        className="w-full px-3 py-2 rounded-lg border border-border/60 bg-card min-h-[80px] resize-none text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Description (AR)</label>
-                                    <textarea
-                                        value={formData.description_ar}
-                                        onChange={(e) => setFormData({...formData, description_ar: e.target.value})}
-                                        placeholder="الوصف..."
-                                        dir="rtl"
-                                        className="w-full px-3 py-2 rounded-lg border border-border/60 bg-card min-h-[80px] resize-none text-sm"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Description (EN)</label>
-                                    <textarea
-                                        value={formData.description_en}
-                                        onChange={(e) => setFormData({...formData, description_en: e.target.value})}
-                                        placeholder="Description..."
-                                        className="w-full px-3 py-2 rounded-lg border border-border/60 bg-card min-h-[80px] resize-none text-sm"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Pricing & Inventory Section */}
-                        <div className="space-y-3">
-                            <h4 className="text-sm font-semibold text-foreground/80">
-                                {t('store.products.form.pricing') || "Pricing & Inventory"}
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-muted/30 p-3.5 rounded-xl">
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Price</label>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        value={formData.price}
-                                        onChange={(e) => setFormData({...formData, price: e.target.value})}
-                                        placeholder="0.00"
-                                        className="h-10 rounded-lg bg-card border-border/60"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Stock</label>
-                                    <Input
-                                        type="number"
-                                        value={formData.stock}
-                                        onChange={(e) => setFormData({...formData, stock: e.target.value})}
-                                        placeholder="0"
-                                        className="h-10 rounded-lg bg-card border-border/60"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Promo (%)</label>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={formData.promo}
-                                        onChange={(e) => setFormData({...formData, promo: e.target.value})}
-                                        placeholder="0"
-                                        className="h-10 rounded-lg bg-card border-border/60"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold mb-1.5 block text-muted-foreground">Condition</label>
-                                    <select
-                                        value={formData.condition}
-                                        onChange={(e) => setFormData({...formData, condition: e.target.value})}
-                                        className="w-full h-10 px-3 rounded-lg border border-border/60 bg-card text-sm"
-                                    >
-                                        <option value="NEW">New</option>
-                                        <option value="USED">Used</option>
-                                        <option value="REFURBISHED">Refurbished</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-
-                        {/* Images Section */}
-                        <div className="space-y-3">
-                            <h4 className="text-sm font-semibold text-foreground/80 flex items-center gap-2">
-                                <ImageIcon size={16} />
-                                {t('store.products.form.images') || "Product Images"}
-                            </h4>
-                            <div className="space-y-3">
-                                <label className="flex items-center gap-3 px-4 py-3 bg-muted/40 border-2 border-dashed border-border/60 rounded-lg cursor-pointer hover:border-primary/60 hover:bg-muted/60 transition-all">
-                                    <ImageIcon size={20} className="text-muted-foreground" />
-                                    <div className="flex-1">
-                                        <span className="text-sm font-semibold text-foreground">{imageFiles.length === 0 ? 'Choose Images' : `${imageFiles.length} selected`}</span>
-                                        <p className="text-xs text-muted-foreground">Click to upload or drag and drop</p>
-                                    </div>
-                                    <input
-                                        type="file"
-                                        multiple
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                    />
-                                </label>
-                                {previews.length > 0 && (
-                                    <div className="space-y-2">
-                                        <p className="text-xs text-muted-foreground font-semibold">Image Preview ({previews.length})</p>
-                                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                                            {previews.map((preview, idx) => (
-                                                <div key={idx} className="relative group">
-                                                    <img src={preview} alt="" className="w-full aspect-square rounded-lg object-cover border border-border/60" />
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const newFiles = imageFiles.filter((_, i) => i !== idx);
-                                                            const newPreviews = previews.filter((_, i) => i !== idx);
-                                                            setImageFiles(newFiles);
-                                                            setPreviews(newPreviews);
-                                                        }}
-                                                        className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg opacity-0 group-hover:opacity-100"
-                                                    >
-                                                        <Trash2 size={16} className="text-white" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end gap-3 pt-4 border-t border-border/40">
-                            <Button type="button" variant="outline" onClick={() => { setIsModalOpen(false); resetForm(); }} className="rounded-lg">
-                                Cancel
-                            </Button>
-                            <Button type="submit" className="bg-primary hover:bg-primary/90 rounded-lg gap-2">
-                                <CheckCircle2 size={18} />
-                                {editingProduct ? 'Update Product' : 'Create Product'}
-                            </Button>
-                        </div>
-                    </form>
-                </Modal>
-
+                {/* View Modal */}
                 <Modal
                     isOpen={!!viewingProduct}
                     onClose={() => setViewingProduct(null)}
-                    title={t('store.products.view') || "Product Details"}
+                    title={t('store.products.view.title') || "Product Details"}
+                    subtitle={viewingProduct?.name_fr || ""}
+                    icon={Package}
+                    maxWidth="max-w-3xl"
+                    footer={
+                        <Button variant="ghost" onClick={() => setViewingProduct(null)} className="rounded-xl font-bold bg-muted/30">
+                            {t('store.products.view.close') || "Close"}
+                        </Button>
+                    }
                 >
                     {viewingProduct && (
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-4">
-                                <div className="w-24 h-24 rounded-xl bg-muted overflow-hidden flex items-center justify-center border">
-                                    {viewingProduct.albums && viewingProduct.albums.length > 0 ? (
-                                        <img src={`/storage/${viewingProduct.albums[0].file}`} alt="" className="w-full h-full object-cover" />
-                                    ) : (
+                        <div className="space-y-8 text-start">
+                            <div className="grid grid-cols-2 gap-8">
+                                <div>
+                                    <h3 className="text-sm font-black uppercase text-muted-foreground border-b border-border/50 pb-2">{t('store.products.view.details') || "Details"}</h3>
+                                    <div className="mt-4 space-y-4 font-bold">
+                                        <p>Price: ${viewingProduct.price}</p>
+                                        <p>Stock: {viewingProduct.stock}</p>
+                                        <p>Condition: {viewingProduct.condition}</p>
+                                        {viewingProduct.promo > 0 && <p className="text-primary">Promo: {viewingProduct.promo}%</p>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h3 className="text-sm font-black uppercase text-muted-foreground border-b border-border/50 pb-2">{t('store.products.view.images') || "Images"}</h3>
+                                {viewingProduct.albums?.length > 0 ? (
+                                    <div className="grid grid-cols-3 gap-4">
+                                        {viewingProduct.albums.map((a, idx) => (
+                                            <div key={idx} className="w-full h-40 rounded-2xl overflow-hidden">
+                                                <img src={`/storage/${a.file}`} alt="Album" className="w-full h-full object-cover" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="w-full h-40 rounded-2xl overflow-hidden">
                                         <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
-                                    )}
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-lg">{viewingProduct.name_fr}</h3>
-                                    <p className="text-sm text-muted-foreground">{viewingProduct.slug}</p>
-                                    <p className="font-black text-primary text-xl mt-1">${viewingProduct.price}</p>
-                                </div>
+                                    </div>
+                                )}
                             </div>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <span className="text-muted-foreground">Stock:</span>
-                                    <span className="font-medium ml-2">{viewingProduct.stock}</span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">Condition:</span>
-                                    <span className="font-medium ml-2">{viewingProduct.condition}</span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground">Promo:</span>
-                                    <span className="font-medium ml-2">{viewingProduct.promo}%</span>
-                                </div>
-                            </div>
-                            {viewingProduct.description_fr && (
-                                <div>
-                                    <span className="text-sm text-muted-foreground">Description:</span>
-                                    <p className="text-sm mt-1">{viewingProduct.description_fr}</p>
-                                </div>
-                            )}
                         </div>
                     )}
                 </Modal>

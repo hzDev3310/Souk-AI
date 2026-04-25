@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import CardBox from '@/components/shared/CardBox';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
@@ -15,28 +16,13 @@ import {
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Search, Store, Activity, Filter, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Modal from '@/components/shared/Modal';
 
 const Stores = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingStore, setEditingStore] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    family_name: '',
-    email: '',
-    password: '',
-    name_fr: '',
-    name_ar: '',
-    name_en: '',
-    storePhone: '',
-    address: '',
-    matriculeFiscale: '',
-    rib: '',
-  });
 
   const fetchStores = async () => {
     setLoading(true);
@@ -54,33 +40,6 @@ const Stores = () => {
     fetchStores();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editingStore) {
-        await api.put(`/admin/users/stores/${editingStore.id}`, formData);
-      } else {
-        await api.post('/admin/users/stores', formData);
-      }
-      setIsDialogOpen(false);
-      setEditingStore(null);
-      resetForm();
-      fetchStores();
-    } catch (error) {
-      console.error('Error saving store:', error);
-      const errors = error.response?.data?.errors;
-      const message = error.response?.data?.message;
-      if (errors) {
-        const errorText = Object.entries(errors).map(([key, value]) => `${key}: ${value.join(', ')}`).join('\n');
-        alert(t('admin.stores.messages.validationError') + '\n\n' + errorText);
-      } else if (message) {
-        alert(message);
-      } else {
-        alert(t('admin.stores.messages.errorSaving'));
-      }
-    }
-  };
-
   const handleDelete = async (id) => {
     if (!confirm(t('admin.stores.messages.confirmDelete'))) return;
     try {
@@ -91,44 +50,12 @@ const Stores = () => {
     }
   };
 
-  const handleEdit = (store) => {
-    setEditingStore(store);
-    setFormData({
-      name: store.name || '',
-      family_name: store.family_name || '',
-      email: store.email || '',
-      password: '',
-      name_fr: store.store?.name_fr || '',
-      name_ar: store.store?.name_ar || '',
-      name_en: store.store?.name_en || '',
-      storePhone: store.store?.storePhone || '',
-      address: store.store?.address || '',
-      matriculeFiscale: store.store?.matriculeFiscale || '',
-      rib: store.store?.rib || '',
-    });
-    setIsDialogOpen(true);
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      family_name: '',
-      email: '',
-      password: '',
-      name_fr: '',
-      name_ar: '',
-      name_en: '',
-      storePhone: '',
-      address: '',
-      matriculeFiscale: '',
-      rib: '',
-    });
-  };
-
   const handleAdd = () => {
-    setEditingStore(null);
-    resetForm();
-    setIsDialogOpen(true);
+    navigate('/dashboard/stores/create');
+  };
+
+  const handleEdit = (store) => {
+    navigate(`/dashboard/stores/${store.id}/edit`);
   };
 
   const filteredStores = stores.filter(store =>
@@ -341,121 +268,6 @@ const Stores = () => {
                 )}
             </div>
         </CardBox>
-
-        {/* Premium Modal for Add/Edit */}
-        <Modal
-            isOpen={isDialogOpen}
-            onClose={() => setIsDialogOpen(false)}
-            title={editingStore ? t('admin.stores.form.editTitle') : t('admin.stores.form.addTitle')}
-            subtitle={editingStore ? `Editing ${editingStore.email}` : "Create a new partner store"}
-            icon={Store}
-            maxWidth="max-w-2xl"
-            footer={
-                <>
-                    <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 rounded-xl font-bold border border-border/50 hover:bg-muted hover:text-foreground transition-all">
-                        {t('admin.stores.form.cancel')}
-                    </Button>
-                    <Button onClick={handleSubmit} className="h-12 px-8 rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20 hover:bg-primaryemphasis transition-all">
-                        {editingStore ? t('admin.stores.form.update') : t('admin.stores.form.create')}
-                    </Button>
-                </>
-            }
-        >
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.ownerFirstName')} *</label>
-                        <Input
-                            required
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.ownerLastName')}</label>
-                        <Input
-                            value={formData.family_name}
-                            onChange={(e) => setFormData({ ...formData, family_name: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
-                        />
-                    </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.email')} *</label>
-                        <Input
-                            type="email"
-                            required
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.storePhone')}</label>
-                        <Input
-                            value={formData.storePhone}
-                            onChange={(e) => setFormData({ ...formData, storePhone: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
-                        />
-                    </div>
-                </div>
-
-                {!editingStore && (
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.password')} *</label>
-                        <Input
-                            type="password"
-                            required={!editingStore}
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
-                        />
-                    </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.storeNameFr')}</label>
-                        <Input
-                            value={formData.name_fr}
-                            onChange={(e) => setFormData({ ...formData, name_fr: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.storeNameAr')}</label>
-                        <Input
-                            value={formData.name_ar}
-                            onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl text-end"
-                            dir="rtl"
-                        />
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.matriculeFiscale')}</label>
-                        <Input
-                            value={formData.matriculeFiscale}
-                            onChange={(e) => setFormData({ ...formData, matriculeFiscale: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.stores.form.rib')}</label>
-                        <Input
-                            value={formData.rib}
-                            onChange={(e) => setFormData({ ...formData, rib: e.target.value })}
-                            className="h-12 bg-muted/30 border-border/50 rounded-xl"
-                        />
-                    </div>
-                </div>
-            </form>
-        </Modal>
       </div>
     </AdminPageLayout>
   );

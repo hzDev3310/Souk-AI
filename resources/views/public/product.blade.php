@@ -42,13 +42,19 @@
         <!-- Product Info -->
         <div class="space-y-8 py-4">
             <div class="space-y-4">
-                <div class="flex items-center gap-3">
-                    <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">
-                        {{ $product->store->{'name_'.app()->getLocale()} }}
-                    </span>
-                    <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                        ID: {{ substr($product->id, 0, 8) }}
-                    </span>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">
+                            {{ $product->store->{'name_'.app()->getLocale()} }}
+                        </span>
+                        <span class="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                            ID: {{ substr($product->id, 0, 8) }}
+                        </span>
+                    </div>
+                    <a href="{{ route('public.store', $product->store->slug) }}" class="text-xs font-bold text-primary hover:text-primaryemphasis transition-colors flex items-center gap-1">
+                        {{ __('website.visit') }}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                    </a>
                 </div>
                 
                 <h1 class="text-4xl md:text-5xl font-black text-foreground tracking-tight leading-tight">

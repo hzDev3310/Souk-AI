@@ -44,7 +44,7 @@ const Parameters = () => {
         }
     };
 
-    const handleImageUpload = async (id, key, file) => {
+const handleImageUpload = async (id, key, file) => {
         const formData = new FormData();
         formData.append('image', file);
         
@@ -71,6 +71,7 @@ const Parameters = () => {
     };
 
     const groups = {
+        branding: { label: 'Branding', icon: <ImageIcon className="w-5 h-5" /> },
         hero: { label: 'Hero Section', icon: <ImageIcon className="w-5 h-5" /> },
         design: { label: 'Design System', icon: <Palette className="w-5 h-5" /> },
         general: { label: 'General Info', icon: <SettingsIcon className="w-5 h-5" /> },
@@ -129,24 +130,24 @@ const Parameters = () => {
                                     
                                     {setting.type === 'image' ? (
                                         <div className="space-y-4">
-                                            <div className="relative aspect-video rounded-2xl overflow-hidden bg-muted/40 border-2 border-dashed border-border/60 group-hover:border-primary/40 transition-colors">
+                                            <div className={`relative rounded-2xl overflow-hidden bg-muted/40 border-2 border-dashed border-border/60 group-hover:border-primary/40 transition-colors ${setting.key.includes('logo') ? 'aspect-square max-w-[200px] mx-auto' : 'aspect-video'}`}>
                                                 {setting.value ? (
-                                                    <img 
-                                                        src={setting.value.startsWith('http') ? setting.value : `/storage/${setting.value}`} 
-                                                        className="w-full h-full object-cover" 
-                                                        alt="" 
+                                                    <img
+                                                        src={setting.value.startsWith('http') ? setting.value : `/storage/${setting.value}`}
+                                                        className={`w-full h-full ${setting.key.includes('logo') ? 'object-contain p-4' : 'object-cover'}`}
+                                                        alt=""
                                                     />
                                                 ) : (
                                                     <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/40">
-                                                        <ImageIcon className="w-12 h-12" />
+                                                        <ImageIcon className={`${setting.key.includes('logo') ? 'w-8 h-8' : 'w-12 h-12'}`} />
                                                     </div>
                                                 )}
                                                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <label className="cursor-pointer bg-white text-black px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform">
-                                                        {savingStates[setting.key] === 'uploading' ? 'Uploading...' : 'Choose Image'}
-                                                        <input 
-                                                            type="file" 
-                                                            className="hidden" 
+                                                        {savingStates[setting.key] === 'uploading' ? 'Uploading...' : (setting.key.includes('logo') ? 'Change Logo' : 'Choose Image')}
+                                                        <input
+                                                            type="file"
+                                                            className="hidden"
                                                             accept="image/*"
                                                             onChange={(e) => e.target.files?.[0] && handleImageUpload(setting.id, setting.key, e.target.files[0])}
                                                         />
@@ -154,7 +155,7 @@ const Parameters = () => {
                                                 </div>
                                             </div>
                                             <p className="text-[10px] font-medium text-muted-foreground text-center italic text-primary bg-primary/5 p-2 rounded-xl border border-primary/10 ">
-                                               Recommended size: 1920x1080px. Max 2MB.
+                                               {setting.key.includes('logo') ? 'Recommended: 200x200px PNG/SVG with transparent background. Max 1MB.' : 'Recommended size: 1920x1080px. Max 2MB.'}
                                             </p>
                                         </div>
                                     ) : setting.type === 'color' ? (

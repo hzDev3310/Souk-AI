@@ -20,6 +20,7 @@ Route::middleware('web')->group(function () {
     // Public Pages (SEO Optimized)
     Route::get('/', [PublicController::class, 'index'])->name('home');
     Route::get('/p/{slug}', [PublicController::class, 'product'])->name('public.product');
+    Route::get('/store/{slug}', [PublicController::class, 'store'])->name('public.store');
     Route::get('/c/{slug}', [PublicController::class, 'category'])->name('public.category');
     Route::get('/search', [PublicController::class, 'search'])->name('public.search');
     

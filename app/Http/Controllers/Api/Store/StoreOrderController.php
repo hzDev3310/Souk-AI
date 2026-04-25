@@ -36,6 +36,16 @@ class StoreOrderController extends Controller
         }, 'client'])
         ->paginate(15);
 
+        // Append store_id to each item for easier filtering on frontend
+        $orders->getCollection()->transform(function ($order) use ($store) {
+            if ($order->items) {
+                $order->items->each(function ($item) use ($store) {
+                    $item->store_id = $store->id;
+                });
+            }
+            return $order;
+        });
+
         return response()->json([
             'success' => true,
             'data' => $orders
@@ -74,8 +84,15 @@ class StoreOrderController extends Controller
         $order->load(['items' => function ($query) use ($store) {
             $query->whereHas('product', function ($q) use ($store) {
                 $q->where('store_id', $store->id);
-            })->with('product');
+            })->with('product.albums');
         }, 'client']);
+
+        // Append store_id to each item for easier filtering on frontend
+        if ($order->items) {
+            $order->items->each(function ($item) use ($store) {
+                $item->store_id = $store->id;
+            });
+        }
 
         return response()->json([
             'success' => true,
@@ -142,5 +159,81 @@ class StoreOrderController extends Controller
                  });
             }])
         ]);
+    }
+
+    /**
+     * Update status of an individual order item (store-specific)
+     * Also handles automatic order status logic
+     */
+    public function updateItemStatus(Request $request, Order $order, $itemId)
+    {
+        $store = $request->user()->store;
+
+        if (!$store) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No store associated with this account'
+            ], 404);
+        }
+
+        // Validate the status
+        $validated = $request->validate([
+            'status' => 'required|string|in:en_cours,confirme,annule'
+        ]);
+
+        // Find the item and verify it belongs to this store
+        $item = $order->items()
+            ->whereHas('product', function ($query) use ($store) {
+                $query->where('store_id', $store->id);
+            })
+            ->findOrFail($itemId);
+
+        // Update item status
+        $item->update(['status' => $validated['status']]);
+
+        // Automatic Order Status Logic:
+        // Get all items in the order across all stores
+        $allItems = $order->items()->get();
+        $allItemsCount = $allItems->count();
+        $cancelledItemsCount = $allItems->where('status', 'annule')->count();
+        $confirmedItemsCount = $allItems->where('status', 'confirme')->count();
+
+        // If all items are cancelled, cancel the order
+        if ($cancelledItemsCount === $allItemsCount) {
+            $order->update(['status' => 'annule']);
+        }
+        // If at least one item is confirmed (even if others are cancelled), confirm the order
+        elseif ($confirmedItemsCount > 0 &&  $confirmedItemsCount + $cancelledItemsCount == $allItemsCount) {
+            $order->update(['status' => 'confirme']);
+        }
+        // Otherwise, keep it as pending/en_cours
+        else {
+            $order->update(['status' => 'en_cours']);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Item status updated successfully',
+            'item' => $item->fresh(),
+            'order_status' => $order->fresh()->status,
+            'order_status_label' => $this->getStatusLabel($order->fresh()->status)
+        ]);
+    }
+
+    /**
+     * Helper method to get human-readable status labels
+     */
+    private function getStatusLabel($status)
+    {
+        $labels = [
+            'en_cours' => 'Pending',
+            'confirme' => 'Confirmed',
+            'annule' => 'Cancelled',
+            'en_shipping' => 'In Shipping',
+            'shipping_company' => 'At Shipping Company',
+            'shipped' => 'Shipped'
+        ];
+
+        return $labels[$status] ?? $status;
     }
 }

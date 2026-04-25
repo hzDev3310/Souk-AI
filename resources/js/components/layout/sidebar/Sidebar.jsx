@@ -128,15 +128,6 @@ const Sidebar = ({ onClose }) => {
         </div>
       </ScrollArea>
       
-      {/* Footer Branding */}
-      <div className="absolute bottom-6 left-0 w-full px-8 opacity-20 hover:opacity-100 transition-opacity">
-        <div className="p-4 rounded-2xl bg-muted/50 border border-border/50">
-            <div className="flex items-center gap-2">
-                <Icons.Sparkles size={14} className="text-primary" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-foreground">Premium Account</span>
-            </div>
-        </div>
-      </div>
     </aside>
   );
 };

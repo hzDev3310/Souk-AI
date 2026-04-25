@@ -19,7 +19,7 @@
         <div class="group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:-translate-y-2 flex flex-col">
             @if($store->cover)
             <div class="h-32 overflow-hidden bg-muted/20 relative">
-                <img src="{{ asset($store->cover) }}" alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <img src="/storage/{{ $store->cover }}" alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                 <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
             </div>
             @else
@@ -31,8 +31,8 @@
             <div class="p-6 flex-1 flex flex-col">
                 <div class="flex items-center gap-3 mb-6 relative">
                     <div class="absolute -top-14 left-0">
-                        @if($store->logo && file_exists(public_path($store->logo)))
-                            <img src="{{ asset($store->logo) }}" alt="" class="w-20 h-20 rounded-[24px] object-cover border-4 border-card bg-card shadow-xl group-hover:rotate-12 transition-transform duration-500">
+                        @if($store->logo)
+                            <img src="/storage/{{ $store->logo }}" alt="" class="w-20 h-20 rounded-[24px] object-cover border-4 border-card bg-card shadow-xl group-hover:rotate-12 transition-transform duration-500">
                         @else
                             <div class="w-20 h-20 rounded-[24px] bg-primary/10 flex items-center justify-center text-primary font-black border-4 border-card bg-card shadow-xl group-hover:rotate-12 transition-transform duration-500 text-3xl">
                                 {{ substr($store->{'name_'.app()->getLocale()}, 0, 1) }}
@@ -62,7 +62,7 @@
                         {{ $store->{'description_'.app()->getLocale()} ?? 'Discover amazing products from '.$store->{'name_'.app()->getLocale()} }}
                     </p>
                     
-                    <a href="{{ route('public.all-products', ['store_id' => $store->id]) }}" class="w-full py-3.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 text-center flex justify-center items-center gap-2 group/btn">
+                    <a href="{{ route('public.store', $store->slug) }}" class="w-full py-3.5 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 text-center flex justify-center items-center gap-2 group/btn">
                         {{ __('website.visit') ?? 'Visit Store' }}
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="group-hover/btn:translate-x-1 transition-transform"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </a>

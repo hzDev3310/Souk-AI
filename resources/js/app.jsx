@@ -7,6 +7,7 @@ import {
     Routes,
     Route,
     Navigate,
+    Outlet,
 } from 'react-router-dom';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -18,24 +19,48 @@ import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 // Admin pages
 import AdminStores from './pages/admin/Stores';
+import StoreCreate from './pages/admin/StoreCreate';
+import StoreEdit from './pages/admin/StoreEdit';
 import AdminInfluencers from './pages/admin/Influencers';
 import AdminClients from './pages/admin/Clients';
 import AdminShippingCompanies from './pages/admin/ShippingCompanies';
 import AdminShippingEmployees from './pages/admin/ShippingEmployees';
 import AdminCategories from './pages/admin/Categories';
+import CategoryCreate from './pages/admin/CategoryCreate';
+import CategoryEdit from './pages/admin/CategoryEdit';
 import AdminProducts from './pages/admin/Products';
+import ProductCreate from './pages/admin/ProductCreate';
+import ProductEdit from './pages/admin/ProductEdit';
 import AdminOrders from './pages/admin/Orders';
 import Parameters from './pages/admin/Parameters';
 // Store pages
 import StoreProducts from './pages/store/Products';
+import StoreProductCreate from './pages/store/StoreProductCreate';
+import StoreProductEdit from './pages/store/StoreProductEdit';
 import StoreOrders from './pages/store/Orders';
 import StoreProfile from './pages/store/Profile';
 
-// Role-based route wrapper
+// Role-based route wrapper for products list
 const RoleBasedProducts = () => {
     const { user } = useAuth();
     if (user?.role === 'ADMIN') return <AdminProducts />;
     if (user?.role === 'STORE') return <StoreProducts />;
+    return <Navigate to="/dashboard" replace />;
+};
+
+// Role-based route wrapper for product create
+const RoleBasedProductCreate = () => {
+    const { user } = useAuth();
+    if (user?.role === 'ADMIN') return <ProductCreate />;
+    if (user?.role === 'STORE') return <StoreProductCreate />;
+    return <Navigate to="/dashboard" replace />;
+};
+
+// Role-based route wrapper for product edit
+const RoleBasedProductEdit = () => {
+    const { user } = useAuth();
+    if (user?.role === 'ADMIN') return <ProductEdit />;
+    if (user?.role === 'STORE') return <StoreProductEdit />;
     return <Navigate to="/dashboard" replace />;
 };
 
@@ -52,39 +77,45 @@ const RoleBasedProfile = () => {
     return <Navigate to="/dashboard" replace />;
 };
 
+/** Renders child routes under `/dashboard` without extra UI (avoids `/dashboard/*` swallowing `/dashboard/login`). */
+const DashboardBranch = () => <Outlet />;
+
 const App = () => {
     return (
         <Router>
             <Routes>
-                {/* Auth Routes */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-
-                {/* Protected Dashboard Routes */}
-                <Route
-                    path="/dashboard/*"
-                    element={
-                        <ProtectedRoute>
-                            <DashboardLayout />
-                        </ProtectedRoute>
-                    }
-                >
-                    <Route index element={<Dashboard />} />
-                    {/* Admin-only routes */}
-                    <Route path="stores" element={<AdminStores />} />
-                    <Route path="influencers" element={<AdminInfluencers />} />
-                    <Route path="clients" element={<AdminClients />} />
-                    <Route path="shipping-companies" element={<AdminShippingCompanies />} />
-                    <Route path="shipping-employees" element={<AdminShippingEmployees />} />
-                    <Route path="categories" element={<AdminCategories />} />
-                    {/* Role-based routes (products & orders) */}
-                    <Route path="products" element={<RoleBasedProducts />} />
-                    <Route path="orders" element={<RoleBasedOrders />} />
-                    {/* Common routes */}
-                    <Route path="analytics" element={<div className="p-6 text-link">Analytics Page (Work in Progress)</div>} />
-                    <Route path="parameters" element={<Parameters />} />
-                    <Route path="settings" element={<div className="p-6 text-link">Settings Page (Work in Progress)</div>} />
-                    <Route path="profile" element={<RoleBasedProfile />} />
+                <Route path="/dashboard" element={<DashboardBranch />}>
+                    {/* Admin / staff auth (React). Storefront HTML uses /login and /register (Blade). */}
+                    <Route path="login" element={<Login />} />
+                    <Route path="register" element={<Register />} />
+                    <Route
+                        element={
+                            <ProtectedRoute>
+                                <DashboardLayout />
+                            </ProtectedRoute>
+                        }
+                    >
+                        <Route index element={<Dashboard />} />
+                        <Route path="store" element={<Navigate to="/dashboard/stores" replace />} />
+                        <Route path="stores" element={<AdminStores />} />
+                        <Route path="stores/create" element={<StoreCreate />} />
+                        <Route path="stores/:id/edit" element={<StoreEdit />} />
+                        <Route path="influencers" element={<AdminInfluencers />} />
+                        <Route path="clients" element={<AdminClients />} />
+                        <Route path="shipping-companies" element={<AdminShippingCompanies />} />
+                        <Route path="shipping-employees" element={<AdminShippingEmployees />} />
+                        <Route path="categories" element={<AdminCategories />} />
+                        <Route path="categories/create" element={<CategoryCreate />} />
+                        <Route path="categories/:id/edit" element={<CategoryEdit />} />
+                        <Route path="products" element={<RoleBasedProducts />} />
+                        <Route path="products/create" element={<RoleBasedProductCreate />} />
+                        <Route path="products/:id/edit" element={<RoleBasedProductEdit />} />
+                        <Route path="orders" element={<RoleBasedOrders />} />
+                        <Route path="analytics" element={<div className="p-6 text-link">Analytics Page (Work in Progress)</div>} />
+                        <Route path="parameters" element={<Parameters />} />
+                        <Route path="settings" element={<div className="p-6 text-link">Settings Page (Work in Progress)</div>} />
+                        <Route path="profile" element={<RoleBasedProfile />} />
+                    </Route>
                 </Route>
 
                 {/* Default Route: Redirect to dashboard if logged in, or handled by Blade / login */}

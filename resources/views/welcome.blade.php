@@ -7,6 +7,22 @@
         <title>Souk AI - Fresh Start</title>
         @viteReactRefresh
         @vite(['resources/css/app.css', 'resources/js/app.jsx'])
+
+        @php
+            $designSettings = settings_group('design', [
+                'primary_color' => '#6366f1',
+                'secondary_color' => '#f43f5e',
+                'radius' => '28px'
+            ]);
+        @endphp
+
+        <style>
+            :root {
+                --primary: {{ $designSettings['primary_color'] }};
+                --secondary: {{ $designSettings['secondary_color'] }};
+                --radius: {{ $designSettings['radius'] }};
+            }
+        </style>
     </head>
     <body class="antialiased bg-background text-foreground transition-colors duration-500 overflow-x-hidden">
         <div id="react-root"></div>

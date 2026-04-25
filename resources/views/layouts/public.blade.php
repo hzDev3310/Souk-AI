@@ -17,11 +17,19 @@
     <!-- Scripts and Styles -->
     @vite(['resources/css/app.css'])
 
+@php
+    $designSettings = settings_group('design', [
+        'primary_color' => '#6366f1',
+        'secondary_color' => '#f43f5e',
+        'radius' => '28px'
+    ]);
+@endphp
+
     <style>
         :root {
-            --primary: {{ setting('primary_color', '#6366f1') }};
-            --secondary: {{ setting('secondary_color', '#f43f5e') }};
-            --radius: {{ setting('radius', '28px') }};
+            --primary: {{ $designSettings['primary_color'] }};
+            --secondary: {{ $designSettings['secondary_color'] }};
+            --radius: {{ $designSettings['radius'] }};
         }
     </style>
 
@@ -45,18 +53,24 @@
             <span class="text-xl font-black tracking-tight text-foreground">{{ setting('website_name', 'Souk AI') }}</span>
         </a>
 
-        <div class="hidden lg:flex items-center gap-8">
-            <a href="/" class="nav-item font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground">{{ __('website.home') }}</a>
-            <a href="#" class="nav-item font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground">{{ __('website.trending') }}</a>
-            <a href="#" class="nav-item font-bold text-sm uppercase tracking-wider text-muted-foreground hover:text-foreground">{{ __('website.flashSales') }}</a>
-        </div>
+    <form action="{{ route('public.search') }}" method="GET" class="hidden lg:flex  items-center gap-2 px-4 py-2 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/50 transition-colors flex-1 max-w-[50]">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground flex-shrink-0">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.3-4.3"/>
+    </svg>
+    <input 
+        type="text" 
+        name="q" 
+        value="{{ request('q') }}" 
+        placeholder="{{ __('website.search') }}" 
+        class="bg-transparent border-none outline-none text-sm font-medium w-full md:w-32 lg:w-48 placeholder:text-muted-foreground/60 text-foreground"
+        autocomplete="off"
+    >
+</form>
 
         <div class="flex items-center gap-4">
             <!-- Search -->
-            <form action="{{ route('public.search') }}" method="GET" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/50 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('website.search') }}" class="bg-transparent border-none outline-none text-xs font-bold w-24 xl:w-48 placeholder:text-muted-foreground/60 text-foreground">
-            </form>
+           
 
             <!-- Desktop Actions -->
             <div class="hidden lg:flex items-center gap-3">
@@ -70,7 +84,20 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     <span id="cart-count-desktop" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background {{ count(session()->get('cart', [])) > 0 ? '' : 'hidden' }}">
                         {{ count(session()->get('cart', [])) }}
-                    </span>
+                    </span><form action="{{ route('public.search') }}" method="GET" class="flex sm:hidden items-center gap-2 px-4 py-2 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/50 transition-colors flex-1 md:flex-none md:w-auto">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground flex-shrink-0">
+        <circle cx="11" cy="11" r="8"/>
+        <path d="m21 21-4.3-4.3"/>
+    </svg>
+    <input 
+        type="text" 
+        name="q" 
+        value="{{ request('q') }}" 
+        placeholder="{{ __('website.search') }}" 
+        class="bg-transparent border-none outline-none text-sm font-medium w-full md:w-32 lg:w-48 placeholder:text-muted-foreground/60 text-foreground"
+        autocomplete="off"
+    >
+</form>
                 </a>
             </div>
 
@@ -226,48 +253,79 @@
         </div>
     </div>
 
-    <!-- Mobile Bottom Navigation -->
-    <div class="lg:hidden fixed bottom-6 left-6 right-6 z-50">
-        <div class="glass border border-border/40 rounded-[32px] p-2 flex items-center justify-around premium-shadow">
-            <a href="/" class="flex flex-col items-center gap-1 p-2 {{ request()->is('/') ? 'text-primary' : 'text-muted-foreground' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                <span class="text-[8px] font-black uppercase tracking-widest">{{ __('website.nav.home') }}</span>
-            </a>
-            
-            <button id="open-mobile-search" class="flex flex-col items-center gap-1 p-2 text-muted-foreground">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <span class="text-[8px] font-black uppercase tracking-widest">Search</span>
-            </button>
-
-            <div class="relative -top-8">
-                <a href="/cart" class="relative w-14 h-14 bg-primary rounded-full flex items-center justify-center text-white shadow-xl shadow-primary/40 border-4 border-background hover:scale-110 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                    <span id="cart-count" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-background animate-bounce shadow-lg {{ count(session()->get('cart', [])) > 0 ? '' : 'hidden' }}">
-                        {{ count(session()->get('cart', [])) }}
-                    </span>
-                </a>
+   <!-- Mobile Bottom Navigation -->
+<!-- Mobile Bottom Navigation -->
+<!-- Mobile Bottom Navigation -->
+<div class="lg:hidden fixed bottom-4 left-4 right-4 z-50">
+    <div class="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-[28px] p-1.5 flex items-center justify-around shadow-lg shadow-gray-200/50 dark:shadow-gray-950/50">
+        
+        <!-- Home -->
+        <a href="/" class="group flex flex-col items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 {{ request()->is('/') ? 'text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="{{ request()->is('/') ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span class="text-[9px] font-semibold tracking-wide">{{ __('website.nav.home') }}</span>
+        </a>
+        
+        <!-- Cart -->
+        <a href="/cart" class="group flex flex-col items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 {{ request()->is('cart*') ? 'text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
+            <div class="relative">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                    <path d="M3 6h18"/>
+                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                </svg>
+                <span id="cart-count-mobile" class="absolute -top-2 -right-3 bg-red-500 text-white text-[9px] font-bold min-w-[18px] h-4 px-1 rounded-full flex items-center justify-center border border-white dark:border-gray-900 shadow-sm {{ count(session()->get('cart', [])) > 0 ? '' : 'hidden' }}">
+                    {{ count(session()->get('cart', [])) }}
+                </span>
             </div>
+            <span class="text-[9px] font-semibold tracking-wide">Cart</span>
+        </a>
 
-            <a href="{{ route('public.orders') }}" class="flex flex-col items-center gap-1 p-2 {{ request()->is('orders*') ? 'text-primary' : 'text-muted-foreground' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
-                <span class="text-[8px] font-black uppercase tracking-widest">Orders</span>
-            </a>
-
-            @auth
-            <a href="{{ route('public.profile') }}" class="flex flex-col items-center gap-1 p-2 {{ request()->is('profile*') ? 'text-primary' : 'text-muted-foreground' }}">
-                <div class="w-5 h-5 bg-primary rounded-md flex items-center justify-center text-white font-black text-[8px]">
-                    {{ substr(Auth::user()->name, 0, 1) }}
-                </div>
-                <span class="text-[8px] font-black uppercase tracking-widest">Profile</span>
-            </a>
-            @else
-            <a href="/login" class="flex flex-col items-center gap-1 p-2 text-muted-foreground">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span class="text-[8px] font-black uppercase tracking-widest">Login</span>
-            </a>
-            @endauth
+        <!-- Search (FAB - Middle) -->
+        <div class="relative -mt-8">
+            <button id="open-mobile-search" class="relative w-14 h-14 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-primary/40 dark:shadow-primary/20 active:scale-95 transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="10.5" cy="10.5" r="6.5"/>
+                    <path d="m16 16 3 3"/>
+                </svg>
+            </button>
         </div>
+
+        <!-- Orders -->
+        <a href="{{ route('public.orders') }}" class="group flex flex-col items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 {{ request()->is('orders*') ? 'text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="3" rx="2"/>
+                <path d="M12 8v8"/>
+                <path d="M8 12h8"/>
+            </svg>
+            <span class="text-[9px] font-semibold tracking-wide">Orders</span>
+        </a>
+
+        <!-- Profile / Login -->
+        @auth
+        <a href="{{ route('public.profile') }}" class="group flex flex-col items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 {{ request()->is('profile*') ? 'text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300' }}">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center text-white font-bold text-[10px] shadow-sm">
+                {{ substr(Auth::user()->name, 0, 1) }}
+            </div>
+            <span class="text-[9px] font-semibold tracking-wide">Profile</span>
+        </a>
+        @else
+        <a href="/login" class="group flex flex-col items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all duration-300 {{ request()->is('login*') ? 'text-primary' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span class="text-[9px] font-semibold tracking-wide">Login</span>
+        </a>
+        @endauth
     </div>
+</div>
+
+
+<!-- Bottom safe area spacer -->
+<div class="lg:hidden h-20"></div>
 
     @stack('scripts')
 
@@ -279,6 +337,9 @@
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
             }
         });
 

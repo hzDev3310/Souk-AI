@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import CardBox from '@/components/shared/CardBox';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -16,44 +16,23 @@ import {
 } from '@/components/ui/table';
 import {
     Plus, Pencil, Trash2, Search, Layers, Image as ImageIcon,
-    CheckCircle2, XCircle, ChevronRight, LayoutGrid, Activity, Eye
+    CheckCircle2, XCircle, ChevronRight, Activity, Eye
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Modal from '@/components/shared/Modal';
 
 const Categories = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
-    const [allCategories, setAllCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingCategory, setEditingCategory] = useState(null);
     const [viewingCategory, setViewingCategory] = useState(null);
-
-    const [isLinkModalOpen, setIsLinkModalOpen] = useState(false);
-    const [linkingCategory, setLinkingCategory] = useState(null);
-    const [selectedToLink, setSelectedToLink] = useState([]);
-
-    const [formData, setFormData] = useState({
-        parent_id: '',
-        name_fr: '',
-        name_ar: '',
-        name_en: '',
-        icon: '',
-        isActive: true,
-    });
-    const [logoFile, setLogoFile] = useState(null);
-    const [coverFile, setCoverFile] = useState(null);
-    const [previews, setPreviews] = useState({ logo: null, cover: null });
 
     const fetchCategories = async () => {
         setLoading(true);
         try {
             const response = await api.get('/admin/categories');
-            setCategories(response.data);
-            const allResponse = await api.get('/admin/categories/all');
-            setAllCategories(allResponse.data);
+            setCategories(response.data || []);
         } catch (error) {
             console.error('Error fetching categories:', error);
         } finally {
@@ -65,95 +44,6 @@ const Categories = () => {
         fetchCategories();
     }, []);
 
-    const handleFileChange = (e, type) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file size (2MB for logo, 4MB for cover)
-            const maxSize = type === 'logo' ? 2 * 1024 * 1024 : 4 * 1024 * 1024;
-            if (file.size > maxSize) {
-                alert(`Le fichier est trop volumineux. La taille maximale est de ${maxSize / (1024 * 1024)}MB.`);
-                return;
-            }
-
-            if (type === 'logo') setLogoFile(file);
-            else setCoverFile(file);
-
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviews(prev => ({ ...prev, [type]: reader.result }));
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    const resetForm = () => {
-        setFormData({
-            parent_id: '',
-            name_fr: '',
-            name_ar: '',
-            name_en: '',
-            icon: '',
-            isActive: true,
-        });
-        setLogoFile(null);
-        setCoverFile(null);
-        setPreviews({ logo: null, cover: null });
-        setEditingCategory(null);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const data = new FormData();
-        Object.keys(formData).forEach(key => {
-            if (formData[key] !== null && formData[key] !== undefined) {
-                // Handle parent_id specifically to avoid empty string being sent as empty string instead of null
-                if (key === 'parent_id' && formData[key] === '') return;
-                data.append(key, formData[key] === true ? 1 : (formData[key] === false ? 0 : formData[key]));
-            }
-        });
-
-        if (logoFile) data.append('logo', logoFile);
-        if (coverFile) data.append('cover', coverFile);
-
-        if (editingCategory) {
-            data.append('_method', 'PUT');
-        }
-
-        try {
-            if (editingCategory) {
-                await api.post(`/admin/categories/${editingCategory.id}`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-            } else {
-                await api.post('/admin/categories', data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
-            }
-            setIsModalOpen(false);
-            resetForm();
-            fetchCategories();
-        } catch (error) {
-            console.error('Error saving category:', error);
-        }
-    };
-
-    const handleEdit = (category) => {
-        setEditingCategory(category);
-        setFormData({
-            parent_id: category.parent_id || '',
-            name_fr: category.name_fr || '',
-            name_ar: category.name_ar || '',
-            name_en: category.name_en || '',
-            icon: category.icon || '',
-            isActive: !!category.isActive,
-        });
-        setPreviews({
-            logo: category.logo ? `/storage/${category.logo}` : null,
-            cover: category.cover ? `/storage/${category.cover}` : null,
-        });
-        setIsModalOpen(true);
-    };
-
     const handleDelete = async (category) => {
         if (!confirm(t('admin.categories.messages.confirmDelete', { name: category.name_en }) || `Confirm deletion of ${category.name_en}?`)) return;
         try {
@@ -164,38 +54,12 @@ const Categories = () => {
         }
     };
 
-    const handleOpenLinkModal = (category) => {
-        setLinkingCategory(category);
-        setSelectedToLink([]);
-        setIsLinkModalOpen(true);
+    const handleAdd = () => {
+        navigate('/dashboard/categories/create');
     };
 
-    const handleLinkModalSubmit = async () => {
-        try {
-            setLoading(true);
-            for (const id of selectedToLink) {
-                const cat = allCategories.find(c => c.id === id);
-                if (!cat) continue;
-                const data = new FormData();
-                data.append('parent_id', linkingCategory.id);
-                data.append('name_fr', cat.name_fr || '');
-                data.append('name_ar', cat.name_ar || '');
-                data.append('name_en', cat.name_en || '');
-                data.append('isActive', cat.isActive ? 1 : 0);
-                data.append('_method', 'PUT');
-                await api.post(`/admin/categories/${id}`, data);
-            }
-            setIsLinkModalOpen(false);
-            fetchCategories();
-        } catch (error) {
-            console.error('Error linking categories:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const toggleToLink = (id) => {
-        setSelectedToLink(prev => prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]);
+    const handleEdit = (category) => {
+        navigate(`/dashboard/categories/${category.id}/edit`);
     };
 
     const filteredCategories = categories.filter(cat =>
@@ -205,18 +69,18 @@ const Categories = () => {
 
     return (
         <AdminPageLayout
-            title={t('admin.categories.title') || "Gestion des Catégories"}
-            subtitle={t('admin.categories.subtitle') || "Organisez vos produits par catégories et sous-catégories"}
+            title={t('admin.categories.title') || "Categories"}
+            subtitle={t('admin.categories.subtitle') || "Manage product categories"}
             icon={Layers}
-            onAdd={() => { resetForm(); setIsModalOpen(true); }}
-            addLabel={t('admin.categories.add') || "Ajouter une catégorie"}
+            onAdd={handleAdd}
+            addLabel={t('admin.categories.add') || "Add Category"}
         >
             <div className="space-y-6 text-start">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="relative flex-1 max-w-md group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
                         <Input
-                            placeholder={t('admin.categories.search') || "Rechercher une catégorie..."}
+                            placeholder={t('admin.categories.search') || "Search categories..."}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="pl-12 h-12 bg-card border-border/60 rounded-2xl"
@@ -228,351 +92,125 @@ const Categories = () => {
                     <Table>
                         <TableHeader className="bg-muted/30">
                             <TableRow className="border-border/50">
-                                <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.categories.table.nameInfo') || "NOM / INFO"}</TableHead>
+                                <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.categories.table.name') || "NAME"}</TableHead>
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.categories.table.slug') || "SLUG"}</TableHead>
-                                <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.categories.table.parent') || "PARENT"}</TableHead>
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.categories.table.status') || "STATUS"}</TableHead>
                                 <TableHead className="py-5 px-6 text-end text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.categories.table.actions') || "ACTIONS"}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {loading ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-32 text-center">
-                                        <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
-                                            <Activity className="w-5 h-5 animate-spin text-primary" />
-                                            {t('admin.categories.messages.loading') || "Chargement..."}
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : filteredCategories.map((category) => (
-                                <React.Fragment key={category.id}>
-                                    <TableRow className="group hover:bg-primary/5 border-border/40 transition-colors">
-                                        <TableCell className="py-4 px-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
-                                                    {category.logo ? (
-                                                        <img src={`/storage/${category.logo}`} alt="" className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <ImageIcon className="text-muted-foreground" size={20} />
-                                                    )}
-                                                </div>
-                                                <div>
-                                                    <p className="font-black text-foreground tracking-tight">{category.name_fr}</p>
-                                                    <p className="text-[10px] font-bold text-muted-foreground uppercase">{category.name_ar}</p>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-4 px-6 font-mono text-[10px] text-muted-foreground">{category.slug}</TableCell>
-                                        <TableCell className="py-4 px-6">
-                                            <span className="px-3 py-1 bg-muted rounded-full text-[10px] font-black uppercase text-muted-foreground">
-                                                {t('admin.categories.table.main') || "Principal"}
-                                            </span>
-                                        </TableCell>
-                                        <TableCell className="py-4 px-6">
-                                            {category.isActive ? (
-                                                <div className="flex items-center gap-2 text-emerald-500 font-bold text-xs uppercase">
-                                                    <CheckCircle2 size={14} /> {t('admin.categories.table.active') || "Actif"}
-                                                </div>
-                                            ) : (
-                                                <div className="flex items-center gap-2 text-red-500 font-bold text-xs uppercase">
-                                                    <XCircle size={14} /> {t('admin.categories.table.inactive') || "Inactif"}
-                                                </div>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="py-4 px-6 text-end">
-                                            <div className="flex justify-end gap-2  transition-opacity">
-                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-emerald-500 hover:bg-emerald-500/20" onClick={() => handleOpenLinkModal(category)} title="Lier des sous-catégories">
-                                                    <Plus size={18} />
-                                                </Button>
-                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20" onClick={() => setViewingCategory(category)}>
-                                                    <Eye size={18} />
-                                                </Button>
-                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20" onClick={() => handleEdit(category)}>
-                                                    <Pencil size={18} />
-                                                </Button>
-                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20" onClick={() => handleDelete(category)}>
-                                                    <Trash2 size={18} />
-                                                </Button>
+                            <AnimatePresence mode="popLayout">
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="h-32 text-center">
+                                            <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
+                                                <Activity className="w-5 h-5 animate-spin text-primary" />
+                                                {t('admin.common.loading')}
                                             </div>
                                         </TableCell>
                                     </TableRow>
-
-                                    {category.children?.map(child => (
-                                        <TableRow key={child.id} className="group hover:bg-primary/5 border-border/40 bg-muted/5">
-                                            <TableCell className="py-3 px-6 pl-14">
-                                                <div className="flex items-center gap-3">
-                                                    <ChevronRight size={14} className="text-muted-foreground" />
-                                                    <div className="w-8 h-8 rounded-lg bg-muted overflow-hidden border border-border/50">
-                                                        {child.logo && <img src={`/storage/${child.logo}`} alt="" className="w-full h-full object-cover" />}
+                                ) : filteredCategories.map((category) => (
+                                    <React.Fragment key={category.id}>
+                                        <motion.tr 
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.95 }}
+                                            className="group hover:bg-primary/5 border-border/40 transition-colors"
+                                        >
+                                            <TableCell className="py-4 px-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
+                                                        {category.logo ? (
+                                                            <img src={`/storage/${category.logo}`} alt="" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <ImageIcon className="text-muted-foreground" size={20} />
+                                                        )}
                                                     </div>
-                                                    <p className="font-bold text-sm text-foreground/80 tracking-tight">{child.name_fr}</p>
+                                                    <div>
+                                                        <p className="font-black text-foreground tracking-tight">{category.name_fr}</p>
+                                                        <p className="text-[10px] font-bold text-muted-foreground uppercase">{category.name_en}</p>
+                                                    </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="py-3 px-6 font-mono text-[10px] text-muted-foreground">{child.slug}</TableCell>
-                                            <TableCell className="py-3 px-6">
-                                                <span className="px-2 py-0.5 bg-primary/10 text-primary rounded text-[9px] font-black uppercase">
-                                                    {category.name_fr}
-                                                </span>
-                                            </TableCell>
-                                            <TableCell className="py-3 px-6">
-                                                {child.isActive ? (
-                                                    <div className="w-2 h-2 rounded-full bg-emerald-500 mx-auto" />
+                                            <TableCell className="py-4 px-6 font-mono text-[10px] text-muted-foreground">{category.slug}</TableCell>
+                                            <TableCell className="py-4 px-6">
+                                                {category.isActive ? (
+                                                    <div className="flex items-center gap-2 text-emerald-500 font-bold text-xs uppercase">
+                                                        <CheckCircle2 size={14} /> {t('admin.categories.table.active') || "Active"}
+                                                    </div>
                                                 ) : (
-                                                    <div className="w-2 h-2 rounded-full bg-red-500 mx-auto" />
+                                                    <div className="flex items-center gap-2 text-red-500 font-bold text-xs uppercase">
+                                                        <XCircle size={14} /> {t('admin.categories.table.inactive') || "Inactive"}
+                                                    </div>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="py-3 px-6 text-end">
+                                            <TableCell className="py-4 px-6 text-end">
                                                 <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-secondary hover:bg-secondary/20" onClick={() => setViewingCategory(child)}>
-                                                        <Eye size={14} />
+                                                    <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20" onClick={() => setViewingCategory(category)}>
+                                                        <Eye size={18} />
                                                     </Button>
-                                                    <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-primary hover:bg-primary/20" onClick={() => handleEdit(child)}>
-                                                        <Pencil size={14} />
+                                                    <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20" onClick={() => handleEdit(category)}>
+                                                        <Pencil size={18} />
                                                     </Button>
-                                                    <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-red-500 hover:bg-red-500/20" onClick={() => handleDelete(child)}>
-                                                        <Trash2 size={14} />
+                                                    <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20" onClick={() => handleDelete(category)}>
+                                                        <Trash2 size={18} />
                                                     </Button>
                                                 </div>
                                             </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </React.Fragment>
-                            ))}
+                                        </motion.tr>
+
+                                        {category.children?.map(child => (
+                                            <motion.tr 
+                                                key={child.id}
+                                                initial={{ opacity: 0 }}
+                                                animate={{ opacity: 1 }}
+                                                className="group hover:bg-primary/5 border-border/40 bg-muted/5"
+                                            >
+                                                <TableCell className="py-3 px-6 pl-14">
+                                                    <div className="flex items-center gap-3">
+                                                        <ChevronRight size={14} className="text-muted-foreground" />
+                                                        <div className="w-8 h-8 rounded-lg bg-muted overflow-hidden border border-border/50">
+                                                            {child.logo && <img src={`/storage/${child.logo}`} alt="" className="w-full h-full object-cover" />}
+                                                        </div>
+                                                        <p className="font-bold text-sm text-foreground/80 tracking-tight">{child.name_fr}</p>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="py-3 px-6 font-mono text-[10px] text-muted-foreground">{child.slug}</TableCell>
+                                                <TableCell className="py-3 px-6">
+                                                    {child.isActive ? (
+                                                        <div className="w-2 h-2 rounded-full bg-emerald-500 mx-auto" />
+                                                    ) : (
+                                                        <div className="w-2 h-2 rounded-full bg-red-500 mx-auto" />
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="py-3 px-6 text-end">
+                                                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-secondary hover:bg-secondary/20" onClick={() => setViewingCategory(child)}>
+                                                            <Eye size={14} />
+                                                        </Button>
+                                                        <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-primary hover:bg-primary/20" onClick={() => handleEdit(child)}>
+                                                            <Pencil size={14} />
+                                                        </Button>
+                                                        <Button size="icon" variant="ghost" className="h-7 w-7 rounded-lg text-red-500 hover:bg-red-500/20" onClick={() => handleDelete(child)}>
+                                                            <Trash2 size={14} />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </motion.tr>
+                                        ))}
+                                    </React.Fragment>
+                                ))}
+                            </AnimatePresence>
                             {!loading && filteredCategories.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">
-                                        {t('admin.categories.messages.noCategories') || "Aucune catégorie trouvée"}
+                                    <TableCell colSpan={4} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">
+                                        {t('admin.categories.messages.noCategories') || "No categories found"}
                                     </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
                     </Table>
                 </CardBox>
-
-                <Modal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    title={editingCategory ? t('admin.categories.form.editTitle') || "Modifier la catégorie" : t('admin.categories.form.addTitle') || "Nouveauté"}
-                    subtitle={t('admin.categories.form.addSubtitle') || "Détails de la catégorie et branding visuel"}
-                    icon={LayoutGrid}
-                    maxWidth="max-w-2xl"
-                    footer={
-                        <>
-                            <Button variant="ghost" onClick={() => setIsModalOpen(false)} className="rounded-xl font-bold">
-                                {t('admin.categories.form.cancel') || "Annuler"}
-                            </Button>
-                            <Button className="bg-primary text-white rounded-xl font-black px-8" onClick={handleSubmit}>
-                                {editingCategory ? t('admin.categories.form.update') || "Mettre à jour" : t('admin.categories.form.create') || "Créer la catégorie"}
-                            </Button>
-                        </>
-                    }
-                >
-                    <form className="space-y-6">
-                        <div className="space-y-4">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.categories.form.parentCategory') || "Catégorie Parente"}</label>
-                                <div className="flex flex-wrap gap-2 w-full md:flex-1 md:ml-4">
-                                    <div
-                                        onClick={() => setFormData({ ...formData, parent_id: '' })}
-                                        className={`cursor-pointer h-10 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${!formData.parent_id
-                                                ? 'border-primary bg-primary/10 text-primary shadow-sm'
-                                                : 'border-border/50 bg-muted/30 hover:bg-muted/50 hover:border-primary/50 text-muted-foreground'
-                                            }`}
-                                    >
-                                        <Layers size={14} />
-                                        <span className="text-[11px] font-black uppercase">{t('admin.categories.form.topLevel') || "Principal"}</span>
-                                    </div>
-                                    <AnimatePresence>
-                                        {allCategories.filter(c => !c.parent_id && (!editingCategory || c.id !== editingCategory.id)).map(cat => (
-                                            <motion.div
-                                                key={cat.id}
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                onClick={() => setFormData({ ...formData, parent_id: cat.id })}
-                                                className={`cursor-pointer h-10 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${formData.parent_id == cat.id
-                                                        ? 'border-primary bg-primary/10 text-primary shadow-sm'
-                                                        : 'border-border/50 bg-muted/30 hover:bg-muted/50 hover:border-primary/50 text-foreground'
-                                                    }`}
-                                            >
-                                                {cat.logo ? (
-                                                    <img src={`/storage/${cat.logo}`} alt="" className="w-5 h-5 rounded-[4px] object-cover" />
-                                                ) : (
-                                                    <ImageIcon size={14} className="opacity-50" />
-                                                )}
-                                                <span className="text-[11px] font-black">{cat.name_fr}</span>
-                                            </motion.div>
-                                        ))}
-                                    </AnimatePresence>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4 h-12 px-4 rounded-xl bg-muted/30 ring-1 ring-border/50">
-                                <label className="flex items-center gap-3 cursor-pointer select-none w-full">
-                                    <Switch
-                                        checked={formData.isActive}
-                                        onCheckedChange={val => setFormData({ ...formData, isActive: val })}
-                                        className="data-[state=checked]:bg-primary"
-                                    />
-                                    <span className="text-sm font-bold text-foreground">{t('admin.categories.form.activateCategory') || "Activer la catégorie"}</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.categories.form.french') || "Français"}</label>
-                                <Input value={formData.name_fr} onChange={e => setFormData({ ...formData, name_fr: e.target.value })} className="h-12 bg-muted/30 border-border/50 rounded-xl font-bold" placeholder={t('admin.categories.form.frenchPlaceholder') || "ex: Vêtements"} />
-                            </div>
-                            <div className="space-y-2 text-right">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mr-1">{t('admin.categories.form.arabic') || "العربية"}</label>
-                                <Input dir="rtl" value={formData.name_ar} onChange={e => setFormData({ ...formData, name_ar: e.target.value })} className="h-12 bg-muted/30 border-border/50 rounded-xl text-right font-black" placeholder={t('admin.categories.form.arabicPlaceholder') || "الملابس"} />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.categories.form.english') || "English"}</label>
-                                <Input value={formData.name_en} onChange={e => setFormData({ ...formData, name_en: e.target.value })} className="h-12 bg-muted/30 border-border/50 rounded-xl font-bold" placeholder={t('admin.categories.form.englishPlaceholder') || "ex: Clothing"} />
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="space-y-3">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.categories.form.brandingLogo') || "Branding: Logo"}</label>
-                                <div className="relative group w-32 h-32 rounded-[24px] border-2 border-dashed border-border/50 flex items-center justify-center overflow-hidden bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer">
-                                    {previews.logo ? (
-                                        <img src={previews.logo} alt="Logo" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="text-center">
-                                            <ImageIcon className="text-muted-foreground mx-auto mb-1" size={24} />
-                                            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-tighter">{t('admin.categories.form.upload') || "Upload"}</span>
-                                        </div>
-                                    )}
-                                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => handleFileChange(e, 'logo')} />
-                                </div>
-                                <div className="text-[10px] text-muted-foreground/80 space-y-1 bg-muted/30 p-2.5 rounded-xl border border-border/40">
-                                    <p>{t('admin.categories.form.logoHint') || 'Max 2MB. 512x512px recommandé.'}</p>
-                                </div>
-                            </div>
-                            <div className="space-y-3 flex-1">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.categories.form.visionCover') || "Vision: Couverture"}</label>
-                                <div className="relative group h-32 rounded-[24px] border-2 border-dashed border-border/50 flex items-center justify-center overflow-hidden bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer">
-                                    {previews.cover ? (
-                                        <img src={previews.cover} alt="Cover" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="text-center">
-                                            <LayoutGrid className="text-muted-foreground mx-auto mb-1" size={24} />
-                                            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-tighter">{t('admin.categories.form.bannerText') || "Banner 1200x400"}</span>
-                                        </div>
-                                    )}
-                                    <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => handleFileChange(e, 'cover')} />
-                                </div>
-                                <div className="text-[10px] text-muted-foreground/80 space-y-1 bg-muted/30 p-2.5 rounded-xl border border-border/40">
-                                    <p>{t('admin.categories.form.coverHint') || 'Max 4MB. 1200x400px recommandé.'}</p>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </Modal>
-
-                <Modal
-                    isOpen={!!viewingCategory}
-                    onClose={() => setViewingCategory(null)}
-                    title={t('admin.categories.view.title') || "Détails Visuels"}
-                    subtitle={viewingCategory?.name_fr || ""}
-                    icon={ImageIcon}
-                    maxWidth="max-w-3xl"
-                    footer={
-                        <Button variant="ghost" onClick={() => setViewingCategory(null)} className="rounded-xl font-bold bg-muted/30">
-                            {t('admin.categories.view.close') || "Fermer"}
-                        </Button>
-                    }
-                >
-                    {viewingCategory && (
-                        <div className="space-y-8">
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground border-b border-border/50 pb-2">{t('admin.categories.view.logo') || "Logo"}</h3>
-                                <div className="bg-muted/10 border-2 border-dashed border-border/50 rounded-[32px] p-8 flex items-center justify-center">
-                                    {viewingCategory.logo ? (
-                                        <div className="w-40 h-40 rounded-2xl overflow-hidden shadow-2xl">
-                                            <img src={`/storage/${viewingCategory.logo}`} alt="Logo" className="w-full h-full object-cover" />
-                                        </div>
-                                    ) : (
-                                        <div className="text-center text-muted-foreground">
-                                            <ImageIcon size={48} className="mx-auto mb-4 opacity-50" />
-                                            <p className="font-bold">{t('admin.categories.table.noLogo') || "Aucun logo configuré"}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground border-b border-border/50 pb-2">{t('admin.categories.view.cover') || "Couverture (Bannière)"}</h3>
-                                <div className="bg-muted/10 border-2 border-dashed border-border/50 rounded-[32px] p-8 min-h-[250px] flex items-center justify-center">
-                                    {viewingCategory.cover ? (
-                                        <div className="w-full h-48 rounded-2xl overflow-hidden shadow-2xl">
-                                            <img src={`/storage/${viewingCategory.cover}`} alt="Couverture" className="w-full h-full object-cover" />
-                                        </div>
-                                    ) : (
-                                        <div className="text-center text-muted-foreground">
-                                            <LayoutGrid size={48} className="mx-auto mb-4 opacity-50" />
-                                            <p className="font-bold">{t('admin.categories.table.noCover') || "Aucune couverture configurée"}</p>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </Modal>
-
-                <Modal
-                    isOpen={isLinkModalOpen}
-                    onClose={() => setIsLinkModalOpen(false)}
-                    title={t('admin.categories.link.title') || "Lier des sous-catégories"}
-                    subtitle={linkingCategory ? `Sélectionnez les catégories à ajouter sous "${linkingCategory.name_fr}"` : ""}
-                    icon={Layers}
-                    maxWidth="max-w-4xl"
-                    footer={
-                        <>
-                            <Button variant="ghost" onClick={() => setIsLinkModalOpen(false)} className="rounded-xl font-bold">
-                                {t('admin.categories.form.cancel') || "Annuler"}
-                            </Button>
-                            <Button className="bg-primary text-white rounded-xl font-black px-8" onClick={handleLinkModalSubmit} disabled={selectedToLink.length === 0 || loading}>
-                                {loading ? "..." : (t('admin.categories.link.submit') || "Ajouter la sélection")}
-                            </Button>
-                        </>
-                    }
-                >
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[60vh] overflow-y-auto p-2">
-                        {allCategories.filter(c => c.id !== linkingCategory?.id && c.parent_id !== linkingCategory?.id).map((c) => {
-                            const isSelected = selectedToLink.includes(c.id);
-                            return (
-                                <div
-                                    key={c.id}
-                                    onClick={() => toggleToLink(c.id)}
-                                    className={`cursor-pointer rounded-[24px] p-4 border-2 transition-all flex flex-col items-center justify-center gap-3 text-center ${isSelected
-                                            ? 'border-primary opacity-100 bg-primary/10 shadow-lg scale-[1.02]'
-                                            : 'border-border/50 opacity-50 hover:opacity-75 bg-muted/20 hover:bg-muted/30'
-                                        }`}
-                                >
-                                    <div className="w-16 h-16 rounded-2xl bg-muted overflow-hidden flex items-center justify-center border border-border/50 shadow-sm">
-                                        {c.logo ? (
-                                            <img src={`/storage/${c.logo}`} alt="" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <ImageIcon className="text-muted-foreground" size={24} />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p className="font-black text-foreground tracking-tight text-sm line-clamp-1">{c.name_fr}</p>
-                                        <p className="text-[10px] font-bold text-muted-foreground uppercase">{c.parent_id ? 'Déjà sous-catégorie' : 'Catégorie principale'}</p>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                        {allCategories.filter(c => c.id !== linkingCategory?.id && c.parent_id !== linkingCategory?.id).length === 0 && (
-                            <div className="col-span-full py-10 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">
-                                Aucune catégorie disponible
-                            </div>
-                        )}
-                    </div>
-                </Modal>
             </div>
         </AdminPageLayout>
     );

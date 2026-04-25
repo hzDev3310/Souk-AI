@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +27,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Header = ({ onMenuClick }) => {
+  const navigate = useNavigate();
   const { isDarkMode, toggleTheme, language, changeLanguage } = useTheme();
   const { user, logout } = useAuth();
   const { t } = useTranslation();
@@ -114,7 +116,7 @@ const Header = ({ onMenuClick }) => {
             </AnimatePresence>
           </motion.button>
 
-          {/* Notifications */}
+          {/* Notifications 
           <motion.button 
             whileHover={{ scale: 1.05 }}
             className="p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm relative"
@@ -128,7 +130,7 @@ const Header = ({ onMenuClick }) => {
           </motion.button>
 
           <div className="w-[1px] h-8 bg-border/50 mx-1 hidden sm:block" />
-
+*/}
           {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -148,11 +150,11 @@ const Header = ({ onMenuClick }) => {
                 <DropdownMenuLabel className="p-0 text-sm font-black text-foreground tracking-tight">{t('header.myAccount') || 'My Account'}</DropdownMenuLabel>
                 <p className="text-[11px] text-muted-foreground font-bold mt-1 uppercase tracking-wider">{user?.email}</p>
               </div>
-              <DropdownMenuItem className="rounded-lg py-2.5 cursor-pointer font-bold text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+              <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="rounded-lg py-2.5 cursor-pointer font-bold text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors">
                 <User size={16} strokeWidth={2.5} className="mr-3 ml-1" />
                 {t('header.profile')}
               </DropdownMenuItem>
-              <DropdownMenuItem className="rounded-lg py-2.5 cursor-pointer font-bold text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+              <DropdownMenuItem onClick={() => navigate('/dashboard/parameters')} className="rounded-lg py-2.5 cursor-pointer font-bold text-sm text-foreground hover:bg-primary/10 hover:text-primary transition-colors">
                 <Settings size={16} strokeWidth={2.5} className="mr-3 ml-1" />
                 {t('header.settings')}
               </DropdownMenuItem>
