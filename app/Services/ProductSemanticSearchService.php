@@ -22,6 +22,9 @@ class ProductSemanticSearchService
         return $this->embeddingService->isEnabled();
     }
 
+    /**
+     * Performs a semantic search by comparing the query's vector embedding against product embeddings.
+     */
     public function search(string $query, Builder $baseQuery): Collection
     {
         return $this->debugSearch($query, $baseQuery)
@@ -65,8 +68,14 @@ class ProductSemanticSearchService
                     }
 
                     $document = $this->buildSearchDocument($product, $categoryMap);
+                    
+                    // Calculate semantic similarity using vector embeddings
                     $semanticScore = $this->cosineSimilarity($queryEmbedding, $embeddingRow->embedding);
+                    
+                    // Calculate traditional keyword matching score
                     $keywordScore = $this->keywordScore($tokens, $document);
+                    
+                    // Final score is a weighted combination: 82% semantic meaning, 18% exact keyword match
                     $score = ($semanticScore * 0.82) + ($keywordScore * 0.18);
 
                     return [
@@ -84,6 +93,10 @@ class ProductSemanticSearchService
         }
     }
 
+    /**
+     * Ensures all products in the collection have up-to-date vector embeddings.
+     * If a product's content has changed (checked via hash), it generates new embeddings via the Gemini API.
+     */
     private function ensureEmbeddings(Collection $products, Collection $categoryMap): Collection
     {
         $existing = ProductSearchEmbedding::whereIn('product_id', $products->pluck('id'))
@@ -145,6 +158,10 @@ class ProductSemanticSearchService
             ->keyBy('id');
     }
 
+    /**
+     * Constructs a single text document containing all relevant product information 
+     * (names, descriptions, and categories across multiple languages) to be vectorized.
+     */
     private function buildSearchDocument(Product $product, Collection $categoryMap): string
     {
         $categoryNames = collect($product->categories ?? [])
@@ -194,6 +211,11 @@ class ProductSemanticSearchService
         return $matches / max(count($tokens), 1);
     }
 
+    /**
+     * Calculates the cosine similarity between two vectors.
+     * This measures the mathematical angle between the query vector and the product vector,
+     * which represents their semantic closeness.
+     */
     private function cosineSimilarity(array $a, array $b): float
     {
         $dot = 0.0;

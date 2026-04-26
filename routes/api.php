@@ -22,6 +22,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
+Route::middleware('auth:sanctum')->post('/translate/autofill', [\App\Http\Controllers\Api\TranslationController::class, 'autoFill']);
 
 Route::get('/check', [AuthController::class, 'check']);
 Route::get('/public/ai-search', PublicSemanticSearchController::class);

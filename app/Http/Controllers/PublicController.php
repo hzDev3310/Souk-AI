@@ -182,6 +182,9 @@ class PublicController extends Controller
         $products = null;
 
         if (filled($query) && $searchMode === 'semantic') {
+            // AI-Powered Semantic Search:
+            // This uses vector embeddings (via Gemini API) to understand the context and meaning of the search query,
+            // allowing it to find relevant products even if they don't contain the exact keywords.
             $semanticResults = app(ProductSemanticSearchService::class)->search($query, clone $baseQuery);
 
             if ($semanticResults->isNotEmpty()) {

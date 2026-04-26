@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Package, Box, Image as ImageIcon, Activity } from 'lucide-react';
+import { ArrowLeft, Package, Box, Image as ImageIcon, Activity, Wand2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const StoreProductEdit = () => {
@@ -18,6 +18,7 @@ const StoreProductEdit = () => {
     const [categories, setCategories] = useState([]);
     const [errors, setErrors] = useState({});
     const [existingImages, setExistingImages] = useState([]);
+    const [translating, setTranslating] = useState(false);
 
     const [formData, setFormData] = useState({
         name_fr: '',
@@ -106,6 +107,33 @@ const StoreProductEdit = () => {
         }));
     };
 
+    const handleAutoTranslate = async () => {
+        setTranslating(true);
+        try {
+            const fieldsToTranslate = {
+                name_fr: formData.name_fr,
+                name_ar: formData.name_ar,
+                name_en: formData.name_en,
+                description_fr: formData.description_fr,
+                description_ar: formData.description_ar,
+                description_en: formData.description_en,
+            };
+            
+            const response = await api.post('/translate/autofill', { fields: fieldsToTranslate });
+            if (response.data?.success) {
+                setFormData(prev => ({
+                    ...prev,
+                    ...response.data.data
+                }));
+            }
+        } catch (error) {
+            console.error('Translation error:', error);
+            alert(t('store.products.messages.translationError') || 'Failed to auto-translate. Please check API key and try again.');
+        } finally {
+            setTranslating(false);
+        }
+    };
+
     const handleRemoveExistingImage = (index) => {
         setExistingImages(prev => prev.filter((_, i) => i !== index));
     };
@@ -191,6 +219,19 @@ const StoreProductEdit = () => {
 
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Auto Translate Action */}
+                    <div className="flex justify-end -mb-4 relative z-10">
+                        <Button
+                            type="button"
+                            onClick={handleAutoTranslate}
+                            disabled={translating}
+                            className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 border border-purple-200 dark:border-purple-500/30 gap-2 rounded-xl h-10 px-4 font-bold transition-all shadow-sm"
+                        >
+                            {translating ? <Activity className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+                            {t('store.products.form.autoTranslate') || '✨ Auto Translate Missing Fields'}
+                        </Button>
+                    </div>
+
                     {/* Condition */}
                     <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">

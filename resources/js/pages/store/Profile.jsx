@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import {
-    Building2, Upload, Loader, CheckCircle2, AlertCircle, ImagePlus
+    Building2, Upload, Loader, CheckCircle2, AlertCircle, ImagePlus, Wand2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,6 +20,7 @@ const StoreProfile = () => {
     const { addNotification } = useNotification();
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [translating, setTranslating] = useState(false);
     const [logoPreview, setLogoPreview] = useState(null);
     const [coverPreview, setCoverPreview] = useState(null);
     const [logoFile, setLogoFile] = useState(null);
@@ -111,6 +112,34 @@ const StoreProfile = () => {
             setCoverFile(file);
             const preview = URL.createObjectURL(file);
             setCoverPreview(preview);
+        }
+    };
+
+    const handleAutoTranslate = async () => {
+        setTranslating(true);
+        try {
+            const fieldsToTranslate = {
+                name_fr: formData.name_fr,
+                name_ar: formData.name_ar,
+                name_en: formData.name_en,
+                description_fr: formData.description_fr,
+                description_ar: formData.description_ar,
+                description_en: formData.description_en,
+            };
+            
+            const response = await api.post('/translate/autofill', { fields: fieldsToTranslate });
+            if (response.data?.success) {
+                setFormData(prev => ({
+                    ...prev,
+                    ...response.data.data
+                }));
+                addNotification('success', t('store.profile.messages.translationSuccess') || 'Translations filled successfully');
+            }
+        } catch (error) {
+            console.error('Translation error:', error);
+            addNotification('error', t('store.profile.messages.translationError') || 'Failed to auto-translate. Please check API key and try again.');
+        } finally {
+            setTranslating(false);
         }
     };
 
@@ -261,9 +290,20 @@ const StoreProfile = () => {
                     <div className="pt-16 space-y-6">
                         {/* Store Information */}
                         <CardBox className="p-8">
-                            <h3 className="text-lg font-semibold mb-6 text-foreground">
-                                {t('store.profile.sections.storeInfo') || 'Store Information'}
-                            </h3>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-lg font-semibold text-foreground m-0">
+                                    {t('store.profile.sections.storeInfo') || 'Store Information'}
+                                </h3>
+                                <Button
+                                    type="button"
+                                    onClick={handleAutoTranslate}
+                                    disabled={translating}
+                                    className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 border border-purple-200 dark:border-purple-500/30 gap-2 rounded-xl h-9 px-3 font-bold transition-all shadow-sm text-xs"
+                                >
+                                    {translating ? <Loader className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
+                                    {t('store.profile.form.autoTranslate') || '✨ Auto Translate'}
+                                </Button>
+                            </div>
 
                             <div className="space-y-6">
                                 {/* Store Names */}
