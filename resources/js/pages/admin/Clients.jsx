@@ -13,7 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Users, MapPin, Activity, Filter, Download, Eye, ShoppingCart, Package, Calendar, DollarSign } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Users, MapPin, Activity, Filter, Download, Eye, ShoppingCart, Package, Calendar, DollarSign, Ban, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '@/components/shared/Modal';
 
@@ -106,6 +106,18 @@ const Clients = () => {
             setClientOrders([]);
         } finally {
             setLoadingOrders(false);
+        }
+    };
+
+    const handleToggleBlock = async (client) => {
+        const action = client.isBlocked ? 'unblock' : 'block';
+        if (!confirm(`Are you sure you want to ${action} ${client.name} ${client.family_name || ''}?`)) return;
+
+        try {
+            await api.post(`/admin/users/${client.id}/${action}`);
+            fetchClients();
+        } catch (error) {
+            console.error(`Error trying to ${action} client:`, error);
         }
     };
 
@@ -262,6 +274,14 @@ const Clients = () => {
                                                     className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20"
                                                 >
                                                     <Pencil size={18} strokeWidth={2.5} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleToggleBlock(client)}
+                                                    className={`h-9 w-9 rounded-xl ${client.isBlocked ? 'text-emerald-500 hover:bg-emerald-500/20' : 'text-amber-500 hover:bg-amber-500/20'}`}
+                                                >
+                                                    {client.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
                                                 </Button>
                                                 <Button
                                                     variant="ghost"

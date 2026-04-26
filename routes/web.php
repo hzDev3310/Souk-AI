@@ -28,6 +28,9 @@ Route::middleware('web')->group(function () {
     Route::get('/products', [PublicController::class, 'allProducts'])->name('public.all-products');
     Route::get('/categories', [PublicController::class, 'allCategories'])->name('public.all-categories');
     Route::get('/stores', [PublicController::class, 'allStores'])->name('public.all-stores');
+    Route::get('/about', [PublicController::class, 'about'])->name('public.about');
+    Route::get('/terms', [PublicController::class, 'terms'])->name('public.terms');
+    Route::get('/contact', [PublicController::class, 'contact'])->name('public.contact');
 
     // Cart & Favorites
     Route::get('/cart', [PublicController::class, 'cart'])->name('public.cart');

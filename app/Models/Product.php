@@ -13,4 +13,5 @@ class Product extends Model {
     public function variants() { return $this->hasMany(ProductVariant::class); }
     public function albums() { return $this->hasMany(ProductAlbum::class); }
     public function categoryLinks() { return $this->belongsToMany(Category::class); } 
+    public function searchEmbedding() { return $this->hasOne(ProductSearchEmbedding::class); }
 }

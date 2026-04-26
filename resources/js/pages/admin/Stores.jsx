@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Store, Activity, Filter, Download } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, Store, Activity, Filter, Download, Ban, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Stores = () => {
@@ -56,6 +56,18 @@ const Stores = () => {
 
   const handleEdit = (store) => {
     navigate(`/dashboard/stores/${store.id}/edit`);
+  };
+
+  const handleToggleBlock = async (store) => {
+    const action = store.isBlocked ? 'unblock' : 'block';
+    if (!confirm(`Are you sure you want to ${action} ${store.store?.name_fr || store.name}?`)) return;
+
+    try {
+      await api.post(`/admin/users/${store.id}/${action}`);
+      fetchStores();
+    } catch (error) {
+      console.error(`Error trying to ${action} store:`, error);
+    }
   };
 
   const filteredStores = stores.filter(store =>
@@ -132,8 +144,8 @@ const Stores = () => {
                                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{store.store?.matriculeFiscale || 'No MAT'}</p>
                                     </div>
                                 </div>
-                                <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${store.store?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
-                                    {store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
+                                <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${store.isBlocked ? 'bg-red-500/10 text-red-600' : store.store?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                                    {store.isBlocked ? 'Blocked' : store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
                                 </span>
                             </div>
 
@@ -161,6 +173,14 @@ const Stores = () => {
                                         className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
                                     >
                                         <Pencil size={18} strokeWidth={2.5} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleToggleBlock(store)}
+                                        className={`h-10 w-10 rounded-2xl ${store.isBlocked ? 'bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500/20' : 'bg-amber-500/5 text-amber-500 hover:bg-amber-500/20'}`}
+                                    >
+                                        {store.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
                                     </Button>
                                     <Button
                                         variant="ghost"
@@ -229,8 +249,8 @@ const Stores = () => {
                                 <TableCell className="py-4 px-6 text-sm text-muted-foreground font-medium">{store.email}</TableCell>
                                 <TableCell className="py-4 px-6 text-sm text-muted-foreground font-medium">{store.store?.storePhone || '-'}</TableCell>
                                 <TableCell className="py-4 px-6">
-                                    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${store.store?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
-                                        {store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
+                                    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${store.isBlocked ? 'bg-red-500/10 text-red-600' : store.store?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                                        {store.isBlocked ? 'Blocked' : store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
                                     </span>
                                 </TableCell>
                                 <TableCell className="py-4 px-6 text-end">
@@ -242,6 +262,14 @@ const Stores = () => {
                                             className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20"
                                         >
                                             <Pencil size={18} strokeWidth={2.5} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleToggleBlock(store)}
+                                            className={`h-9 w-9 rounded-xl ${store.isBlocked ? 'text-emerald-500 hover:bg-emerald-500/20' : 'text-amber-500 hover:bg-amber-500/20'}`}
+                                        >
+                                            {store.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
                                         </Button>
                                         <Button
                                             variant="ghost"

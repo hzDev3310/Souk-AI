@@ -23,6 +23,10 @@
         'secondary_color' => '#f43f5e',
         'radius' => '28px'
     ]);
+    $websiteName = setting('website_name', 'Souk AI');
+    $websiteLogo = setting('website_logo');
+    $footerAbout = setting('footer_about_'.app()->getLocale(), __('website.footer.aboutText'));
+    $contactAddress = setting('contact_address_'.app()->getLocale(), setting('contact_address_en', 'Tunis, Tunisia'));
 @endphp
 
     <style>
@@ -45,34 +49,51 @@
 <body class="antialiased bg-background text-foreground font-sans selection:bg-primary selection:text-white transition-colors duration-500 overflow-x-hidden">
     
     <!-- Navigation -->
-    <nav class="sticky top-0 z-50 glass border-b premium-shadow mt-4 mx-4 md:mx-12 rounded-[28px] px-6 py-4 flex items-center justify-between">
-        <a href="/" class="flex items-center gap-2 group">
-            <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center group-hover:rotate-12 transition-transform">
-                <span class="text-white font-black text-xl">{{ substr(setting('website_name', 'Souk AI'), 0, 1) }}</span>
-            </div>
-            <span class="text-xl font-black tracking-tight text-foreground">{{ setting('website_name', 'Souk AI') }}</span>
-        </a>
+    <nav class="sticky top-0 z-50 mt-4 mx-4 md:mx-12">
+        <div class="glass border-b premium-shadow rounded-[28px] px-4 py-4 md:px-6">
+            <div class="flex items-center justify-between gap-3 lg:gap-6">
+                <a href="/" class="flex items-center gap-2 group flex-shrink-0">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center overflow-hidden group-hover:rotate-12 transition-transform">
+                        @if($websiteLogo)
+                            <img
+                                src="{{ str_starts_with($websiteLogo, 'http') ? $websiteLogo : '/storage/'.$websiteLogo }}"
+                                alt="{{ $websiteName }}"
+                                class="w-full h-full object-contain p-1.5 bg-white"
+                            >
+                        @else
+                            <span class="text-white font-black text-xl">{{ strtoupper(substr($websiteName, 0, 1)) }}</span>
+                        @endif
+                    </div>
+                    <span class="text-lg md:text-xl font-black tracking-tight text-foreground">{{ $websiteName }}</span>
+                </a>
 
-    <form action="{{ route('public.search') }}" method="GET" class="hidden lg:flex  items-center gap-2 px-4 py-2 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/50 transition-colors flex-1 max-w-[50]">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground flex-shrink-0">
-        <circle cx="11" cy="11" r="8"/>
-        <path d="m21 21-4.3-4.3"/>
-    </svg>
-    <input 
-        type="text" 
-        name="q" 
-        value="{{ request('q') }}" 
-        placeholder="{{ __('website.search') }}" 
-        class="bg-transparent border-none outline-none text-sm font-medium w-full md:w-32 lg:w-48 placeholder:text-muted-foreground/60 text-foreground"
-        autocomplete="off"
-    >
-</form>
+                <form action="{{ route('public.search') }}" method="GET" class="hidden lg:flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/50 transition-colors flex-1 max-w-3xl">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground flex-shrink-0">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="{{ request('q') }}" 
+                        placeholder="{{ __('website.searchPlaceholder') }}" 
+                        class="bg-transparent border-none outline-none text-sm font-medium w-full placeholder:text-muted-foreground/60 text-foreground"
+                        autocomplete="off"
+                    >
+                    <button type="submit" name="search_mode" value="keyword" class="px-3 py-2 rounded-xl bg-card/70 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-card transition-colors whitespace-nowrap">
+                        {{ __('website.searchButton') }}
+                    </button>
+                    <button type="submit" name="search_mode" value="semantic" class="px-3 py-2 rounded-xl bg-primary text-[10px] font-black uppercase tracking-widest text-white hover:bg-primaryemphasis transition-colors whitespace-nowrap" title="{{ __('website.aiSearchHelp') }}">
+                        {{ __('website.aiSearch') }}
+                    </button>
+                </form>
 
-        <div class="flex items-center gap-4">
-            <!-- Search -->
-           
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button id="open-mobile-search" class="flex lg:hidden w-10 h-10 rounded-xl items-center justify-center text-muted-foreground hover:bg-card hover:text-primary transition-all border border-transparent hover:border-border/40">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    </button>
 
-            <!-- Desktop Actions -->
+                    <!-- Desktop Actions -->
             <div class="hidden lg:flex items-center gap-3">
                 <a href="/favorites" class="relative w-10 h-10 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-card hover:text-rose-500 transition-all border border-transparent hover:border-border/40">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
@@ -84,20 +105,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
                     <span id="cart-count-desktop" class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-background {{ count(session()->get('cart', [])) > 0 ? '' : 'hidden' }}">
                         {{ count(session()->get('cart', [])) }}
-                    </span><form action="{{ route('public.search') }}" method="GET" class="flex sm:hidden items-center gap-2 px-4 py-2 bg-muted/30 rounded-2xl border border-border/40 focus-within:border-primary/50 transition-colors flex-1 md:flex-none md:w-auto">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground flex-shrink-0">
-        <circle cx="11" cy="11" r="8"/>
-        <path d="m21 21-4.3-4.3"/>
-    </svg>
-    <input 
-        type="text" 
-        name="q" 
-        value="{{ request('q') }}" 
-        placeholder="{{ __('website.search') }}" 
-        class="bg-transparent border-none outline-none text-sm font-medium w-full md:w-32 lg:w-48 placeholder:text-muted-foreground/60 text-foreground"
-        autocomplete="off"
-    >
-</form>
+                    </span>
                 </a>
             </div>
 
@@ -171,6 +179,8 @@
                 {{ __('website.login') }}
             </a>
             @endauth
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -184,40 +194,53 @@
         <div class="container mx-auto px-12 grid grid-cols-1 md:grid-cols-4 gap-12">
             <div class="space-y-6">
                 <div class="flex items-center gap-2">
-                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                        <span class="text-white font-black text-xl">S</span>
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center overflow-hidden">
+                        @if($websiteLogo)
+                            <img
+                                src="{{ str_starts_with($websiteLogo, 'http') ? $websiteLogo : '/storage/'.$websiteLogo }}"
+                                alt="{{ $websiteName }}"
+                                class="w-full h-full object-contain p-1.5 bg-white"
+                            >
+                        @else
+                            <span class="text-white font-black text-xl">{{ strtoupper(substr($websiteName, 0, 1)) }}</span>
+                        @endif
                     </div>
-                    <span class="text-xl font-black tracking-tight text-foreground">Souk<span class="text-primary">AI</span></span>
+                    <span class="text-xl font-black tracking-tight text-foreground">{{ $websiteName }}</span>
                 </div>
                 <p class="text-sm text-muted-foreground font-medium leading-relaxed">
-                    {{ __('website.footer.about') }}
+                    {{ $footerAbout }}
                 </p>
             </div>
             
             <div>
                 <h4 class="font-black text-xs uppercase tracking-[0.2em] mb-8 text-foreground">{{ __('website.footer.explore') }}</h4>
                 <ul class="space-y-4">
-                    <li><a href="#" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.latest') }}</a></li>
-                    <li><a href="#" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.bestStores') }}</a></li>
-                    <li><a href="#" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.categories') }}</a></li>
+                    <li><a href="{{ route('public.all-products', ['sort' => 'latest']) }}" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.latest') }}</a></li>
+                    <li><a href="{{ route('public.all-stores') }}" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.bestStores') }}</a></li>
+                    <li><a href="{{ route('public.all-categories') }}" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.categories') }}</a></li>
                 </ul>
             </div>
 
             <div>
                 <h4 class="font-black text-xs uppercase tracking-[0.2em] mb-8 text-foreground">{{ __('website.footer.support') }}</h4>
                 <ul class="space-y-4">
-                    <li><a href="#" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.help') }}</a></li>
-                    <li><a href="#" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.terms') }}</a></li>
+                    <li><a href="{{ route('public.about') }}" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.aboutLink') }}</a></li>
+                    <li><a href="{{ route('public.contact') }}" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.contact') }}</a></li>
+                    <li><a href="{{ route('public.terms') }}" class="text-sm font-bold text-muted-foreground hover:text-primary transition-colors">{{ __('website.footer.terms') }}</a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="font-black text-xs uppercase tracking-[0.2em] mb-8 text-foreground">{{ __('website.footer.newsletter') }}</h4>
-                <div class="flex gap-2 p-2 bg-muted/40 rounded-2xl border border-border/40">
-                    <input type="email" placeholder="{{ __('website.footer.emailPlaceholder') }}" class="bg-transparent border-none outline-none text-xs font-bold pl-2 flex-1">
-                    <button class="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center hover:bg-primaryemphasis transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 14 0"/><path d="m12 5 7 7-7 7"/></svg>
-                    </button>
+                <h4 class="font-black text-xs uppercase tracking-[0.2em] mb-8 text-foreground">{{ __('website.footer.contactInfo') }}</h4>
+                <div class="space-y-4 text-sm font-bold text-muted-foreground">
+                    <p>{{ setting('contact_email', 'support@soukai.com') }}</p>
+                    <p>{{ setting('contact_phone', '+216 00 000 000') }}</p>
+                    <p>{{ $contactAddress }}</p>
+                    @if(setting('contact_location_url'))
+                        <a href="{{ setting('contact_location_url') }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-primary hover:text-primaryemphasis transition-colors">
+                            {{ __('website.footer.viewLocation') }}
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -244,10 +267,17 @@
                 </div>
             </div>
 
-            <form action="{{ route('public.search') }}" method="GET" class="relative group">
-                <input type="text" name="q" id="mobile-search-input" placeholder="Search for products..." class="w-full bg-card glass border border-border/40 rounded-[28px] px-8 py-5 text-lg font-bold text-foreground focus:border-primary outline-none transition-all shadow-2xl shadow-primary/5">
-                <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <p class="mb-4 text-sm font-medium text-muted-foreground">{{ __('website.aiSearchInstruction') }}</p>
+
+            <form action="{{ route('public.search') }}" method="GET" class="space-y-3">
+                <div class="relative group">
+                    <input type="text" name="q" id="mobile-search-input" placeholder="{{ __('website.searchPlaceholder') }}" class="w-full bg-card glass border border-border/40 rounded-[28px] px-8 py-5 text-lg font-bold text-foreground focus:border-primary outline-none transition-all shadow-2xl shadow-primary/5">
+                    <button type="submit" name="search_mode" value="keyword" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    </button>
+                </div>
+                <button type="submit" name="search_mode" value="semantic" class="w-full rounded-2xl bg-primary px-5 py-4 text-xs font-black uppercase tracking-[0.2em] text-white transition-colors hover:bg-primaryemphasis">
+                    {{ __('website.aiSearch') }}
                 </button>
             </form>
         </div>
@@ -360,6 +390,42 @@
             searchOverlay.classList.add('invisible', 'opacity-0');
             searchOverlay.classList.remove('visible', 'opacity-100');
             searchInput.blur();
+        });
+
+        const openSidebar = (name) => {
+            const overlay = document.querySelector(`[data-sidebar-overlay="${name}"]`);
+            const panel = document.querySelector(`[data-sidebar-panel="${name}"]`);
+            if (!overlay || !panel) return;
+
+            overlay.classList.remove('pointer-events-none', 'opacity-0');
+            panel.classList.remove('translate-x-full');
+            document.body.classList.add('overflow-hidden');
+        };
+
+        const closeSidebar = (name) => {
+            const overlay = document.querySelector(`[data-sidebar-overlay="${name}"]`);
+            const panel = document.querySelector(`[data-sidebar-panel="${name}"]`);
+            if (!overlay || !panel) return;
+
+            overlay.classList.add('pointer-events-none', 'opacity-0');
+            panel.classList.add('translate-x-full');
+            document.body.classList.remove('overflow-hidden');
+        };
+
+        document.querySelectorAll('[data-sidebar-open]').forEach((button) => {
+            button.addEventListener('click', () => openSidebar(button.dataset.sidebarOpen));
+        });
+
+        document.querySelectorAll('[data-sidebar-close]').forEach((button) => {
+            button.addEventListener('click', () => closeSidebar(button.dataset.sidebarClose));
+        });
+
+        document.querySelectorAll('[data-sidebar-overlay]').forEach((overlay) => {
+            overlay.addEventListener('click', (event) => {
+                if (event.target === overlay) {
+                    closeSidebar(overlay.dataset.sidebarOverlay);
+                }
+            });
         });
     </script>
 </body>

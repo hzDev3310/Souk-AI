@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\PublicSemanticSearchController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\EmployeeController;
 use App\Http\Controllers\Api\Admin\InfluencerController;
@@ -23,6 +24,7 @@ Route::post('/logout', [AuthController::class, 'logout']);
 Route::middleware('auth:sanctum')->get('/me', [AuthController::class, 'me']);
 
 Route::get('/check', [AuthController::class, 'check']);
+Route::get('/public/ai-search', PublicSemanticSearchController::class);
 
 // Public Category Routes
 Route::get('/categories', [CategoryController::class, 'index']);

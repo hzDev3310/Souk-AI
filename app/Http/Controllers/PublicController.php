@@ -9,7 +9,9 @@ use App\Models\Client;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Store;
+use App\Services\ProductSemanticSearchService;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
@@ -17,12 +19,20 @@ use Illuminate\Support\Facades\DB;
 
 class PublicController extends Controller
 {
+    private function applyPublicStoreVisibility($query): void
+    {
+        $query->where('isActive', true)
+            ->whereHas('user', function ($userQuery) {
+                $userQuery->where('isBlocked', false);
+            });
+    }
+
     public function index()
     {
         // Section 1: Top 8 products by orders
         $topProducts = Product::with(['store', 'albums'])
             ->whereHas('store', function($query) {
-                $query->where('isActive', true);
+                $this->applyPublicStoreVisibility($query);
             })
             ->leftJoinSub(
                 OrderItem::select('product_id', DB::raw('COUNT(*) as order_count'))
@@ -56,7 +66,9 @@ class PublicController extends Controller
             ->get(['categories.*']);
 
         // Section 3: Top 8 stores by orders
-        $topStores = Store::where('isActive', true)
+        $topStores = Store::where(function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
             ->with('products')
             ->leftJoinSub(
                 OrderItem::select('order_items.id')
@@ -75,7 +87,7 @@ class PublicController extends Controller
         // Section 4: Latest 8 products (recent additions)
         $recentProducts = Product::with(['store', 'albums'])
             ->whereHas('store', function($query) {
-                $query->where('isActive', true);
+                $this->applyPublicStoreVisibility($query);
             })
             ->latest()
             ->limit(8)
@@ -92,10 +104,16 @@ class PublicController extends Controller
     public function product($slug)
     {
         $product = Product::with(['store', 'albums', 'variants'])
+            ->whereHas('store', function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
             ->where('slug', $slug)
             ->firstOrFail();
 
         $relatedProducts = Product::with(['store', 'albums'])
+            ->whereHas('store', function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
             ->where('store_id', $product->store_id)
             ->where('id', '!=', $product->id)
             ->limit(4)
@@ -108,10 +126,15 @@ class PublicController extends Controller
     {
         $store = Store::with(['products.albums'])
             ->where('slug', $slug)
-            ->where('isActive', true)
+            ->where(function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
             ->firstOrFail();
 
         $products = $store->products()
+            ->whereHas('store', function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
             ->with('albums')
             ->paginate(12);
 
@@ -123,6 +146,9 @@ class PublicController extends Controller
         $category = Category::where('slug', $slug)->firstOrFail();
         
         $products = Product::whereJsonContains('categories', $category->id)
+            ->whereHas('store', function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
             ->with(['store', 'albums'])
             ->paginate(12);
 
@@ -141,24 +167,53 @@ class PublicController extends Controller
         $minPrice = $request->input('min_price', 0);
         $maxPrice = $request->input('max_price', 999999);
         $categoryId = $request->input('category_id');
-        
-        $products = Product::whereHas('store', function($q) {
-                $q->where('isActive', true);
-            })
-            ->where(function($q) use ($query) {
-                $q->where('name_en', 'like', "%{$query}%")
-                  ->orWhere('name_fr', 'like', "%{$query}%")
-                  ->orWhere('name_ar', 'like', "%{$query}%")
-                  ->orWhere('description_en', 'like', "%{$query}%");
+        $searchMode = $request->input('search_mode', 'keyword');
+        $perPage = 12;
+
+        $baseQuery = Product::whereHas('store', function($q) {
+                $this->applyPublicStoreVisibility($q);
             })
             ->whereBetween('price', [$minPrice, $maxPrice]);
 
         if ($categoryId) {
-            $products = $products->whereJsonContains('categories', $categoryId);
+            $baseQuery->whereJsonContains('categories', $categoryId);
         }
 
-        $products = $products->with(['store', 'albums'])
-            ->paginate(12);
+        $products = null;
+
+        if (filled($query) && $searchMode === 'semantic') {
+            $semanticResults = app(ProductSemanticSearchService::class)->search($query, clone $baseQuery);
+
+            if ($semanticResults->isNotEmpty()) {
+                $page = LengthAwarePaginator::resolveCurrentPage();
+                $items = $semanticResults->slice(($page - 1) * $perPage, $perPage)->values();
+
+                $products = new LengthAwarePaginator(
+                    $items,
+                    $semanticResults->count(),
+                    $perPage,
+                    $page,
+                    [
+                        'path' => $request->url(),
+                        'query' => $request->query(),
+                    ]
+                );
+            }
+        }
+
+        if (!$products) {
+            $products = (clone $baseQuery)
+                ->where(function($q) use ($query) {
+                    $q->where('name_en', 'like', "%{$query}%")
+                      ->orWhere('name_fr', 'like', "%{$query}%")
+                      ->orWhere('name_ar', 'like', "%{$query}%")
+                      ->orWhere('description_en', 'like', "%{$query}%")
+                      ->orWhere('description_fr', 'like', "%{$query}%")
+                      ->orWhere('description_ar', 'like', "%{$query}%");
+                })
+                ->with(['store', 'albums'])
+                ->paginate($perPage);
+        }
 
         $categories = Category::where('isActive', true)
             ->whereNull('parent_id')
@@ -172,7 +227,12 @@ class PublicController extends Controller
     {
         $cart = session()->get('cart', []);
         $productIds = array_keys($cart);
-        $products = Product::whereIn('id', $productIds)->with(['store', 'albums'])->get();
+        $products = Product::whereIn('id', $productIds)
+            ->whereHas('store', function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
+            ->with(['store', 'albums'])
+            ->get();
         
         $categories = Category::where('isActive', true)->whereNull('parent_id')->get();
         
@@ -228,7 +288,12 @@ class PublicController extends Controller
     public function favorites()
     {
         $favorites = session()->get('favorites', []);
-        $products = Product::whereIn('id', $favorites)->with(['store', 'albums'])->get();
+        $products = Product::whereIn('id', $favorites)
+            ->whereHas('store', function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
+            ->with(['store', 'albums'])
+            ->get();
         
         $categories = Category::where('isActive', true)->whereNull('parent_id')->get();
         
@@ -259,7 +324,12 @@ class PublicController extends Controller
         if(empty($cart)) return redirect()->route('public.cart');
 
         $productIds = array_keys($cart);
-        $products = Product::whereIn('id', $productIds)->with(['store'])->get();
+        $products = Product::whereIn('id', $productIds)
+            ->whereHas('store', function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
+            ->with(['store'])
+            ->get();
         
         $total = 0;
         foreach($products as $product) {
@@ -318,7 +388,11 @@ class PublicController extends Controller
             );
 
             $productIds = array_keys($cart);
-            $products = Product::whereIn('id', $productIds)->get();
+            $products = Product::whereIn('id', $productIds)
+                ->whereHas('store', function ($query) {
+                    $this->applyPublicStoreVisibility($query);
+                })
+                ->get();
             $totalAmount = 0;
             
             foreach($products as $product) {
@@ -363,7 +437,7 @@ class PublicController extends Controller
 
         $products = Product::with(['store', 'albums'])
             ->whereHas('store', function($query) {
-                $query->where('isActive', true);
+                $this->applyPublicStoreVisibility($query);
             })
             ->whereBetween('price', [$minPrice, $maxPrice]);
 
@@ -429,7 +503,9 @@ class PublicController extends Controller
 
     public function allStores()
     {
-        $stores = Store::where('isActive', true)
+        $stores = Store::where(function ($query) {
+                $this->applyPublicStoreVisibility($query);
+            })
             ->leftJoinSub(
                 OrderItem::select('order_items.id')
                     ->join('products', 'order_items.product_id', '=', 'products.id')
@@ -445,6 +521,21 @@ class PublicController extends Controller
             ->paginate(12);
 
         return view('public.all-stores', compact('stores'));
+    }
+
+    public function about()
+    {
+        return view('public.about');
+    }
+
+    public function terms()
+    {
+        return view('public.terms');
+    }
+
+    public function contact()
+    {
+        return view('public.contact');
     }
 
     public function showLogin()
@@ -552,4 +643,3 @@ class PublicController extends Controller
         return view('public.orders', compact('orders', 'categories'));
     }
 }
-

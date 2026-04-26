@@ -56,9 +56,64 @@
         </div>
     </section>
 
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
+    <div class="mb-6 lg:hidden">
+        <button
+            type="button"
+            data-sidebar-open="category-page"
+            class="inline-flex items-center gap-2 rounded-2xl border border-border/40 bg-card px-4 py-3 text-xs font-black uppercase tracking-[0.2em] text-foreground"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"/><line x1="7" x2="17" y1="12" y2="12"/><line x1="10" x2="14" y1="18" y2="18"/></svg>
+            {{ __('website.exploreCategories') }}
+        </button>
+    </div>
+
+    <div data-sidebar-overlay="category-page" class="pointer-events-none fixed inset-0 z-[90] bg-black/50 opacity-0 transition-opacity duration-300 lg:hidden">
+        <div data-sidebar-panel="category-page" class="ml-auto h-full w-[88vw] max-w-sm overflow-y-auto bg-background p-4 transition-transform duration-300 translate-x-full">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-sm font-black uppercase tracking-[0.2em] text-foreground">{{ __('website.exploreCategories') }}</h2>
+                <button type="button" data-sidebar-close="category-page" class="flex h-10 w-10 items-center justify-center rounded-2xl bg-muted/30 text-foreground">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 6-12 12"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="glass border border-border/40 rounded-[28px] p-5 premium-shadow">
+                    <nav class="space-y-2">
+                        @foreach($categories as $cat)
+                        <div class="space-y-1">
+                            <a href="{{ route('public.category', $cat->slug) }}" class="flex items-center justify-between rounded-2xl px-3 py-3 transition-all {{ $category->id == $cat->id ? 'bg-primary text-white' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground' }}">
+                                <span class="text-xs font-bold uppercase tracking-wider">{{ $cat->{'name_'.app()->getLocale()} }}</span>
+                                @if($cat->children->count() > 0)
+                                    <span class="text-[10px] font-black">{{ $cat->children->count() }}</span>
+                                @endif
+                            </a>
+
+                            @if($cat->children->count() > 0)
+                            <div class="ms-4 border-s border-border/40 ps-3 space-y-1">
+                                @foreach($cat->children as $child)
+                                <a href="{{ route('public.category', $child->slug) }}" class="flex items-center rounded-xl px-3 py-2 text-[11px] font-bold transition-all {{ $category->id == $child->id ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted/30 hover:text-foreground' }}">
+                                    {{ $child->{'name_'.app()->getLocale()} }}
+                                </a>
+                                @endforeach
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    </nav>
+                </div>
+
+                <div class="bg-primary/90 rounded-[28px] p-6 text-white space-y-4 premium-shadow">
+                    <h4 class="text-lg font-black leading-tight">{{ __('website.vipTitle') }}</h4>
+                    <p class="text-[10px] font-bold text-white/80 uppercase tracking-widest leading-relaxed">{{ __('website.vipDesc') }}</p>
+                    <button class="w-full py-3 bg-white text-primary rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-white transition-all">{{ __('website.subscribe') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-12">
         <!-- Sidebar -->
-        <aside class="space-y-10">
+        <aside class="hidden space-y-10 lg:block">
             <div class="glass border border-border/40 rounded-[40px] p-8 premium-shadow sticky top-32">
                 <h3 class="text-xs font-black uppercase tracking-[0.2em] text-foreground mb-8 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-primary"></span>
@@ -76,11 +131,11 @@
                             @endif
                         </a>
                         
-                        @if($cat->children->count() > 0 && ($category->id == $cat->id || $category->parent_id == $cat->id))
-                        <div class="pl-4 space-y-1 mt-1 animate-in slide-in-from-left-2 duration-300">
+                        @if($cat->children->count() > 0)
+                        <div class="ms-4 mt-1 space-y-1 border-s border-border/40 ps-3">
                             @foreach($cat->children as $child)
                             <a href="{{ route('public.category', $child->slug) }}" 
-                               class="flex items-center gap-2 p-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all {{ $category->id == $child->id ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/5' }}">
+                               class="flex items-center gap-2 p-2.5 rounded-xl text-[11px] font-bold transition-all {{ $category->id == $child->id ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-primary hover:bg-primary/5' }}">
                                 <span class="w-1.5 h-1.5 rounded-full {{ $category->id == $child->id ? 'bg-primary' : 'bg-border' }}"></span>
                                 {{ $child->{'name_'.app()->getLocale()} }}
                             </a>

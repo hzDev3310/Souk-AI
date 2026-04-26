@@ -11,6 +11,14 @@ class SettingController extends Controller
 {
     public function index()
     {
+        collect([
+            ['key' => 'website_logo', 'value' => null, 'type' => 'image', 'group' => 'branding'],
+            ['key' => 'gemini_api_key', 'value' => null, 'type' => 'password', 'group' => 'ai'],
+            ['key' => 'gemini_embedding_model', 'value' => 'models/gemini-embedding-001', 'type' => 'select', 'group' => 'ai'],
+        ])->each(function (array $setting) {
+            Setting::updateOrCreate(['key' => $setting['key']], $setting);
+        });
+
         return response()->json(Setting::all());
     }
 
@@ -33,7 +41,7 @@ class SettingController extends Controller
     public function uploadImage(Request $request)
     {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => 'required|file|mimes:jpeg,png,jpg,gif,webp,svg|max:2048',
         ]);
 
         if ($request->hasFile('image')) {

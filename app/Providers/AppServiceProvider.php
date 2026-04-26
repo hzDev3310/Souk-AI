@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Product;
+use App\Observers\ProductObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Session;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Paginator::useTailwind();
+        Product::observe(ProductObserver::class);
         
         // Set locale from session or default to config
         if (Session::has('locale') && in_array(Session::get('locale'), ['en', 'fr', 'ar'])) {
