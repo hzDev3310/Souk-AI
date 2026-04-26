@@ -35,6 +35,43 @@
             --secondary: {{ $designSettings['secondary_color'] }};
             --radius: {{ $designSettings['radius'] }};
         }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .ai-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-shimmer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+        }
+
+        .btn-ai-search {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        }
+
+        .btn-ai-search:hover {
+            box-shadow: 0 10px 25px -5px rgba(var(--primary-rgb), 0.4);
+            filter: brightness(1.1);
+        }
     </style>
 
     <!-- Head Scripts (Theme) -->
@@ -81,10 +118,14 @@
                         autocomplete="off"
                     >
                     <button type="submit" name="search_mode" value="keyword" class="px-3 py-2 rounded-xl bg-card/70 text-[10px] font-black uppercase tracking-widest text-foreground hover:bg-card transition-colors whitespace-nowrap">
-                        {{ __('website.searchButton') }}
+                        {{ __('website.searchbutton') }}
                     </button>
-                    <button type="submit" name="search_mode" value="semantic" class="px-3 py-2 rounded-xl bg-primary text-[10px] font-black uppercase tracking-widest text-white hover:bg-primaryemphasis transition-colors whitespace-nowrap" title="{{ __('website.aiSearchHelp') }}">
-                        {{ __('website.aiSearch') }}
+                    <button type="submit" name="search_mode" value="semantic" class="btn-ai-search ai-shimmer group flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-white hover:scale-105 active:scale-95 transition-all whitespace-nowrap" title="{{ __('website.aisearchHelp') }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-12 transition-transform duration-300">
+                            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                            <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+                        </svg>
+                        <span>{{ __('website.aisearch') }}</span>
                     </button>
                 </form>
 

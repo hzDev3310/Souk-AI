@@ -36,7 +36,7 @@ class ProductSemanticSearchService
     {
         $query = trim($query);
 
-        if ($query === '' || !$this->isEnabled()) {
+        if ($query === '') {
             return collect();
         }
 
@@ -50,33 +50,43 @@ class ProductSemanticSearchService
             }
 
             $categoryMap = $this->buildCategoryMap($products);
-            $embeddings = $this->ensureEmbeddings($products, $categoryMap);
-            $queryEmbedding = $this->embeddingService->embedQuery($this->normalizeText($query));
-
-            if (!$queryEmbedding) {
-                return collect();
-            }
-
             $tokens = $this->tokens($query);
+
+            $queryEmbedding = [];
+            $embeddings = collect();
+
+            // Try to use AI if enabled
+            if ($this->isEnabled()) {
+                try {
+                    $embeddings = $this->ensureEmbeddings($products, $categoryMap);
+                    $queryEmbedding = $this->embeddingService->embedQuery($this->normalizeText($query));
+                } catch (Throwable $e) {
+                    report($e);
+                    // Continue with keyword search fallback
+                }
+            }
 
             return $products
                 ->map(function (Product $product) use ($embeddings, $queryEmbedding, $tokens, $categoryMap) {
-                    $embeddingRow = $embeddings->get($product->id);
-
-                    if (!$embeddingRow || empty($embeddingRow->embedding)) {
-                        return null;
-                    }
-
                     $document = $this->buildSearchDocument($product, $categoryMap);
-                    
-                    // Calculate semantic similarity using vector embeddings
-                    $semanticScore = $this->cosineSimilarity($queryEmbedding, $embeddingRow->embedding);
-                    
-                    // Calculate traditional keyword matching score
                     $keywordScore = $this->keywordScore($tokens, $document);
                     
-                    // Final score is a weighted combination: 82% semantic meaning, 18% exact keyword match
-                    $score = ($semanticScore * 0.82) + ($keywordScore * 0.18);
+                    $semanticScore = 0.0;
+                    if (!empty($queryEmbedding)) {
+                        $embeddingRow = $embeddings->get($product->id);
+                        if ($embeddingRow && !empty($embeddingRow->embedding)) {
+                            $semanticScore = $this->cosineSimilarity($queryEmbedding, $embeddingRow->embedding);
+                        }
+                    }
+
+                    // Score calculation: 
+                    // If AI worked, use weighted average (82% semantic, 18% keyword)
+                    // If AI failed or is off, use 100% keyword score
+                    if (!empty($queryEmbedding)) {
+                        $score = ($semanticScore * 0.82) + ($keywordScore * 0.18);
+                    } else {
+                        $score = $keywordScore;
+                    }
 
                     return [
                         'product' => $product,
@@ -85,10 +95,11 @@ class ProductSemanticSearchService
                         'keyword_score' => $keywordScore,
                     ];
                 })
-                ->filter(fn ($row) => $row && $row['score'] > 0.12)
+                ->filter(fn ($row) => $row && $row['score'] > 0.05) // Lower threshold for keyword matches
                 ->sortByDesc('score')
                 ->values();
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            report($e);
             return collect();
         }
     }

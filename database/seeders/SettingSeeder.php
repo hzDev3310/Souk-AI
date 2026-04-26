@@ -17,7 +17,7 @@ class SettingSeeder extends Seeder
             ['key' => 'website_logo', 'value' => null, 'type' => 'image', 'group' => 'branding'],
 
             // AI Search
-            ['key' => 'gemini_api_key', 'value' => null, 'type' => 'password', 'group' => 'ai'],
+            ['key' => 'gemini_api_key', 'value' => 'AIzaSyCnMuxvliGe9ke0dMU1ZZKB19HsJjAAVBk', 'type' => 'password', 'group' => 'ai'],
             ['key' => 'gemini_embedding_model', 'value' => 'models/gemini-embedding-001', 'type' => 'select', 'group' => 'ai'],
 
             // Hero Section
