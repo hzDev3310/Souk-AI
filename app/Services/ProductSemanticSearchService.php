@@ -14,17 +14,13 @@ class ProductSemanticSearchService
 {
     public function __construct(
         private GeminiEmbeddingService $embeddingService
-    ) {
-    }
+    ) {}
 
     public function isEnabled(): bool
     {
         return $this->embeddingService->isEnabled();
     }
 
-    /**
-     * Performs a semantic search by comparing the query's vector embedding against product embeddings.
-     */
     public function search(string $query, Builder $baseQuery): Collection
     {
         return $this->debugSearch($query, $baseQuery)
@@ -35,19 +31,12 @@ class ProductSemanticSearchService
     public function debugSearch(string $query, Builder $baseQuery): Collection
     {
         $query = trim($query);
-
-        if ($query === '') {
-            return collect();
-        }
+        if ($query === '') return collect();
 
         try {
-            $products = $baseQuery
-                ->with(['store', 'albums'])
-                ->get();
-
-            if ($products->isEmpty()) {
-                return collect();
-            }
+            // 1. Fetch products from DB
+            $products = $baseQuery->with(['store', 'albums'])->get();
+            if ($products->isEmpty()) return collect();
 
             $categoryMap = $this->buildCategoryMap($products);
             $tokens = $this->tokens($query);
@@ -55,17 +44,18 @@ class ProductSemanticSearchService
             $queryEmbedding = [];
             $embeddings = collect();
 
-            // Try to use AI if enabled
+            // 2. AI Logic
             if ($this->isEnabled()) {
                 try {
                     $embeddings = $this->ensureEmbeddings($products, $categoryMap);
-                    $queryEmbedding = $this->embeddingService->embedQuery($this->normalizeText($query));
-                } catch (Throwable $e) {
-                    report($e);
-                    // Continue with keyword search fallback
+                    $queryEmbedding = $this->embeddingService->embedQuery($query);
+                } catch (Throwable $aiException) {
+                    // Report AI failure but allow keyword fallback
+                    $this->safeReport($aiException);
                 }
             }
 
+            // 3. Scoring
             return $products
                 ->map(function (Product $product) use ($embeddings, $queryEmbedding, $tokens, $categoryMap) {
                     $document = $this->buildSearchDocument($product, $categoryMap);
@@ -79,14 +69,10 @@ class ProductSemanticSearchService
                         }
                     }
 
-                    // Score calculation: 
-                    // If AI worked, use weighted average (82% semantic, 18% keyword)
-                    // If AI failed or is off, use 100% keyword score
-                    if (!empty($queryEmbedding)) {
-                        $score = ($semanticScore * 0.82) + ($keywordScore * 0.18);
-                    } else {
-                        $score = $keywordScore;
-                    }
+                    // Weighted Score
+                    $score = !empty($queryEmbedding) 
+                        ? ($semanticScore * 0.82) + ($keywordScore * 0.18)
+                        : $keywordScore;
 
                     return [
                         'product' => $product,
@@ -95,19 +81,30 @@ class ProductSemanticSearchService
                         'keyword_score' => $keywordScore,
                     ];
                 })
-                ->filter(fn ($row) => $row && $row['score'] > 0.05) // Lower threshold for keyword matches
+                ->filter(fn ($row) => $row['score'] > 0.05)
                 ->sortByDesc('score')
                 ->values();
+
         } catch (Throwable $e) {
-            report($e);
-            return collect();
+            // Crucial: Throwing the error so the Controller knows something went wrong
+            $this->safeReport($e);
+            throw $e; 
         }
     }
 
     /**
-     * Ensures all products in the collection have up-to-date vector embeddings.
-     * If a product's content has changed (checked via hash), it generates new embeddings via the Gemini API.
+     * Reports an error but catches secondary errors (like Permission Denied on log files)
      */
+    private function safeReport(Throwable $e)
+    {
+        try {
+            report($e);
+        } catch (Throwable $logFailure) {
+            // If we can't log to file, we print to stderr for Docker logs
+            error_log("Critical: Logging failed: " . $e->getMessage());
+        }
+    }
+
     private function ensureEmbeddings(Collection $products, Collection $categoryMap): Collection
     {
         $existing = ProductSearchEmbedding::whereIn('product_id', $products->pluck('id'))
@@ -153,48 +150,28 @@ class ProductSemanticSearchService
 
     private function buildCategoryMap(Collection $products): Collection
     {
-        $categoryIds = $products
-            ->pluck('categories')
-            ->flatten(1)
-            ->filter()
-            ->unique()
-            ->values();
-
-        if ($categoryIds->isEmpty()) {
-            return collect();
-        }
-
-        return Category::whereIn('id', $categoryIds)
-            ->get()
-            ->keyBy('id');
+        $categoryIds = $products->pluck('categories')->flatten(1)->filter()->unique()->values();
+        if ($categoryIds->isEmpty()) return collect();
+        return Category::whereIn('id', $categoryIds)->get()->keyBy('id');
     }
 
-    /**
-     * Constructs a single text document containing all relevant product information 
-     * (names, descriptions, and categories across multiple languages) to be vectorized.
-     */
     private function buildSearchDocument(Product $product, Collection $categoryMap): string
     {
         $categoryNames = collect($product->categories ?? [])
             ->map(fn ($id) => $categoryMap->get($id))
             ->filter()
-            ->flatMap(fn ($category) => [
-                $category->name_en,
-                $category->name_fr,
-                $category->name_ar,
-            ])
+            ->flatMap(fn ($category) => [$category->name_en, $category->name_fr, $category->name_ar])
             ->filter()
             ->all();
 
-        return $this->normalizeText(implode("\n", array_filter([
-            $product->name_en,
-            $product->name_fr,
-            $product->name_ar,
-            $product->description_en,
-            $product->description_fr,
-            $product->description_ar,
+        $content = implode("\n", array_filter([
+            $product->name_en, $product->name_fr, $product->name_ar,
+            $product->description_en, $product->description_fr, $product->description_ar,
             implode(', ', $categoryNames),
-        ])));
+        ]));
+
+        return collect($this->textVariants($content))
+            ->implode("\n");
     }
 
     private function normalizeText(string $text): string
@@ -202,10 +179,31 @@ class ProductSemanticSearchService
         return trim(Str::of($text)->squish()->lower()->value());
     }
 
+    private function normalizeAsciiText(string $text): string
+    {
+        return $this->normalizeText(Str::ascii($text));
+    }
+
+    private function textVariants(string $text): array
+    {
+        return collect([
+            $this->normalizeText($text),
+            $this->normalizeAsciiText($text),
+        ])
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     private function tokens(string $text): array
     {
-        return collect(preg_split('/[^\p{L}\p{N}]+/u', $this->normalizeText($text)) ?: [])
-            ->filter(fn ($token) => mb_strlen($token) >= 3)
+        return collect($this->textVariants($text))
+            ->flatMap(function (string $variant) {
+                return preg_split('/[^\p{L}\p{N}]+/u', $variant) ?: [];
+            })
+            ->map(fn ($token) => trim($token))
+            ->filter(fn ($token) => mb_strlen($token) >= 2)
             ->unique()
             ->values()
             ->all();
@@ -213,25 +211,76 @@ class ProductSemanticSearchService
 
     private function keywordScore(array $tokens, string $document): float
     {
-        if (empty($tokens)) {
+        if (empty($tokens)) return 0.0;
+
+        $documentTokens = $this->tokens($document);
+
+        $score = collect($tokens)
+            ->map(fn (string $token) => $this->tokenMatchScore($token, $document, $documentTokens))
+            ->sum();
+
+        return $score / max(count($tokens), 1);
+    }
+
+    private function tokenMatchScore(string $token, string $document, array $documentTokens): float
+    {
+        if (str_contains($document, $token)) {
+            return 1.0;
+        }
+
+        $best = 0.0;
+
+        foreach ($documentTokens as $documentToken) {
+            $score = $this->fuzzyTokenSimilarity($token, $documentToken);
+
+            if ($score > $best) {
+                $best = $score;
+            }
+
+            if ($best >= 0.92) {
+                break;
+            }
+        }
+
+        return $best;
+    }
+
+    private function fuzzyTokenSimilarity(string $queryToken, string $documentToken): float
+    {
+        if ($queryToken === $documentToken) {
+            return 1.0;
+        }
+
+        if (!$this->isAscii($queryToken) || !$this->isAscii($documentToken)) {
             return 0.0;
         }
 
-        $matches = collect($tokens)->filter(fn ($token) => str_contains($document, $token))->count();
+        $queryLength = mb_strlen($queryToken);
+        $documentLength = mb_strlen($documentToken);
+        $maxLength = max($queryLength, $documentLength);
 
-        return $matches / max(count($tokens), 1);
+        if ($maxLength < 3 || abs($queryLength - $documentLength) > 2) {
+            return 0.0;
+        }
+
+        $distance = levenshtein($queryToken, $documentToken);
+        $similarity = 1 - ($distance / $maxLength);
+
+        if ($distance === 1 && $maxLength >= 4) {
+            return max($similarity, 0.88);
+        }
+
+        return $similarity >= 0.72 ? $similarity : 0.0;
     }
 
-    /**
-     * Calculates the cosine similarity between two vectors.
-     * This measures the mathematical angle between the query vector and the product vector,
-     * which represents their semantic closeness.
-     */
+    private function isAscii(string $value): bool
+    {
+        return mb_check_encoding($value, 'ASCII');
+    }
+
     private function cosineSimilarity(array $a, array $b): float
     {
-        $dot = 0.0;
-        $normA = 0.0;
-        $normB = 0.0;
+        $dot = 0.0; $normA = 0.0; $normB = 0.0;
         $length = min(count($a), count($b));
 
         for ($i = 0; $i < $length; $i++) {
@@ -240,10 +289,6 @@ class ProductSemanticSearchService
             $normB += $b[$i] ** 2;
         }
 
-        if ($normA == 0.0 || $normB == 0.0) {
-            return 0.0;
-        }
-
-        return $dot / (sqrt($normA) * sqrt($normB));
+        return ($normA == 0.0 || $normB == 0.0) ? 0.0 : $dot / (sqrt($normA) * sqrt($normB));
     }
 }
