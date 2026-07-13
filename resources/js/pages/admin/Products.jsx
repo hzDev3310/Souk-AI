@@ -19,8 +19,6 @@ import {
     Plus, Pencil, Trash2, Search, Box, Image as ImageIcon,
     Activity, Eye, Package
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-
 const Products = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -89,7 +87,87 @@ const Products = () => {
                     </div>
                 </div>
 
-                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden">
+                {/* Mobile View - Card List */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-12 gap-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <Activity className="w-8 h-8 animate-spin text-primary" />
+                            <p className="text-muted-foreground font-bold">{t('admin.common.loading')}</p>
+                        </div>
+                    ) : filteredProducts.length === 0 ? (
+                        <div className="py-20 text-center space-y-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground">
+                                <Package size={32} />
+                            </div>
+                            <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t('admin.products.messages.noProducts') || "No products found"}</p>
+                        </div>
+                    ) : (
+                        filteredProducts.map((product) => (
+                            <div
+                                key={product.id}
+                                className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
+                                        {product.albums && product.albums.length > 0 ? (
+                                            <img src={`/storage/${product.albums[0].file}`} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-black text-foreground tracking-tight leading-none mb-1 truncate">{product.name_fr}</h3>
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{product.slug}</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
+                                    <div>
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.products.table.store') || "Store"}</p>
+                                        <p className="text-xs font-bold text-foreground truncate">{product.store?.store_name_fr || "N/A"}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.products.table.price') || "Price"}</p>
+                                        <p className="text-xs font-bold text-primary">${product.price}</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-1">
+                                    <p className="text-[9px] font-bold text-muted-foreground uppercase">{product.stock} in stock</p>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setViewingProduct(product)}
+                                            className="h-10 w-10 rounded-2xl bg-secondary/5 text-secondary hover:bg-secondary/20"
+                                        >
+                                            <Eye size={18} strokeWidth={2.5} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleEdit(product)}
+                                            className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
+                                        >
+                                            <Pencil size={18} strokeWidth={2.5} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleDelete(product)}
+                                            className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
+                                        >
+                                            <Trash2 size={18} strokeWidth={2.5} />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop View - Table Container */}
+                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden hidden md:block">
                     <Table>
                         <TableHeader className="bg-muted/30">
                             <TableRow className="border-border/50">
@@ -100,7 +178,6 @@ const Products = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <AnimatePresence mode="popLayout">
                                 {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={4} className="h-32 text-center">
@@ -111,11 +188,8 @@ const Products = () => {
                                         </TableCell>
                                     </TableRow>
                                 ) : filteredProducts.map((product) => (
-                                    <motion.tr
+                                    <tr
                                         key={product.id}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
                                         className="group hover:bg-primary/5 border-border/40 transition-colors"
                                     >
                                         <TableCell className="py-4 px-6">
@@ -155,9 +229,8 @@ const Products = () => {
                                                 </Button>
                                             </div>
                                         </TableCell>
-                                    </motion.tr>
+                                    </tr>
                                 ))}
-                            </AnimatePresence>
                             {!loading && filteredProducts.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={4} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">

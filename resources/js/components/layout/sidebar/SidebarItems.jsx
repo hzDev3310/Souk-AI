@@ -80,6 +80,18 @@ export const SidebarContent = [
         url: '/dashboard/parameters',
         roles: ['ADMIN'],
       },
+      {
+        name: 'About Page',
+        icon: 'BookOpen',
+        url: '/dashboard/pages/about',
+        roles: ['ADMIN'],
+      },
+      {
+        name: 'Contact Page',
+        icon: 'MessageCircle',
+        url: '/dashboard/pages/contact',
+        roles: ['ADMIN'],
+      },
     
     ],
   },

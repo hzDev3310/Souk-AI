@@ -25,9 +25,11 @@
                 <div class="glass border border-border/40 rounded-[40px] p-6 flex flex-col md:flex-row items-center gap-6 premium-shadow">
                     <div class="w-24 h-24 rounded-3xl overflow-hidden bg-muted/20 flex-shrink-0">
                         @if($product->albums->first())
-                            <img src="/storage/{{ $product->albums->first()->file }}" alt="" class="w-full h-full object-cover">
+                            <img src="/storage/{{ $product->albums->first()->file }}" alt="" class="w-full h-full object-cover"
+                                onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                         @else
-                            <img src="/storage/empty/empty.webp" alt="" class="w-full h-full object-cover">
+                            <img src="/storage/empty/empty.webp" alt="" class="w-full h-full object-cover"
+                                onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                         @endif
                     </div>
                     

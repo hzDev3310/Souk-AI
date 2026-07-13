@@ -32,7 +32,6 @@ import {
     RefreshCcw,
     Check
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import Modal from "@/components/shared/Modal";
 import {
     DropdownMenu,
@@ -166,7 +165,94 @@ const Orders = () => {
                     </div>
                 </div>
 
-                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden">
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-12 gap-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <Activity className="w-8 h-8 animate-spin text-primary" />
+                            <p className="text-muted-foreground font-bold">{t("admin.orders.messages.loading")}</p>
+                        </div>
+                    ) : filteredOrders.length === 0 ? (
+                        <div className="py-20 text-center space-y-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground">
+                                <ShoppingCart size={32} />
+                            </div>
+                            <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t("admin.orders.messages.noOrders")}</p>
+                        </div>
+                    ) : (
+                        filteredOrders.map((order) => {
+                            const status = getStatusConfig(order.status);
+                            return (
+                                <div
+                                    key={order.id}
+                                    className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="font-black text-foreground tracking-tight leading-none">{order.order_number || `#${order.id.split("-")[0]}`}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mt-1">{new Date(order.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                        <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full ${status.bg} ${status.color} font-black text-[10px] uppercase`}>
+                                            <status.icon size={12} />
+                                            {status.label}
+                                        </div>
+                                    </div>
+
+                                    <div className="py-2 border-y border-border/40 space-y-2">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                                <User size={14} className="text-primary" />
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-foreground text-sm leading-tight">{order.client?.user?.name || "Unknown"}</p>
+                                                <p className="text-[10px] text-muted-foreground font-bold">{order.client?.user?.email}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1 font-black text-foreground">
+                                            <span>{order.totalAmount}</span>
+                                            <span className="text-[10px] text-muted-foreground">TND</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
+                                                onClick={async () => {
+                                                    const res = await api.get(`/admin/orders/${order.id}`);
+                                                    setViewingOrder(res.data);
+                                                }}
+                                            >
+                                                <Eye size={18} />
+                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button size="icon" variant="ghost" className="h-10 w-10 rounded-2xl bg-muted/50 hover:bg-muted">
+                                                        <ChevronDown size={18} />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="bg-card border-border/50 rounded-xl">
+                                                    {["PENDING", "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"].map(s => (
+                                                        <DropdownMenuItem
+                                                            key={s}
+                                                            onClick={() => updateStatus(order.id, s)}
+                                                            className="text-[11px] font-bold uppercase transition-colors hover:bg-muted"
+                                                        >
+                                                            {getStatusConfig(s).label}
+                                                        </DropdownMenuItem>
+                                                    ))}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })
+                    )}
+                </div>
+
+                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden hidden md:block">
                     <Table>
                         <TableHeader className="bg-muted/30">
                             <TableRow className="border-border/50">

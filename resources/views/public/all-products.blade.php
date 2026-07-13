@@ -226,39 +226,8 @@
         <div class="lg:col-span-3">
             @if($products->count() > 0)
             <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mb-8">
-                @foreach($products as $product)
-                <div class="product-card group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow">
-                    @if($product->promo > 0)
-                    <div class="absolute top-5 left-5 z-20 px-3 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-rose-500/30">
-                        -{{ $product->promo }}%
-                    </div>
-                    @endif
-                    
-                    <div class="relative aspect-square overflow-hidden bg-muted/20">
-                        @if($product->albums->first())
-                            <img src="/storage/{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        @else
-                            <img src="/storage/empty/empty.webp" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                        @endif
-                        <div class="absolute bottom-4 left-4 right-4 translate-y-[120%] group-hover:translate-y-0 transition-transform duration-500 z-20">
-                            <a href="{{ route('public.product', $product->slug) }}" class="w-full py-3 bg-foreground text-background rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all">
-                                {{ __('website.quickView') }}
-                            </a>
-                        </div>
-                    </div>
-                    <div class="p-4 md:p-6">
-                        <p class="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-primary mb-2">{{ $product->store->{'name_'.app()->getLocale()} }}</p>
-                        <h3 class="font-bold text-foreground text-[10px] md:text-sm line-clamp-1 mb-3">{{ $product->{'name_'.app()->getLocale()} }}</h3>
-                        <p class="text-sm md:text-lg font-black text-foreground">
-                            @if($product->promo > 0)
-                                {{ number_format($product->price * (1 - $product->promo/100), 2) }}
-                            @else
-                                {{ number_format($product->price, 2) }}
-                            @endif
-                            <span class="text-[8px] md:text-[10px] text-muted-foreground ml-1">{{ __('website.currency') }}</span>
-                        </p>
-                    </div>
-                </div>
+                  @foreach($products as $product)
+                    <x-product-card :product="$product" :show-store="true" />
                 @endforeach
             </div>
 

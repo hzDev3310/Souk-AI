@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Layers, ArrowLeft, Save, ImagePlus, Activity } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft, Save, ImagePlus, Activity } from 'lucide-react';
+import IconPicker from '@/components/ui/icon-picker';
 import { createFormData, prepareFormDataRequest, getImageUrl } from '@/services/apiService';
 
 const CategoryEdit = () => {
@@ -26,9 +26,7 @@ const CategoryEdit = () => {
         icon: '',
         isActive: true,
     });
-    const [logoFile, setLogoFile] = useState(null);
     const [coverFile, setCoverFile] = useState(null);
-    const [logoPreview, setLogoPreview] = useState(null);
     const [coverPreview, setCoverPreview] = useState(null);
     const [errors, setErrors] = useState({});
 
@@ -60,7 +58,6 @@ const CategoryEdit = () => {
                     icon: cat.icon || '',
                     isActive: cat.isActive ?? true,
                 });
-                if (cat.logo) setLogoPreview(getImageUrl(cat.logo));
                 if (cat.cover) setCoverPreview(getImageUrl(cat.cover));
             }
         } catch (error) {
@@ -77,18 +74,51 @@ const CategoryEdit = () => {
         setErrors({});
         setSaving(true);
 
-        const data = createFormData(formData, { logo: logoFile, cover: coverFile });
+        const submitData = { ...formData };
+        if (!submitData.parent_id) delete submitData.parent_id;
+        if (!submitData.icon) delete submitData.icon;
+
+        const data = createFormData(submitData, { cover: coverFile });
         const cleanup = prepareFormDataRequest();
 
+        console.log('=== CATEGORY UPDATE DEBUG ===');
+        console.log('URL:', `/admin/categories/${id}`);
+        console.log('submitData:', submitData);
+        console.log('coverFile:', coverFile);
+
+        // Log FormData entries
+        const fdObj = {};
+        for (const [key, value] of data.entries()) {
+            fdObj[key] = value instanceof File ? `File(${value.name}, ${value.size}b)` : value;
+        }
+        console.log('FormData entries:', fdObj);
+
         try {
-            await api.put(`/admin/categories/${id}`, data);
+            const response = await api.put(`/admin/categories/${id}`, data);
+            console.log('Update success:', response.data);
             cleanup.restore();
             navigate('/dashboard/categories');
         } catch (error) {
             cleanup.restore();
             console.error('Error updating category:', error);
-            if (error.response?.data?.errors) {
-                setErrors(error.response.data.errors);
+
+            if (error.response) {
+                console.error('Response status:', error.response.status);
+                console.error('Response data:', error.response.data);
+
+                // Convert HTML error page to text and log it
+                if (typeof error.response.data === 'string') {
+                    const div = document.createElement('div');
+                    div.innerHTML = error.response.data;
+                    console.error('HTML error (text):', div.textContent || div.innerText);
+                }
+
+                if (error.response.data?.errors) {
+                    console.error('Validation errors:', error.response.data.errors);
+                    setErrors(error.response.data.errors);
+                } else {
+                    alert(error.message || t('admin.categories.messages.errorUpdating'));
+                }
             } else {
                 alert(error.message || t('admin.categories.messages.errorUpdating'));
             }
@@ -102,23 +132,17 @@ const CategoryEdit = () => {
         if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
     };
 
-    const handleFileChange = (e, type) => {
+    const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        const maxSize = type === 'logo' ? 2 * 1024 * 1024 : 4 * 1024 * 1024;
-        if (file.size > maxSize) {
-            alert(t('admin.categories.messages.fileTooLarge', { size: maxSize / (1024 * 1024) }));
+        if (file.size > 4 * 1024 * 1024) {
+            alert(t('admin.categories.messages.fileTooLarge', { size: 4 }));
             return;
         }
 
-        if (type === 'logo') {
-            setLogoFile(file);
-            setLogoPreview(URL.createObjectURL(file));
-        } else {
-            setCoverFile(file);
-            setCoverPreview(URL.createObjectURL(file));
-        }
+        setCoverFile(file);
+        setCoverPreview(URL.createObjectURL(file));
     };
 
     if (loading) {
@@ -142,7 +166,7 @@ const CategoryEdit = () => {
                 </div>
             </div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div>
                 <CardBox className="p-8 border-border/50 rounded-[32px]">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Basic Info */}
@@ -181,42 +205,33 @@ const CategoryEdit = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Icon</Label>
-                                    <Input value={formData.icon} onChange={(e) => handleChange('icon', e.target.value)} placeholder="e.g. tag, box, etc." className="h-12 bg-muted/30 border-border/50 rounded-xl" />
+                                    <IconPicker value={formData.icon} onChange={(val) => handleChange('icon', val)} />
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <Switch checked={formData.isActive} onCheckedChange={(checked) => handleChange('isActive', checked)} />
-                                <Label className="text-sm font-medium">{t('admin.categories.form.isActive') || 'Active'}</Label>
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-3">
+                                    <Switch checked={formData.isActive} onCheckedChange={(checked) => handleChange('isActive', checked)} />
+                                    <Label className="text-sm font-medium">{t('admin.categories.form.isActive') || 'Active'}</Label>
+                                </div>
+                                {errors.isActive && <p className="text-xs text-red-500">{errors.isActive[0]}</p>}
                             </div>
                         </div>
 
                         {/* Images */}
                         <div className="space-y-4">
                             <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground border-b border-border/50 pb-2">Images</h3>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Logo (max 2MB)</Label>
-                                    <div className="relative border-2 border-dashed border-border/50 rounded-2xl p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer">
-                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                        {logoPreview ? (
-                                            <img src={logoPreview} alt="Logo preview" className="w-24 h-24 object-cover rounded-xl mx-auto" />
-                                        ) : (
-                                            <ImagePlus className="w-8 h-8 mx-auto text-muted-foreground" />
-                                        )}
-                                    </div>
+                                <div className="space-y-2 max-w-sm">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cover (max 4MB)</Label>
+                                <div className="relative border-2 border-dashed border-border/50 rounded-2xl p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer h-32">
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                    {coverPreview ? (
+                                        <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover rounded-xl" />
+                                    ) : (
+                                        <ImagePlus className="w-8 h-8 mx-auto text-muted-foreground mt-8" />
+                                    )}
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cover (max 4MB)</Label>
-                                    <div className="relative border-2 border-dashed border-border/50 rounded-2xl p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer h-32">
-                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'cover')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                        {coverPreview ? (
-                                            <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover rounded-xl" />
-                                        ) : (
-                                            <ImagePlus className="w-8 h-8 mx-auto text-muted-foreground mt-8" />
-                                        )}
-                                    </div>
-                                </div>
+                                {errors.cover && <p className="text-xs text-red-500">{errors.cover[0]}</p>}
                             </div>
                         </div>
 
@@ -231,7 +246,7 @@ const CategoryEdit = () => {
                         </div>
                     </form>
                 </CardBox>
-            </motion.div>
+            </div>
         </div>
     );
 };

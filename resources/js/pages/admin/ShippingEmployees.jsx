@@ -15,7 +15,6 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Search, ArrowLeft, User, Phone, Activity, Filter, Download, Mail, ShieldCheck, MapPin } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '@/components/shared/Modal';
 
 const ShippingEmployees = () => {
@@ -207,8 +206,83 @@ const ShippingEmployees = () => {
                     </div>
                 </div>
 
-                {/* Fleet Table Container */}
-                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden">
+                {/* Mobile View - Card List */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-12 gap-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <Activity className="w-8 h-8 animate-spin text-primary" />
+                            <p className="text-muted-foreground font-bold">{t('admin.common.loading')}</p>
+                        </div>
+                    ) : filteredEmployees.length === 0 ? (
+                        <div className="py-20 text-center space-y-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground">
+                                <User size={32} />
+                            </div>
+                            <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t('admin.shippingEmployees.messages.noEmployees')}</p>
+                        </div>
+                    ) : (
+                        filteredEmployees.map((employee) => (
+                            <div
+                                key={employee.id}
+                                className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-600 font-black text-xl uppercase">
+                                            {employee.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{employee.name} {employee.family_name}</h3>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{employee.shipping_emp?.address || 'Field Operator'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
+                                    <div>
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.shippingEmployees.table.email')}</p>
+                                        <p className="text-xs font-bold text-foreground truncate">{employee.email}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.shippingEmployees.table.cin')}</p>
+                                        <div className="flex items-center gap-1.5">
+                                            <ShieldCheck size={12} className="text-emerald-500" />
+                                            <p className="text-xs font-bold text-foreground truncate">{employee.shipping_emp?.cin || '-'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-1">
+                                    <div className="flex flex-col">
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase mb-0.5">{t('admin.shippingEmployees.table.phone')}</p>
+                                        <p className="text-xs font-bold text-foreground truncate max-w-[150px]">{employee.shipping_emp?.Phone || '-'}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleEdit(employee)}
+                                            className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
+                                        >
+                                            <Pencil size={18} strokeWidth={2.5} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleDelete(employee.id)}
+                                            className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
+                                        >
+                                            <Trash2 size={18} strokeWidth={2.5} />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop View - Fleet Table Container */}
+                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden hidden md:block">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader className="bg-muted/30">
@@ -221,7 +295,6 @@ const ShippingEmployees = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <AnimatePresence mode="popLayout">
                                 {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="h-32 text-center">
@@ -232,12 +305,8 @@ const ShippingEmployees = () => {
                                         </TableCell>
                                     </TableRow>
                                 ) : filteredEmployees.map((employee, idx) => (
-                                    <motion.tr 
+                                    <tr 
                                         key={employee.id}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        transition={{ delay: idx * 0.05 }}
                                         className="border-border/40 hover:bg-primary/5 transition-colors group cursor-pointer"
                                     >
                                         <TableCell className="py-4 px-6">
@@ -281,18 +350,16 @@ const ShippingEmployees = () => {
                                                 </Button>
                                             </div>
                                         </TableCell>
-                                    </motion.tr>
+                                    </tr>
                                 ))}
-                                </AnimatePresence>
+
                             </TableBody>
                         </Table>
                     </div>
                 </CardBox>
 
                 {!loading && filteredEmployees.length === 0 && (
-                    <motion.div 
-                        initial={{ opacity: 0 }} 
-                        animate={{ opacity: 1 }} 
+                    <div 
                         className="py-20 text-center space-y-4 bg-muted/20 rounded-[32px] border-2 border-dashed border-border/50"
                     >
                         <div className="w-20 h-20 bg-background rounded-full flex items-center justify-center mx-auto shadow-xl text-muted-foreground">
@@ -309,7 +376,7 @@ const ShippingEmployees = () => {
                                 </button>
                             )}
                         </div>
-                    </motion.div>
+                    </div>
                 )}
 
                 {/* Premium Modal for Add/Edit Courier */}

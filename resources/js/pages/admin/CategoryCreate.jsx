@@ -7,8 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Layers, ArrowLeft, Save, ImagePlus } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft, Save, ImagePlus } from 'lucide-react';
+import IconPicker from '@/components/ui/icon-picker';
 import { createFormData, prepareFormDataRequest } from '@/services/apiService';
 
 const CategoryCreate = () => {
@@ -24,9 +24,7 @@ const CategoryCreate = () => {
         icon: '',
         isActive: true,
     });
-    const [logoFile, setLogoFile] = useState(null);
     const [coverFile, setCoverFile] = useState(null);
-    const [logoPreview, setLogoPreview] = useState(null);
     const [coverPreview, setCoverPreview] = useState(null);
     const [errors, setErrors] = useState({});
 
@@ -48,7 +46,7 @@ const CategoryCreate = () => {
         setErrors({});
         setSaving(true);
 
-        const data = createFormData(formData, { logo: logoFile, cover: coverFile });
+        const data = createFormData(formData, { cover: coverFile });
         const cleanup = prepareFormDataRequest();
 
         try {
@@ -73,23 +71,17 @@ const CategoryCreate = () => {
         if (errors[field]) setErrors(prev => ({ ...prev, [field]: null }));
     };
 
-    const handleFileChange = (e, type) => {
+    const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        const maxSize = type === 'logo' ? 2 * 1024 * 1024 : 4 * 1024 * 1024;
-        if (file.size > maxSize) {
-            alert(t('admin.categories.messages.fileTooLarge', { size: maxSize / (1024 * 1024) }));
+        if (file.size > 4 * 1024 * 1024) {
+            alert(t('admin.categories.messages.fileTooLarge', { size: 4 }));
             return;
         }
 
-        if (type === 'logo') {
-            setLogoFile(file);
-            setLogoPreview(URL.createObjectURL(file));
-        } else {
-            setCoverFile(file);
-            setCoverPreview(URL.createObjectURL(file));
-        }
+        setCoverFile(file);
+        setCoverPreview(URL.createObjectURL(file));
     };
 
     return (
@@ -104,7 +96,7 @@ const CategoryCreate = () => {
                 </div>
             </div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <div>
                 <CardBox className="p-8 border-border/50 rounded-[32px]">
                     <form onSubmit={handleSubmit} className="space-y-8">
                         {/* Basic Info */}
@@ -143,7 +135,7 @@ const CategoryCreate = () => {
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Icon</Label>
-                                    <Input value={formData.icon} onChange={(e) => handleChange('icon', e.target.value)} placeholder="e.g. tag, box, etc." className="h-12 bg-muted/30 border-border/50 rounded-xl" />
+                                    <IconPicker value={formData.icon} onChange={(val) => handleChange('icon', val)} />
                                 </div>
                             </div>
 
@@ -156,28 +148,15 @@ const CategoryCreate = () => {
                         {/* Images */}
                         <div className="space-y-4">
                             <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground border-b border-border/50 pb-2">Images</h3>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Logo (max 2MB)</Label>
-                                    <div className="relative border-2 border-dashed border-border/50 rounded-2xl p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer">
-                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'logo')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                        {logoPreview ? (
-                                            <img src={logoPreview} alt="Logo preview" className="w-24 h-24 object-cover rounded-xl mx-auto" />
-                                        ) : (
-                                            <ImagePlus className="w-8 h-8 mx-auto text-muted-foreground" />
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cover (max 4MB)</Label>
-                                    <div className="relative border-2 border-dashed border-border/50 rounded-2xl p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer h-32">
-                                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'cover')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                        {coverPreview ? (
-                                            <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover rounded-xl" />
-                                        ) : (
-                                            <ImagePlus className="w-8 h-8 mx-auto text-muted-foreground mt-8" />
-                                        )}
-                                    </div>
+                            <div className="space-y-2 max-w-sm">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cover (max 4MB)</Label>
+                                <div className="relative border-2 border-dashed border-border/50 rounded-2xl p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer h-32">
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                    {coverPreview ? (
+                                        <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover rounded-xl" />
+                                    ) : (
+                                        <ImagePlus className="w-8 h-8 mx-auto text-muted-foreground mt-8" />
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -193,7 +172,7 @@ const CategoryCreate = () => {
                         </div>
                     </form>
                 </CardBox>
-            </motion.div>
+            </div>
         </div>
     );
 };

@@ -96,6 +96,7 @@
                                 src="{{ str_starts_with($websiteLogo, 'http') ? $websiteLogo : '/storage/'.$websiteLogo }}"
                                 alt="{{ $websiteName }}"
                                 class="w-full h-full object-contain p-1.5 bg-white"
+                                onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';"
                             >
                         @else
                             <span class="text-white font-black text-xl">{{ strtoupper(substr($websiteName, 0, 1)) }}</span>
@@ -201,11 +202,6 @@
                         My Orders
                     </a>
                     <div class="h-[1px] bg-border/40 my-1 mx-2"></div>
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-                        Vendor Dashboard
-                    </a>
-                    <div class="h-[1px] bg-border/40 my-1 mx-2"></div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-bold text-rose-500 hover:bg-rose-500 hover:text-white transition-colors">
@@ -241,6 +237,7 @@
                                 src="{{ str_starts_with($websiteLogo, 'http') ? $websiteLogo : '/storage/'.$websiteLogo }}"
                                 alt="{{ $websiteName }}"
                                 class="w-full h-full object-contain p-1.5 bg-white"
+                                onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';"
                             >
                         @else
                             <span class="text-white font-black text-xl">{{ strtoupper(substr($websiteName, 0, 1)) }}</span>
@@ -397,6 +394,8 @@
 
 <!-- Bottom safe area spacer -->
 <div class="lg:hidden h-20"></div>
+
+<x-toast />
 
     @stack('scripts')
 

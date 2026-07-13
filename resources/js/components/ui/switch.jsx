@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 const Switch = React.forwardRef(({
@@ -41,13 +40,7 @@ const Switch = React.forwardRef(({
         >
             {/* Glow effect when active */}
             {checked && (
-                <motion.div
-                    className="absolute inset-0 rounded-full bg-primary/20 blur-sm"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                />
+                <div className="absolute inset-0 rounded-full bg-primary/20 blur-sm animate-in fade-in duration-200" />
             )}
 
             {/* Track inner highlight */}
@@ -59,41 +52,31 @@ const Switch = React.forwardRef(({
             )} />
 
             {/* Thumb */}
-            <motion.div
+            <div
                 className={cn(
-                    'relative z-10 rounded-full shadow-md',
+                    'relative z-10 rounded-full shadow-md transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
                     s.thumb,
                     checked
                         ? 'bg-white shadow-[0_1px_4px_rgba(0,0,0,0.2)]'
                         : 'bg-white dark:bg-foreground/80 shadow-[0_1px_3px_rgba(0,0,0,0.15)]'
                 )}
-                animate={{
-                    x: checked ? s.translate : 0,
-                    scale: checked ? 1 : 0.9,
-                }}
-                transition={{
-                    type: 'spring',
-                    stiffness: 500,
-                    damping: 30,
-                    mass: 0.8,
-                }}
                 style={{
                     marginLeft: s.padding,
+                    transform: `translateX(${checked ? s.translate : 0}px) scale(${checked ? 1 : 0.9})`,
                 }}
             >
                 {/* Inner dot indicator */}
-                <motion.div
+                <div
                     className={cn(
-                        'absolute inset-0 m-auto rounded-full',
+                        'absolute inset-0 m-auto rounded-full transition-all duration-200',
                         checked ? 'bg-primary/30' : 'bg-muted-foreground/20'
                     )}
-                    animate={{
+                    style={{
                         width: checked ? '40%' : '30%',
                         height: checked ? '40%' : '30%',
                     }}
-                    transition={{ duration: 0.2 }}
                 />
-            </motion.div>
+            </div>
         </button>
     );
 });

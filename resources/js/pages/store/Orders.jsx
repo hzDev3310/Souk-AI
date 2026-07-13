@@ -29,7 +29,6 @@ import {
     Clock,
     AlertCircle
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import Modal from "@/components/shared/Modal";
 import {
     DropdownMenu,
@@ -210,20 +209,15 @@ const StoreOrders = () => {
                             <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t("store.orders.messages.noOrders")}</p>
                         </div>
                     ) : (
-                        <AnimatePresence mode="popLayout">
-                            {filteredOrders.map((order, idx) => {
+                            filteredOrders.map((order, idx) => {
                                 const status = getStatusConfig(order.status);
                                 const StatusIcon = status.icon;
                                 const storeItemCount = calculateStoreItemCount(order);
                                 const storeTotal = calculateStoreTotal(order);
 
                                 return (
-                                    <motion.div
+                                    <div
                                         key={order.id}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        transition={{ delay: idx * 0.05 }}
                                         className="bg-card border border-border/60 rounded-[28px] p-5 space-y-4 shadow-sm"
                                     >
                                         <div className="flex items-center justify-between">
@@ -280,10 +274,9 @@ const StoreOrders = () => {
                                                 View
                                             </Button>
                                         </div>
-                                    </motion.div>
+                                    </div>
                                 );
-                            })}
-                        </AnimatePresence>
+                            })
                     )}
                 </div>
 
@@ -313,8 +306,7 @@ const StoreOrders = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <AnimatePresence mode="popLayout">
-                                {loading ? (
+                            {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={6} className="h-32 text-center">
                                             <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
@@ -330,11 +322,8 @@ const StoreOrders = () => {
                                     const storeTotal = calculateStoreTotal(order);
 
                                     return (
-                                        <motion.tr
+                                        <tr
                                             key={order.id}
-                                            initial={{ opacity: 0, y: 10 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={{ opacity: 0, scale: 0.95 }}
                                             className="group hover:bg-primary/5 border-border/40 transition-colors"
                                         >
                                             <TableCell className="py-4 px-6">
@@ -378,10 +367,10 @@ const StoreOrders = () => {
                                                     View
                                                 </Button>
                                             </TableCell>
-                                        </motion.tr>
+                                        </tr>
                                     );
                                 })}
-                            </AnimatePresence>
+
                             {!loading && filteredOrders.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={6} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">

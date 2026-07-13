@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import {
     Building2, Upload, Loader, CheckCircle2, AlertCircle, ImagePlus, Wand2
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const StoreProfile = () => {
     const { t } = useTranslation();
@@ -210,14 +209,10 @@ const StoreProfile = () => {
         >
             <div className="max-w-4xl mx-auto space-y-6 text-start">
                 {/* Incomplete Profile Banner */}
-                <AnimatePresence>
-                    {isProfileIncomplete && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="p-4 bg-yellow-50/50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/50 rounded-2xl flex items-start gap-3"
-                        >
+                {isProfileIncomplete && (
+                    <div
+                        className="p-4 bg-yellow-50/50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800/50 rounded-2xl flex items-start gap-3"
+                    >
                             <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-500 mt-0.5 shrink-0" />
                             <div>
                                 <p className="font-bold text-yellow-900 dark:text-yellow-200 text-sm">
@@ -227,9 +222,8 @@ const StoreProfile = () => {
                                     {t('store.profile.messages.completeToAccess') || 'Please complete all required fields to access the full dashboard.'}
                                 </p>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit}>
                     {/* Cover Header with Logo */}

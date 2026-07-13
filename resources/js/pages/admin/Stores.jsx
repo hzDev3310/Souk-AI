@@ -15,7 +15,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Search, Store, Activity, Filter, Download, Ban, ShieldCheck } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const Stores = () => {
   const { t } = useTranslation();
@@ -124,14 +123,9 @@ const Stores = () => {
                     <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t('admin.stores.messages.noStores')}</p>
                 </div>
             ) : (
-                <AnimatePresence mode="popLayout">
-                    {filteredStores.map((store, idx) => (
-                        <motion.div
+                    filteredStores.map((store, idx) => (
+                        <div
                             key={store.id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ delay: idx * 0.05 }}
                             className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
                         >
                             <div className="flex items-center justify-between">
@@ -192,9 +186,8 @@ const Stores = () => {
                                     </Button>
                                 </div>
                             </div>
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
+                        </div>
+                    ))
             )}
         </div>
 
@@ -213,7 +206,6 @@ const Stores = () => {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <AnimatePresence mode="popLayout">
                         {loading ? (
                             <TableRow>
                                 <TableCell colSpan={6} className="h-32 text-center">
@@ -224,12 +216,8 @@ const Stores = () => {
                                 </TableCell>
                             </TableRow>
                         ) : filteredStores.map((store, idx) => (
-                            <motion.tr 
+                            <tr 
                                 key={store.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ delay: idx * 0.05 }}
                                 className="border-border/40 hover:bg-primary/5 transition-colors group cursor-pointer"
                             >
                                 <TableCell className="py-4 px-6">
@@ -281,9 +269,8 @@ const Stores = () => {
                                         </Button>
                                     </div>
                                 </TableCell>
-                            </motion.tr>
+                            </tr>
                         ))}
-                        </AnimatePresence>
                     </TableBody>
                 </Table>
                 {!loading && filteredStores.length === 0 && (

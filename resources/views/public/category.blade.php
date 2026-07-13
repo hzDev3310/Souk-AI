@@ -15,7 +15,8 @@
         {{-- Cover Image or Gradient Background --}}
         <div class="relative h-40 md:h-56">
             @if($category->cover)
-                <img src="/storage/{{ $category->cover }}" class="w-full h-full object-cover">
+                <img src="/storage/{{ $category->cover }}" class="w-full h-full object-cover"
+                    onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
             @else
                 <div class="w-full h-full bg-gradient-to-br from-primary/20 via-secondary/10 to-muted"></div>
             @endif
@@ -28,9 +29,15 @@
                 {{-- Icon or Logo --}}
                 <div class="w-20 h-20 md:w-24 md:h-24 rounded-[28px] overflow-hidden border-4 border-background bg-card shadow-xl flex-shrink-0 flex items-center justify-center">
                     @if($category->icon)
-                        <img src="/storage/{{ $category->icon }}" alt="{{ $category->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover">
-                    @elseif($category->logo)
-                        <img src="/storage/{{ $category->logo }}" alt="{{ $category->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover">
+                        @if(file_exists(public_path($category->icon)))
+                            <img src="/storage/{{ $category->icon }}" alt="{{ $category->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
+                                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <span style="display:none" class="w-full h-full items-center justify-center bg-primary/10 text-primary text-3xl font-black">{!! lucide_icon($category->icon, 'w-10 h-10') !!}</span>
+                        @else
+                            <div class="w-full h-full bg-primary/10 flex items-center justify-center">
+                                <span class="text-primary">{!! lucide_icon($category->icon, 'w-10 h-10') !!}</span>
+                            </div>
+                        @endif
                     @else
                         <div class="w-full h-full bg-primary/10 flex items-center justify-center">
                             <span class="text-3xl font-black text-primary">{{ substr($category->{'name_'.app()->getLocale()}, 0, 1) }}</span>

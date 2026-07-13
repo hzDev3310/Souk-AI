@@ -14,7 +14,6 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Search, Users, MapPin, Activity, Filter, Download, Eye, ShoppingCart, Package, Calendar, DollarSign, Ban, ShieldCheck } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '@/components/shared/Modal';
 
 const Clients = () => {
@@ -203,8 +202,90 @@ const Clients = () => {
                     </div>
                 </div>
 
-                {/* Clients Table Container */}
-                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden">
+                {/* Mobile View - Card List */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-12 gap-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <Activity className="w-8 h-8 animate-spin text-primary" />
+                            <p className="text-muted-foreground font-bold">{t('admin.common.loading')}</p>
+                        </div>
+                    ) : filteredClients.length === 0 ? (
+                        <div className="py-20 text-center space-y-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground">
+                                <Users size={32} />
+                            </div>
+                            <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t('admin.clients.messages.noClients') || 'No clients found'}</p>
+                        </div>
+                    ) : (
+                        filteredClients.map((client, idx) => (
+                            <div
+                                key={client.id}
+                                className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 font-black text-xl uppercase">
+                                            {client.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{client.name} {client.family_name}</h3>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{client.email}</p>
+                                        </div>
+                                    </div>
+                                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${client.isBlocked ? 'bg-red-500/10 text-red-600' : 'bg-emerald-500/10 text-emerald-600'}`}>
+                                        {client.isBlocked ? t('admin.clients.status.blocked') : t('admin.clients.status.active')}
+                                    </span>
+                                </div>
+
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium py-2 border-y border-border/40">
+                                    <MapPin size={14} className="text-primary/50" />
+                                    {client.client?.city || '-'}
+                                </div>
+
+                                <div className="flex items-center justify-between pt-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => handleView(client)}
+                                        className="h-10 px-4 rounded-2xl bg-secondary/5 text-secondary hover:bg-secondary/20 text-xs font-bold gap-2"
+                                    >
+                                        <Eye size={16} strokeWidth={2.5} />
+                                        {t('admin.clients.table.viewOrders') || 'View orders'}
+                                    </Button>
+                                    <div className="flex items-center gap-2">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleEdit(client)}
+                                            className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
+                                        >
+                                            <Pencil size={18} strokeWidth={2.5} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleToggleBlock(client)}
+                                            className={`h-10 w-10 rounded-2xl ${client.isBlocked ? 'bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500/20' : 'bg-amber-500/5 text-amber-500 hover:bg-amber-500/20'}`}
+                                        >
+                                            {client.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleDelete(client.id)}
+                                            className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
+                                        >
+                                            <Trash2 size={18} strokeWidth={2.5} />
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop View - Clients Table Container */}
+                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden hidden md:block">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader className="bg-muted/30">
@@ -217,7 +298,6 @@ const Clients = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <AnimatePresence mode="popLayout">
                                 {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="h-32 text-center">
@@ -228,12 +308,8 @@ const Clients = () => {
                                         </TableCell>
                                     </TableRow>
                                 ) : filteredClients.map((client, idx) => (
-                                    <motion.tr 
+                                    <tr 
                                         key={client.id}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        transition={{ delay: idx * 0.05 }}
                                         className="border-border/40 hover:bg-primary/5 transition-colors group cursor-pointer"
                                     >
                                         <TableCell className="py-4 px-6">
@@ -293,9 +369,8 @@ const Clients = () => {
                                                 </Button>
                                             </div>
                                         </TableCell>
-                                    </motion.tr>
+                                    </tr>
                                 ))}
-                                </AnimatePresence>
                             </TableBody>
                         </Table>
                     </div>
@@ -432,11 +507,8 @@ const Clients = () => {
                                         const status = getStatusConfig(order.status);
                                         const total = calculateOrderTotal(order);
                                         return (
-                                            <motion.div
+                                            <div
                                                 key={order.id}
-                                                initial={{ opacity: 0, y: 10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                transition={{ delay: idx * 0.05 }}
                                                 className="p-4 bg-card rounded-2xl border border-border/50 hover:border-primary/30 transition-colors"
                                             >
                                                 <div className="flex items-center justify-between mb-3">
@@ -483,7 +555,7 @@ const Clients = () => {
                                                         <p className="text-xl font-black text-primary">{total.toFixed(2)} TND</p>
                                                     </div>
                                                 </div>
-                                            </motion.div>
+                                            </div>
                                         );
                                     })}
                                 </div>

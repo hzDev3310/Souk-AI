@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\OrderController;
 use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\Admin\ShippingCompanyController;
 use App\Http\Controllers\Api\Admin\StoreController;
+use App\Http\Controllers\Api\Admin\PageContentController;
 use App\Http\Controllers\Api\Admin\UserManagementController;
 use App\Http\Controllers\Api\Store\StoreOrderController;
 use App\Http\Controllers\Api\SettingController;
@@ -58,6 +59,13 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::put('settings/bulk', [SettingController::class, 'bulkUpdate']);
     Route::post('settings/upload', [SettingController::class, 'uploadImage']);
     Route::put('settings/{id}', [SettingController::class, 'update']);
+
+    // Page Content Management (About, Contact)
+    Route::get('pages/{slug}', [PageContentController::class, 'show']);
+    Route::put('pages/{slug}', [PageContentController::class, 'update']);
+    Route::post('pages/upload-image', [PageContentController::class, 'uploadImage']);
+    Route::delete('pages/images/{id}', [PageContentController::class, 'deleteImage']);
+    Route::post('pages/reorder-images', [PageContentController::class, 'reorderImages']);
 
     // User Management Routes
     Route::prefix('users')->group(function () {

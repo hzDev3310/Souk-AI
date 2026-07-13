@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Plus, Sparkles, MoveLeft } from 'lucide-react';
@@ -15,30 +14,10 @@ const AdminPageLayout = ({
 }) => {
     const { t } = useTranslation();
 
-    const container = {
-        hidden: { opacity: 0 },
-        show: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    };
-
-    const item = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0 }
-    };
-
     return (
-        <motion.div 
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="space-y-8"
-        >
+        <div className="space-y-8">
             {/* Header Section */}
-            <motion.div variants={item} className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-start gap-4">
                     {onBack && (
                          <Button 
@@ -77,13 +56,13 @@ const AdminPageLayout = ({
                         </Button>
                     )}
                 </div>
-            </motion.div>
+            </div>
 
             {/* Main Content Area */}
-            <motion.div variants={item} className="relative">
+            <div className="relative">
                 {children}
-            </motion.div>
-        </motion.div>
+            </div>
+        </div>
     );
 };
 

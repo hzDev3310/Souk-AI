@@ -121,6 +121,13 @@ class AuthController extends Controller
             ], 401);
         }
 
+        // Only admin, store, and influencer can log in via the dashboard
+        if (in_array(strtoupper($user->role), ['CLIENT'])) {
+            return response()->json([
+                'message' => 'Client accounts must log in via the storefront.',
+            ], 403);
+        }
+
         if ($user->isBlocked) {
             return response()->json([
                 'message' => 'Account is blocked. Please contact support.',

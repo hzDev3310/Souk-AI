@@ -16,7 +16,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CardBox from '../shared/CardBox';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const ADMIN_LOGIN_PATH = '/dashboard/login';
 
@@ -78,23 +77,6 @@ const Register = () => {
         setLoading(false);
     };
 
-    // Background Elements (Same as Login)
-    const saulLetters = [
-        { char: 'S', x: 10, y: 30, size: 100, rotation: -10 },
-        { char: 'O', x: 35, y: 10, size: 130, rotation: 15 },
-        { char: 'U', x: 60, y: 40, size: 110, rotation: -5 },
-        { char: 'K', x: 90, y: 15, size: 120, rotation: 20 },
-    ];
-
-    const particles = Array.from({ length: 25 }, (_, i) => ({
-        id: i,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        duration: 25 + Math.random() * 35,
-        delay: Math.random() * 10,
-        size: 2 + Math.random() * 3,
-    }));
-
     const renderCommonFields = () => (
         <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -148,24 +130,12 @@ const Register = () => {
     return (
         <div className="min-h-screen w-full flex flex-col justify-center items-center bg-background text-foreground transition-colors duration-500 relative overflow-hidden py-12">
             
-            {/* Background (Same as Login) */}
-            <motion.div className="absolute top-[-10%] right-[-5%] w-[50%] h-[50%] bg-gradient-to-br from-primary/30 via-blue-400/20 to-transparent rounded-full blur-[120px] pointer-events-none" />
-            <motion.div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] bg-gradient-to-tr from-secondary/30 via-primary/10 to-transparent rounded-full blur-[120px] pointer-events-none" />
-            
-            {saulLetters.map((letter, idx) => (
-                <motion.div
-                    key={`saul-${idx}`}
-                    className="absolute font-black text-primary/10 pointer-events-none select-none"
-                    style={{ left: `${letter.x}%`, top: `${letter.y}%`, fontSize: `${letter.size}px` }}
-                    animate={{ opacity: [0.05, 0.12, 0.05], y: [0, -20, 0], rotate: [letter.rotation, letter.rotation + 5, letter.rotation] }}
-                    transition={{ duration: 10, delay: idx * 2, repeat: Infinity, ease: "easeInOut" }}
-                >
-                    {letter.char}
-                </motion.div>
-            ))}
+            {/* Background */}
+            <div className="absolute top-[-10%] right-[-5%] w-[50%] h-[50%] bg-gradient-to-br from-primary/30 via-blue-400/20 to-transparent rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] left-[-5%] w-[50%] h-[50%] bg-gradient-to-tr from-secondary/30 via-primary/10 to-transparent rounded-full blur-[120px] pointer-events-none" />
 
             {/* Top Bar */}
-            <motion.div initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="absolute top-6 right-6 flex items-center gap-3 z-50 px-4 py-2 bg-background/40 backdrop-blur-md rounded-full border border-border/50 shadow-sm">
+            <div className="absolute top-6 right-6 flex items-center gap-3 z-50 px-4 py-2 bg-background/40 backdrop-blur-md rounded-full border border-border/50 shadow-sm">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 hover:bg-primary/10 transition-colors"><Languages className="h-4 w-4" /></Button>
@@ -180,25 +150,25 @@ const Register = () => {
                 <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full w-9 h-9 hover:bg-primary/10 transition-colors">
                     {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
-            </motion.div>
+            </div>
 
             {/* Register Card */}
-            <motion.div initial={{ scale: 0.95, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} className="relative z-10 w-full max-w-[550px] px-6">
+            <div className="relative z-10 w-full max-w-[550px] px-6">
                 <CardBox className="p-0 backdrop-blur-2xl bg-card/75 border-border/60 shadow-2xl overflow-hidden rounded-[32px]">
                     <div className="h-2 w-full bg-gradient-to-r from-primary via-blue-400 to-secondary opacity-80" />
                     
                     <div className="p-10">
                         {success ? (
-                            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
+                            <div className="text-center py-8">
                                 <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="text-primary animate-pulse"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>
                                 </div>
                                 <h2 className="text-3xl font-black text-foreground mb-4">{t('auth.register.successTitle')}</h2>
                                 <p className="text-muted-foreground mb-8 text-lg">{t('auth.register.successOther')}</p>
                                 <Button asChild className="w-full h-14 rounded-2xl bg-primary hover:bg-primaryemphasis text-lg font-bold shadow-xl shadow-primary/20">
                                     <Link to={ADMIN_LOGIN_PATH}>{t('auth.register.goToLogin')}</Link>
                                 </Button>
-                            </motion.div>
+                            </div>
                         ) : (
                             <>
                                 <div className="text-center mb-10">
@@ -209,7 +179,7 @@ const Register = () => {
                                     <p className="text-muted-foreground font-medium text-sm">{t('auth.register.storeSubtitle') || 'Create your store account to start selling'}</p>
                                 </div>
 
-                                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                                <div>
                                     <form onSubmit={handleSubmit} className="space-y-6">
                                         {renderCommonFields()}
                                         {renderStoreFields()}
@@ -220,7 +190,7 @@ const Register = () => {
                                             {loading ? t('auth.register.submitting') : t('auth.register.submit')}
                                         </Button>
                                     </form>
-                                </motion.div>
+                                </div>
 
                                 <div className="mt-10 pt-8 border-t border-border/50 text-center space-y-3">
                                     <p className="text-muted-foreground font-medium">
@@ -235,7 +205,7 @@ const Register = () => {
                         )}
                     </div>
                 </CardBox>
-            </motion.div>
+            </div>
         </div>
     );
 };

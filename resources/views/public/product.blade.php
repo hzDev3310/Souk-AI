@@ -18,9 +18,11 @@
         <div class="space-y-6">
             <div class="relative aspect-square bg-card glass border border-border/40 rounded-[60px] overflow-hidden premium-shadow">
                 @if($product->albums->first())
-                    <img src="/storage/{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover">
+                    <img src="/storage/{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
+                        onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                 @else
-                    <img src="/storage/empty/empty.webp" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover">
+                    <img src="/storage/empty/empty.webp" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
+                        onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                 @endif
             </div>
             
@@ -28,12 +30,14 @@
                 @if($product->albums->count() > 0)
                     @foreach($product->albums as $album)
                         <div class="w-24 h-24 bg-card glass border border-border/40 rounded-3xl overflow-hidden cursor-pointer hover:border-primary transition-colors">
-                            <img src="/storage/{{ $album->file }}" class="w-full h-full object-cover">
+                            <img src="/storage/{{ $album->file }}" class="w-full h-full object-cover"
+                                onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                         </div>
                     @endforeach
                 @else
                     <div class="w-24 h-24 bg-card glass border border-border/40 rounded-3xl overflow-hidden">
-                        <img src="/storage/empty/empty.webp" class="w-full h-full object-cover">
+                        <img src="/storage/empty/empty.webp" class="w-full h-full object-cover"
+                            onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                     </div>
                 @endif
             </div>
@@ -130,22 +134,9 @@
     <section class="mt-32">
         <h2 class="text-3xl font-black text-foreground tracking-tight mb-12">{{ __('website.productInfo.moreFromStore') }}</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            @foreach($relatedProducts as $related)
-            <div class="product-card group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow">
-                <div class="relative aspect-square overflow-hidden bg-muted/20">
-                    @if($related->albums->first())
-                        <img src="/storage/{{ $related->albums->first()->file }}" class="w-full h-full object-cover">
-                    @else
-                        <img src="/storage/empty/empty.webp" class="w-full h-full object-cover">
-                    @endif
-                    <a href="{{ route('public.product', $related->slug) }}" class="absolute inset-0 z-10"></a>
-                </div>
-                <div class="p-4 md:p-6">
-                    <h3 class="font-bold text-foreground text-[10px] md:text-sm truncate">{{ $related->{'name_'.app()->getLocale()} }}</h3>
-                    <p class="text-sm md:text-lg font-black text-primary mt-2">{{ number_format($related->price, 2) }} {{ __('website.currency') }}</p>
-                </div>
-            </div>
-            @endforeach
+               @foreach($relatedProducts as $product)
+                    <x-product-card :product="$product" :show-store="true" />
+                @endforeach
         </div>
     </section>
     @endif
@@ -180,7 +171,7 @@
                             badge.classList.add('cart-pop');
                         }
                     });
-                    alert("{{ __('website.productInfo.addedToCart') }}");
+                    showToast("{{ __('website.productInfo.addedToCart') }}", 'cart');
                 }
             });
 
@@ -205,8 +196,10 @@
                 if(data.success) {
                     if(data.status === 'added') {
                         icon.setAttribute('fill', 'currentColor');
+                        if(window.showToast) showToast("{{ __('website.productInfo.addedToFavorites') }}", 'favorite');
                     } else {
                         icon.setAttribute('fill', 'none');
+                        if(window.showToast) showToast("{{ __('website.productInfo.removedFromFavorites') }}", 'removed');
                     }
 
                     const badge = document.getElementById('fav-count-desktop');

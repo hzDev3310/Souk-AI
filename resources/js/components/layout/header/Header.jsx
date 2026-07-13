@@ -24,7 +24,6 @@ import {
   Globe,
   Sparkles
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const Header = ({ onMenuClick }) => {
   const navigate = useNavigate();
@@ -56,13 +55,12 @@ const Header = ({ onMenuClick }) => {
       <nav className="flex items-center justify-between h-20 px-4 md:px-8">
         {/* Left side - Mobile Toggle & Search Trigger */}
         <div className="flex items-center gap-4">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
+          <button
             onClick={onMenuClick}
-            className="xl:hidden p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm"
+            className="xl:hidden p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm active:scale-95"
           >
             <Menu size={22} />
-          </motion.button>
+          </button>
           
           <div className="hidden md:flex items-center gap-2 group cursor-pointer px-4 py-2 rounded-2xl bg-muted/40 border border-transparent hover:border-primary/20 hover:bg-muted/60 transition-all">
             <span className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">
@@ -102,35 +100,13 @@ const Header = ({ onMenuClick }) => {
           </DropdownMenu>
 
           {/* Theme Toggle */}
-          <motion.button
-            whileTap={{ rotate: 180 }}
+          <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm"
+            className="p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm active:scale-95"
           >
-            <AnimatePresence mode="wait">
-                {isDarkMode ? (
-                    <motion.div key="sun" initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }}><Sun size={20} className="text-amber-500" /></motion.div>
-                ) : (
-                    <motion.div key="moon" initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} exit={{ scale: 0, rotate: 90 }}><Moon size={20} className="text-primary" /></motion.div>
-                )}
-            </AnimatePresence>
-          </motion.button>
+            {isDarkMode ? <Sun size={20} className="text-amber-500" /> : <Moon size={20} className="text-primary" />}
+          </button>
 
-          {/* Notifications 
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            className="p-2.5 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all shadow-sm relative"
-          >
-            <Bell size={20} className="text-muted-foreground" />
-            <motion.span 
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full shadow-lg shadow-primary/50"
-            />
-          </motion.button>
-
-          <div className="w-[1px] h-8 bg-border/50 mx-1 hidden sm:block" />
-*/}
           {/* Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

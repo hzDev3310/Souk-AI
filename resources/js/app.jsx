@@ -33,6 +33,7 @@ import ProductCreate from './pages/admin/ProductCreate';
 import ProductEdit from './pages/admin/ProductEdit';
 import AdminOrders from './pages/admin/Orders';
 import Parameters from './pages/admin/Parameters';
+import PageEditor from './pages/admin/PageEditor';
 // Store pages
 import StoreProducts from './pages/store/Products';
 import StoreProductCreate from './pages/store/StoreProductCreate';
@@ -113,6 +114,7 @@ const App = () => {
                         <Route path="orders" element={<RoleBasedOrders />} />
                         <Route path="analytics" element={<div className="p-6 text-link">Analytics Page (Work in Progress)</div>} />
                         <Route path="parameters" element={<Parameters />} />
+                        <Route path="pages/:slug" element={<PageEditor />} />
                         <Route path="settings" element={<div className="p-6 text-link">Settings Page (Work in Progress)</div>} />
                         <Route path="profile" element={<RoleBasedProfile />} />
                     </Route>

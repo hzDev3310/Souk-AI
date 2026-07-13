@@ -25,24 +25,22 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        if (is_string($request->input('isActive'))) {
+            $request->merge(['isActive' => filter_var($request->input('isActive'), FILTER_VALIDATE_BOOLEAN)]);
+        }
+
         $request->validate([
             'parent_id' => 'nullable|exists:categories,id',
             'name_fr' => 'required|string|max:255',
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
             'icon' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
             'isActive' => 'boolean'
         ]);
 
-        $data = $request->except(['logo', 'cover']);
+        $data = $request->except(['cover']);
         $data['slug'] = Str::slug($request->name_en) . '-' . uniqid();
-
-        if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('categories/logos', 'public');
-            $data['logo'] = $path;
-        }
 
         if ($request->hasFile('cover')) {
             $path = $request->file('cover')->store('categories/covers', 'public');
@@ -67,26 +65,25 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
+        if ($request->input('parent_id') === '') {
+            $request->merge(['parent_id' => null]);
+        }
+
+        if (is_string($request->input('isActive'))) {
+            $request->merge(['isActive' => filter_var($request->input('isActive'), FILTER_VALIDATE_BOOLEAN)]);
+        }
+
         $request->validate([
             'parent_id' => 'nullable|exists:categories,id',
             'name_fr' => 'sometimes|required|string|max:255',
             'name_ar' => 'sometimes|required|string|max:255',
             'name_en' => 'sometimes|required|string|max:255',
             'icon' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'cover' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
             'isActive' => 'boolean'
         ]);
 
-        $data = $request->except(['logo', 'cover']);
-
-        if ($request->hasFile('logo')) {
-            if ($category->logo) {
-                Storage::disk('public')->delete($category->logo);
-            }
-            $path = $request->file('logo')->store('categories/logos', 'public');
-            $data['logo'] = $path;
-        }
+        $data = $request->except(['cover']);
 
         if ($request->hasFile('cover')) {
             if ($category->cover) {
@@ -110,16 +107,9 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        if ($category->logo) {
-            Storage::disk('public')->delete($category->logo);
-        }
         if ($category->cover) {
             Storage::disk('public')->delete($category->cover);
         }
-        
-        // Handle children? The schema has nullOnDelete, so children will become top-level categories.
-        // If we want to delete children too, we should do it here. 
-        // For now, let's keep it as per schema (nullOnDelete).
         
         $category->delete();
 
@@ -131,6 +121,6 @@ class CategoryController extends Controller
      */
     public function list()
     {
-        return response()->json(Category::all(['id', 'name_en', 'name_fr', 'name_ar', 'parent_id', 'slug', 'isActive', 'logo']));
+        return response()->json(Category::all(['id', 'name_en', 'name_fr', 'name_ar', 'parent_id', 'slug', 'isActive']));
     }
 }

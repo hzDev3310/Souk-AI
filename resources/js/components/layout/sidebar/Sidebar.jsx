@@ -6,7 +6,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import SidebarContent from './SidebarItems';
 import * as Icons from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const renderSidebarItems = (items, currentPath, isDarkMode, userRole, t, isRTL = false, onClose = () => {}) => {
   const filteredItems = items.filter(item => !item.roles || item.roles.includes(userRole));
@@ -17,7 +16,6 @@ const renderSidebarItems = (items, currentPath, isDarkMode, userRole, t, isRTL =
     const isSelected = currentPath === item?.url;
     const IconComponent = Icons[item.icon] || Icons.Circle;
     
-    // Generate translation key: sidebar.dashboard, sidebar.stores, etc.
     const translationKey = `sidebar.${item.name.charAt(0).toLowerCase()}${item.name.slice(1).replace(/\s+/g, '')}`;
 
     return (
@@ -28,21 +26,12 @@ const renderSidebarItems = (items, currentPath, isDarkMode, userRole, t, isRTL =
             relative flex items-center gap-3 px-4 py-3.5 rounded-2xl mb-1
             transition-all duration-300 group
             ${isSelected
-              ? 'text-primary'
+              ? 'text-primary bg-primary/10 border border-primary/20'
               : 'text-foreground hover:text-primary'
             }
             ${isRTL ? 'flex-row-reverse text-right' : ''}
           `}
         >
-          {isSelected && (
-            <motion.div 
-              layoutId="sidebar-active"
-              className="absolute inset-0 bg-primary/10 rounded-2xl border border-primary/20"
-              initial={false}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-          )}
-
           <div className="relative z-10 flex items-center gap-3 w-full">
             <IconComponent 
                 size={22} 
@@ -54,11 +43,7 @@ const renderSidebarItems = (items, currentPath, isDarkMode, userRole, t, isRTL =
             </span>
             
             {isSelected && (
-                <motion.div 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50"
-                />
+                <div className="w-1.5 h-1.5 rounded-full bg-primary shadow-lg shadow-primary/50" />
             )}
           </div>
         </Link>

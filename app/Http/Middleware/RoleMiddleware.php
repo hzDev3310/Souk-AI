@@ -10,15 +10,21 @@ class RoleMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Supports multiple roles: role:admin,store,influencer
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
-        if (!$request->user() || strtoupper($request->user()->role) !== strtoupper($role)) {
+        if (!$request->user()) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $userRole = strtoupper($request->user()->role);
+        $allowedRoles = array_map('strtoupper', $roles);
+
+        if (!in_array($userRole, $allowedRoles)) {
             return response()->json([
-                'message' => 'Unauthorized. Required role: ' . $role,
-                'current_role' => $request->user() ? $request->user()->role : 'null',
+                'message' => 'Unauthorized. Required roles: ' . implode(', ', $roles),
+                'current_role' => $userRole,
             ], 403);
         }
 

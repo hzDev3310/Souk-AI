@@ -1,7 +1,6 @@
 import React from 'react';
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const Modal = ({ 
@@ -16,15 +15,11 @@ const Modal = ({
 }) => {
     return (
         <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <AnimatePresence>
                 {isOpen && (
                     <DialogPrimitive.Portal forceMount>
                         {/* Overlay */}
                         <DialogPrimitive.Overlay asChild>
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
+                            <div
                                 className="fixed inset-0 z-50 bg-background/40 backdrop-blur-sm"
                             />
                         </DialogPrimitive.Overlay>
@@ -32,12 +27,7 @@ const Modal = ({
                         {/* Content */}
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                             <DialogPrimitive.Content asChild aria-describedby={undefined}>
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                                    className={cn(
+                                <div className={cn(
                                         "relative w-full overflow-hidden rounded-[32px] border border-border/60 bg-card/95 p-0 shadow-2xl backdrop-blur-lg",
                                         maxWidth
                                     )}
@@ -83,12 +73,11 @@ const Modal = ({
                                     {/* Decorative Background Elements */}
                                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/5 rounded-full blur-[80px] pointer-events-none" />
                                     <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-secondary/5 rounded-full blur-[80px] pointer-events-none" />
-                                </motion.div>
+                                </div>
                             </DialogPrimitive.Content>
                         </div>
                     </DialogPrimitive.Portal>
                 )}
-            </AnimatePresence>
         </DialogPrimitive.Root>
     );
 };

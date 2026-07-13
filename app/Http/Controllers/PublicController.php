@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Page;
+use App\Models\ContactSetting;
 use App\Models\Store;
 use App\Services\ProductSemanticSearchService;
 use Illuminate\Http\Request;
@@ -371,7 +373,7 @@ class PublicController extends Controller
                     'family_name' => $request->last_name,
                     'email' => $request->email,
                     'password' => Hash::make($password),
-                    'role' => 'client'
+                    'role' => 'CLIENT'
                 ]);
                 
                 Auth::login($user, true);
@@ -528,7 +530,9 @@ class PublicController extends Controller
 
     public function about()
     {
-        return view('public.about');
+        $page = Page::getBySlug('about');
+        $contact = ContactSetting::instance();
+        return view('public.about', compact('page', 'contact'));
     }
 
     public function terms()
@@ -538,7 +542,9 @@ class PublicController extends Controller
 
     public function contact()
     {
-        return view('public.contact');
+        $page = Page::getBySlug('contact');
+        $contact = ContactSetting::instance();
+        return view('public.contact', compact('page', 'contact'));
     }
 
     public function showLogin()
@@ -553,14 +559,25 @@ class PublicController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials, $request->remember)) {
-            $request->session()->regenerate();
-            return redirect()->intended(route('home'));
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user || !\Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)) {
+            return back()->withErrors([
+                'email' => 'The provided credentials do not match our records.',
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        // Only CLIENT accounts can log in via the public storefront
+        if (strtoupper($user->role) !== 'CLIENT') {
+            return back()->withErrors([
+                'email' => 'Admin, store, and influencer accounts must log in via the dashboard.',
+            ])->onlyInput('email');
+        }
+
+        Auth::login($user, $request->boolean('remember'));
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('home'));
     }
 
     public function showRegister()
@@ -582,7 +599,7 @@ class PublicController extends Controller
             'family_name' => $request->family_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'client',
+            'role' => 'CLIENT',
         ]);
 
         Client::create([

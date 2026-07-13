@@ -20,7 +20,6 @@ import {
     Plus, Pencil, Trash2, Search, Box, Image as ImageIcon,
     CheckCircle2, XCircle, Activity, Eye, Package, ChevronDown, ChevronUp
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const StoreProducts = () => {
     const { t } = useTranslation();
@@ -148,19 +147,12 @@ const StoreProducts = () => {
                             <p className="text-muted-foreground">{t('store.products.messages.noProducts') || "No products found"}</p>
                         </div>
                     ) : (
-                        <AnimatePresence>
-                            {filteredProducts.map((product, idx) => {
-                                const stockStatus = getStockStatus(product.stock);
-                                const isExpanded = expandedCardId === product.id;
+                        filteredProducts.map((product, idx) => {
+                            const stockStatus = getStockStatus(product.stock);
+                            const isExpanded = expandedCardId === product.id;
 
-                                return (
-                                    <motion.div
-                                        key={product.id}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: -10 }}
-                                        transition={{ delay: idx * 0.05 }}
-                                    >
+                            return (
+                                <div key={product.id}>
                                         <div className="bg-white dark:bg-card rounded-2xl border border-border/60 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                                             {/* Main Card Content */}
                                             <div
@@ -194,15 +186,10 @@ const StoreProducts = () => {
                                             </div>
 
                                             {/* Expanded Quick Edit Panel */}
-                                            <AnimatePresence>
-                                                {isExpanded && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: 'auto', opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.2 }}
-                                                        className="border-t border-border/60 bg-muted/20 p-4 space-y-4"
-                                                    >
+                                            {isExpanded && (
+                                                <div
+                                                    className="border-t border-border/60 bg-muted/20 p-4 space-y-4"
+                                                >
                                                         {/* Quick Edit Fields */}
                                                         <div className="grid grid-cols-2 gap-3">
                                                             <div>
@@ -258,14 +245,12 @@ const StoreProducts = () => {
                                                                 </Button>
                                                             </div>
                                                         </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
+                                                </div>
+                                            )}
                                         </div>
-                                    </motion.div>
-                                );
-                            })}
-                        </AnimatePresence>
+                                </div>
+                            );
+                        })
                     )}
                 </div>
 
@@ -289,8 +274,7 @@ const StoreProducts = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <AnimatePresence mode="popLayout">
-                                {loading ? (
+                            {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={4} className="h-32 text-center">
                                             <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
@@ -300,11 +284,8 @@ const StoreProducts = () => {
                                         </TableCell>
                                     </TableRow>
                                 ) : filteredProducts.map((product) => (
-                                    <motion.tr
+                                    <tr
                                         key={product.id}
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
                                         className="group hover:bg-primary/5 border-border/40 transition-colors"
                                     >
                                         <TableCell className="py-4 px-6">
@@ -346,9 +327,9 @@ const StoreProducts = () => {
                                                 </Button>
                                             </div>
                                         </TableCell>
-                                    </motion.tr>
+                                    </tr>
                                 ))}
-                            </AnimatePresence>
+
                             {!loading && filteredProducts.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={4} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">

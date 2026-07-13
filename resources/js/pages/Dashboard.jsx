@@ -14,7 +14,6 @@ import {
   Layers,
   Sparkles
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 const Dashboard = () => {
@@ -59,30 +58,10 @@ const Dashboard = () => {
     },
   ];
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
-
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="space-y-8 p-1"
-    >
+    <div className="space-y-8 p-1">
       {/* Page Header */}
-      <motion.div variants={item} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-3xl font-black text-foreground tracking-tight">
@@ -105,12 +84,12 @@ const Dashboard = () => {
             Custom View
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <motion.div key={index} variants={item} whileHover={{ y: -5 }} className="group">
+          <div key={index} className="group">
             <CardBox className="p-6 h-full relative overflow-hidden bg-card/50 backdrop-blur-sm border-border/50 transition-all hover:bg-card hover:border-primary/20 shadow-sm hover:shadow-xl">
               <div className="flex items-start justify-between relative z-10">
                 <div>
@@ -136,14 +115,14 @@ const Dashboard = () => {
               {/* Decorative background element */}
               <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
             </CardBox>
-          </motion.div>
+          </div>
         ))}
       </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Orders */}
-        <motion.div variants={item} className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Activity className="w-5 h-5 text-primary" />
@@ -173,11 +152,7 @@ const Dashboard = () => {
                     { id: '#ORD-004', name: 'Sarah Wilson', status: 'Completed', amount: '$450.00', statusColor: 'bg-emerald-500/10 text-emerald-600' },
                     { id: '#ORD-005', name: 'Robert Lee', status: 'Cancelled', amount: '$15.00', statusColor: 'bg-red-500/10 text-red-600' },
                   ].map((order, i) => (
-                    <motion.tr
-                      key={i}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 + (i * 0.1) }}
+                    <tr
                       className="hover:bg-primary/5 transition-colors group cursor-pointer"
                     >
                       <td className="py-4 px-6 text-sm font-black text-foreground tracking-tight">{order.id}</td>
@@ -188,16 +163,16 @@ const Dashboard = () => {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-sm font-black text-foreground">{order.amount}</td>
-                    </motion.tr>
+                    </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           </CardBox>
-        </motion.div>
+        </div>
 
         {/* Top Products */}
-        <motion.div variants={item} className="lg:col-span-1 space-y-4">
+        <div className="lg:col-span-1 space-y-4">
           <div className="flex items-center gap-2 mb-2">
             <Package className="w-5 h-5 text-primary" />
             <h3 className="text-xl font-black text-foreground tracking-tight">Top Products</h3>
@@ -212,11 +187,7 @@ const Dashboard = () => {
                 { name: 'Global Access', sales: '142 sales', revenue: '$6,200', color: 'bg-purple-500/10 text-purple-600' },
                 { name: 'Ultra Boost', sales: '128 sales', revenue: '$5,100', color: 'bg-pink-500/10 text-pink-600' },
               ].map((product, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + (i * 0.1) }}
+                <div
                   className="flex items-center gap-4 group cursor-pointer"
                 >
                   <div className={`w-12 h-12 rounded-2xl ${product.color} flex items-center justify-center font-black text-lg group-hover:scale-110 transition-transform`}>
@@ -233,7 +204,7 @@ const Dashboard = () => {
                       12%
                     </div>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 
@@ -241,9 +212,9 @@ const Dashboard = () => {
               Generate Full Report
             </Button>
           </CardBox>
-        </motion.div>
-      </div>
-    </motion.div>
+                    </div>
+                  </div>
+                </div>
   );
 };
 

@@ -5,8 +5,7 @@ import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Package, Box, Image as ImageIcon, Activity } from 'lucide-react';
-import { motion } from 'framer-motion';
-
+import * as LucideIcons from 'lucide-react';
 const ProductEdit = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -169,11 +168,7 @@ const ProductEdit = () => {
 
     return (
         <div className="max-w-5xl mx-auto p-6 text-start">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-6"
-            >
+            <div className="space-y-6">
                 {/* Header */}
                 <div className="flex items-center gap-4">
                     <Button
@@ -369,10 +364,8 @@ const ProductEdit = () => {
                         </label>
                         <div className="flex flex-wrap gap-2 p-4 bg-muted/20 rounded-2xl border border-border/40">
                             {categories.map(cat => (
-                                <motion.div
+                                <div
                                     key={cat.id}
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
                                     onClick={() => handleCategoryToggle(cat.id)}
                                     className={`cursor-pointer h-10 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
                                         formData.categories.includes(cat.id)
@@ -380,13 +373,13 @@ const ProductEdit = () => {
                                             : 'border-border/50 bg-card hover:bg-muted/50 hover:border-primary/50 text-foreground'
                                     }`}
                                 >
-                                    {cat.logo ? (
-                                        <img src={`/storage/${cat.logo}`} alt="" className="w-5 h-5 rounded-[4px] object-cover" />
+                                    {cat.icon && LucideIcons[cat.icon] ? (
+                                        React.createElement(LucideIcons[cat.icon], { size: 14, className: 'opacity-50' })
                                     ) : (
                                         <Box size={14} className="opacity-50" />
                                     )}
                                     <span className="text-[11px] font-black">{cat.name_fr}</span>
-                                </motion.div>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -466,7 +459,7 @@ const ProductEdit = () => {
                         </Button>
                     </div>
                 </form>
-            </motion.div>
+            </div>
         </div>
     );
 };

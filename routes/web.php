@@ -57,7 +57,7 @@ Route::middleware('web')->group(function () {
     Route::post('/register', [PublicController::class, 'register'])->name('public.register.submit');
     Route::post('/logout', [PublicController::class, 'logout'])->name('logout');
 
-    // SPA Dashboard (React)
+    // SPA Dashboard (React) — catch-all, React handles auth client-side
     Route::get('/dashboard/{any?}', function () {
         return view('welcome');
     })->where('any', '.*')->name('dashboard');

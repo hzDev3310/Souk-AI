@@ -6,7 +6,6 @@ import CardBox from '@/components/shared/CardBox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Store, ArrowLeft, Save } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const StoreCreate = () => {
   const { t } = useTranslation();
@@ -72,10 +71,7 @@ const StoreCreate = () => {
       </div>
 
       {/* Form */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+      <div>
         <CardBox className="p-8 border-border/50 rounded-[32px]">
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* Owner Info */}
@@ -260,7 +256,7 @@ const StoreCreate = () => {
             </div>
           </form>
         </CardBox>
-      </motion.div>
+      </div>
     </div>
   );
 };

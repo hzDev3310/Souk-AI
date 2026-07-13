@@ -14,7 +14,6 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Plus, Pencil, Trash2, Search, Sparkles, Activity, Filter, Download, Phone, Mail } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '@/components/shared/Modal';
 
 const Influencers = () => {
@@ -161,8 +160,82 @@ const Influencers = () => {
                     </div>
                 </div>
 
-                {/* Influencers Table Container */}
-                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden">
+                {/* Mobile View - Card List */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {loading ? (
+                        <div className="flex flex-col items-center justify-center py-12 gap-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <Activity className="w-8 h-8 animate-spin text-primary" />
+                            <p className="text-muted-foreground font-bold">{t('admin.common.loading')}</p>
+                        </div>
+                    ) : filteredInfluencers.length === 0 ? (
+                        <div className="py-20 text-center space-y-3 bg-card/50 rounded-[32px] border border-border/50">
+                            <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground">
+                                <Sparkles size={32} />
+                            </div>
+                            <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">{t('admin.influencers.messages.noInfluencers')}</p>
+                        </div>
+                    ) : (
+                        filteredInfluencers.map((influencer) => (
+                            <div
+                                key={influencer.id}
+                                className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl uppercase">
+                                            {influencer.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{influencer.name} {influencer.family_name}</h3>
+                                            <div className="flex items-center gap-1.5 mt-1">
+                                                <Mail size={10} className="text-muted-foreground" />
+                                                <p className="text-[10px] font-bold text-muted-foreground truncate max-w-[180px]">{influencer.email}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${influencer.influencer?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
+                                        {influencer.influencer?.isActive ? t('admin.influencers.status.active') : t('admin.influencers.status.inactive')}
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
+                                    <div>
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.influencers.table.commission')}</p>
+                                        <p className="text-xs font-bold text-foreground">{influencer.influencer?.commissionRate || 5}% Per Sale</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.influencers.table.referralCode')}</p>
+                                        <span className="px-2 py-0.5 bg-muted/50 border border-border/50 rounded-lg font-mono text-xs font-bold text-foreground tracking-wider">
+                                            {influencer.influencer?.referralCode || '-'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-end gap-2 pt-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleEdit(influencer)}
+                                        className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
+                                    >
+                                        <Pencil size={18} strokeWidth={2.5} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDelete(influencer.id)}
+                                        className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
+                                    >
+                                        <Trash2 size={18} strokeWidth={2.5} />
+                                    </Button>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop View - Influencers Table Container */}
+                <CardBox className="p-0 border-border/50 rounded-[32px] overflow-hidden hidden md:block">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader className="bg-muted/30">
@@ -175,7 +248,6 @@ const Influencers = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <AnimatePresence mode="popLayout">
                                 {loading ? (
                                     <TableRow>
                                         <TableCell colSpan={5} className="h-32 text-center">
@@ -186,12 +258,8 @@ const Influencers = () => {
                                         </TableCell>
                                     </TableRow>
                                 ) : filteredInfluencers.map((influencer, idx) => (
-                                    <motion.tr 
+                                    <tr 
                                         key={influencer.id}
-                                        initial={{ opacity: 0, scale: 0.98 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        transition={{ delay: idx * 0.05 }}
                                         className="border-border/40 hover:bg-primary/5 transition-colors group cursor-pointer"
                                     >
                                         <TableCell className="py-4 px-6">
@@ -246,9 +314,8 @@ const Influencers = () => {
                                                 </Button>
                                             </div>
                                         </TableCell>
-                                    </motion.tr>
+                                    </tr>
                                 ))}
-                                </AnimatePresence>
                             </TableBody>
                         </Table>
                     </div>
