@@ -40,8 +40,9 @@ const ProductCreate = () => {
 
     const fetchStores = async () => {
         try {
-            const response = await api.get('/admin/users/stores');
+            const response = await api.get('/admin/users/stores/list');
             const storesData = response.data?.data || response.data || [];
+            console.log('Fetched stores:', storesData);
             setStores(Array.isArray(storesData) ? storesData : []);
         } catch (error) {
             console.error('Error fetching stores:', error);
@@ -62,6 +63,7 @@ const ProductCreate = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        console.log(`Field changed: ${name} = ${value}`);
         setFormData(prev => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
     };
@@ -106,7 +108,10 @@ const ProductCreate = () => {
         } catch (error) {
             console.error('Error creating product:', error);
             if (error.response?.status === 422) {
-                setErrors(error.response.data.errors || {});
+                const errs = error.response.data.errors || {};
+                setErrors(errs);
+                const messages = Object.values(errs).flat().join('\n');
+                alert(messages || 'Validation error');
             }
         } finally {
             setLoading(false);
@@ -157,6 +162,7 @@ const ProductCreate = () => {
                             <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
                                 {t('admin.products.form.store') || 'Store'} *
                             </label>
+
                             <select
                                 name="store_id"
                                 value={formData.store_id}
@@ -166,7 +172,9 @@ const ProductCreate = () => {
                             >
                                 <option value="">{t('admin.products.form.selectStore') || 'Select Store'}</option>
                                 {stores.map(store => (
-                                    <option key={store.id} value={store.id}>{store.store_name_fr || store.name}</option>
+                                    <option key={store.id} value={store.id}>
+                                        {store.name_fr}
+                                    </option>
                                 ))}
                             </select>
                             {errors.store_id && <p className="text-red-500 text-xs">{errors.store_id[0]}</p>}
@@ -327,11 +335,10 @@ const ProductCreate = () => {
                                 <div
                                     key={cat.id}
                                     onClick={() => handleCategoryToggle(cat.id)}
-                                    className={`cursor-pointer h-10 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${
-                                        formData.categories.includes(cat.id)
-                                            ? 'border-primary bg-primary/10 text-primary shadow-sm'
-                                            : 'border-border/50 bg-card hover:bg-muted/50 hover:border-primary/50 text-foreground'
-                                    }`}
+                                    className={`cursor-pointer h-10 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-2 ${formData.categories.includes(cat.id)
+                                        ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                                        : 'border-border/50 bg-card hover:bg-muted/50 hover:border-primary/50 text-foreground'
+                                        }`}
                                 >
                                     {cat.icon && LucideIcons[cat.icon] ? (
                                         React.createElement(LucideIcons[cat.icon], { size: 14, className: 'opacity-50' })

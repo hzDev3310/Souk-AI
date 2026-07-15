@@ -43,7 +43,7 @@ const ProductEdit = () => {
 
     const fetchStores = async () => {
         try {
-            const response = await api.get('/admin/users/stores');
+            const response = await api.get('/admin/users/stores/list');
             const storesData = response.data?.data || response.data || [];
             setStores(Array.isArray(storesData) ? storesData : []);
         } catch (error) {
@@ -207,7 +207,7 @@ const ProductEdit = () => {
                             >
                                 <option value="">{t('admin.products.form.selectStore') || 'Select Store'}</option>
                                 {stores.map(store => (
-                                    <option key={store.id} value={store.id}>{store.store_name_fr || store.name}</option>
+                                    <option key={store.id} value={store.id}>{store.name_fr}</option>
                                 ))}
                             </select>
                             {errors.store_id && <p className="text-red-500 text-xs">{errors.store_id[0]}</p>}

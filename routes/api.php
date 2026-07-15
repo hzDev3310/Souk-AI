@@ -80,6 +80,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
         Route::delete('/influencers/{id}', [UserManagementController::class, 'deleteInfluencer']);
 
         Route::get('/stores', [UserManagementController::class, 'getStores']);
+        Route::get('/stores/list', [UserManagementController::class, 'getStoreList']);
         Route::post('/stores', [UserManagementController::class, 'createStore']);
         Route::put('/stores/{id}', [UserManagementController::class, 'updateStore']);
         Route::delete('/stores/{id}', [UserManagementController::class, 'deleteStore']);

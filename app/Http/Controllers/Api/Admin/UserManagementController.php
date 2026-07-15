@@ -150,6 +150,12 @@ class UserManagementController extends Controller
         $stores = $this->userService->getAllUsersByRole('STORE');
         return response()->json(['data' => $stores]);
     }
+
+    public function getStoreList()
+    {
+        $stores = \App\Models\Store::select('id', 'name_fr', 'name_ar', 'name_en', 'isActive')->get();
+        return response()->json(['data' => $stores]);
+    }
     
     public function createStore(Request $request)
     {

@@ -38,7 +38,7 @@ class ProductController extends Controller
             'promo' => 'nullable|numeric|min:0|max:100',
             'categories' => 'nullable|json',
             'images' => 'nullable|array',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'images.*' => 'nullable|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
         $slug = Str::slug($validated['name_en'] ?? $validated['name_fr']) . '-' . uniqid();
@@ -91,7 +91,7 @@ class ProductController extends Controller
             'promo' => 'nullable|numeric|min:0|max:100',
             'categories' => 'nullable|json',
             'images' => 'nullable|array',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'images.*' => 'nullable|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
         $slug = $product->slug;
