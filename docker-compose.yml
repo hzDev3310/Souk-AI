@@ -30,7 +30,7 @@ services:
     networks:
       - laravel-network
 
-  # MongoDB Service
+  # MySQL Service
   mysql:
     image: mysql:8.0
     container_name: laravel-mysql
