@@ -107,6 +107,7 @@ const App = () => {
                         <Route path="shipping-employees" element={<AdminShippingEmployees />} />
                         <Route path="categories" element={<AdminCategories />} />
                         <Route path="categories/create" element={<CategoryCreate />} />
+                        <Route path="categories/:categoryId" element={<AdminCategories />} />
                         <Route path="categories/:id/edit" element={<CategoryEdit />} />
                         <Route path="products" element={<RoleBasedProducts />} />
                         <Route path="products/create" element={<RoleBasedProductCreate />} />

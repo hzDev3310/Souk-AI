@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../lib/api';
 import { useNotification } from '../../context/NotificationContext';
 import { RefreshCcw, Image as ImageIcon, Key, Brain, Save, CheckCircle2 } from 'lucide-react';
+import { validateImageFile } from '../../utils/imageUploadValidation';
 
 const AI_MODEL_OPTIONS = [
     { value: 'models/gemini-embedding-001', label: 'Gemini Embedding 001 (Stable)' },
@@ -49,6 +50,12 @@ const Parameters = () => {
     };
 
     const handleImageUpload = async (id, key, file) => {
+        const validation = validateImageFile(file, { maxSizeBytes: 2 * 1024 * 1024 });
+        if (!validation.isValid) {
+            showNotification('error', validation.error);
+            return;
+        }
+
         const formData = new FormData();
         formData.append('image', file);
 
@@ -144,14 +151,14 @@ const Parameters = () => {
                                         <input
                                             type="file"
                                             className="hidden"
-                                            accept="image/*"
+                                            accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                                             onChange={(e) => e.target.files?.[0] && handleImageUpload(logoSetting.id, logoSetting.key, e.target.files[0])}
                                         />
                                     </label>
                                 </div>
                             </div>
                             <p className="text-[10px] font-medium text-muted-foreground text-center italic text-primary bg-primary/5 p-2 rounded-xl border border-primary/10">
-                                Recommended: 200x200px PNG/SVG with transparent background. Max 2MB.
+                                Supported: JPG, PNG, WEBP, GIF, SVG. Max 2MB.
                             </p>
                         </div>
                     </div>

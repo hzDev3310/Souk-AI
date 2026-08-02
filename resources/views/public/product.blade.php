@@ -8,7 +8,7 @@
     <meta property="og:type" content="product">
     <meta property="og:url" content="{{ url()->current() }}">
     @if($product->albums->first())
-    <meta property="og:image" content="{{ asset('storage/'.$product->albums->first()->file) }}">
+    <meta property="og:image" content="{{ $product->albums->first()->file }}">
     @endif
 @endsection
 
@@ -18,7 +18,7 @@
         <div class="space-y-6">
             <div class="relative aspect-square bg-card glass border border-border/40 rounded-[60px] overflow-hidden premium-shadow">
                 @if($product->albums->first())
-                    <img src="/storage/{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
+                    <img src="{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
                         onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                 @else
                     <img src="/storage/empty/empty.webp" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
@@ -30,7 +30,7 @@
                 @if($product->albums->count() > 0)
                     @foreach($product->albums as $album)
                         <div class="w-24 h-24 bg-card glass border border-border/40 rounded-3xl overflow-hidden cursor-pointer hover:border-primary transition-colors">
-                            <img src="/storage/{{ $album->file }}" class="w-full h-full object-cover"
+                            <img src="{{ $album->file }}" class="w-full h-full object-cover"
                                 onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                         </div>
                     @endforeach

@@ -6,6 +6,56 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Package, Box, Image as ImageIcon, Activity } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
+import { validateImageFile } from '@/utils/imageUploadValidation';
+
+const validateForm = (formData, imageFiles, fileErrors) => {
+    const errs = {};
+
+    if (fileErrors.length > 0) {
+        errs.images = fileErrors;
+    }
+
+    if (!formData.store_id) {
+        errs.store_id = ['Please select a store.'];
+    }
+
+    if (!formData.name_fr || !formData.name_fr.trim()) {
+        errs.name_fr = ['Product name (French) is required.'];
+    } else if (formData.name_fr.length > 255) {
+        errs.name_fr = ['Product name (French) must not exceed 255 characters.'];
+    }
+
+    if (!formData.name_ar || !formData.name_ar.trim()) {
+        errs.name_ar = ['Product name (Arabic) is required.'];
+    } else if (formData.name_ar.length > 255) {
+        errs.name_ar = ['Product name (Arabic) must not exceed 255 characters.'];
+    }
+
+    if (!formData.name_en || !formData.name_en.trim()) {
+        errs.name_en = ['Product name (English) is required.'];
+    } else if (formData.name_en.length > 255) {
+        errs.name_en = ['Product name (English) must not exceed 255 characters.'];
+    }
+
+    if (!formData.price || isNaN(Number(formData.price)) || Number(formData.price) < 0) {
+        errs.price = ['Please enter a valid price (0 or greater).'];
+    }
+
+    if (!['NEW', 'GOOD', 'USED'].includes(formData.condition)) {
+        errs.condition = ['Please select a valid condition.'];
+    }
+
+    if (formData.stock === '' || formData.stock === null || isNaN(Number(formData.stock)) || !Number.isInteger(Number(formData.stock)) || Number(formData.stock) < 0) {
+        errs.stock = ['Please enter a valid stock quantity (non-negative integer).'];
+    }
+
+    if (formData.promo && (isNaN(Number(formData.promo)) || Number(formData.promo) < 0 || Number(formData.promo) > 100)) {
+        errs.promo = ['Promo must be between 0 and 100.'];
+    }
+
+    return errs;
+};
+
 const ProductCreate = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -14,6 +64,7 @@ const ProductCreate = () => {
     const [stores, setStores] = useState([]);
     const [categories, setCategories] = useState([]);
     const [errors, setErrors] = useState({});
+    const [generalError, setGeneralError] = useState('');
 
     const [formData, setFormData] = useState({
         store_id: '',
@@ -32,6 +83,7 @@ const ProductCreate = () => {
 
     const [imageFiles, setImageFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
+    const [fileErrors, setFileErrors] = useState([]);
 
     useEffect(() => {
         fetchStores();
@@ -42,7 +94,6 @@ const ProductCreate = () => {
         try {
             const response = await api.get('/admin/users/stores/list');
             const storesData = response.data?.data || response.data || [];
-            console.log('Fetched stores:', storesData);
             setStores(Array.isArray(storesData) ? storesData : []);
         } catch (error) {
             console.error('Error fetching stores:', error);
@@ -63,16 +114,31 @@ const ProductCreate = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log(`Field changed: ${name} = ${value}`);
         setFormData(prev => ({ ...prev, [name]: value }));
         if (errors[name]) setErrors(prev => ({ ...prev, [name]: null }));
+        if (generalError) setGeneralError('');
     };
 
     const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
-        setImageFiles(files);
-        const newPreviews = files.map(file => URL.createObjectURL(file));
+        const files = Array.from(e.target.files || []);
+        const validFiles = [];
+        const errorsList = [];
+
+        files.forEach((file) => {
+            const validation = validateImageFile(file, { maxSizeBytes: 4 * 1024 * 1024 });
+            if (!validation.isValid) {
+                errorsList.push(validation.error);
+            } else {
+                validFiles.push(file);
+            }
+        });
+
+        setFileErrors(errorsList);
+        setImageFiles(validFiles);
+        const newPreviews = validFiles.map(file => URL.createObjectURL(file));
         setPreviews(newPreviews);
+
+        e.target.value = '';
     };
 
     const handleCategoryToggle = (catId) => {
@@ -86,8 +152,14 @@ const ProductCreate = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setGeneralError('');
+
+        const validationErrors = validateForm(formData, imageFiles, fileErrors);
+        setErrors(validationErrors);
+
+        if (Object.keys(validationErrors).length > 0) return;
+
         setLoading(true);
-        setErrors({});
 
         const data = new FormData();
         Object.keys(formData).forEach(key => {
@@ -106,12 +178,17 @@ const ProductCreate = () => {
             await api.post('/admin/products', data);
             navigate('/dashboard/products');
         } catch (error) {
-            console.error('Error creating product:', error);
             if (error.response?.status === 422) {
-                const errs = error.response.data.errors || {};
-                setErrors(errs);
-                const messages = Object.values(errs).flat().join('\n');
-                alert(messages || 'Validation error');
+                const body = error.response.data || {};
+                const errs = body.errors || {};
+                setErrors(prev => ({ ...prev, ...errs }));
+                if (Object.keys(errs).length > 0) {
+                    const firstKey = Object.keys(errs)[0];
+                    const el = document.querySelector(`[name="${firstKey}"]`);
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else if (body.message) {
+                    setGeneralError(body.message);
+                }
             }
         } finally {
             setLoading(false);
@@ -155,7 +232,12 @@ const ProductCreate = () => {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+                    {generalError && (
+                        <div className="p-4 bg-red-500/10 border border-red-200 dark:border-red-500/30 rounded-2xl">
+                            <p className="text-red-600 dark:text-red-400 text-sm font-bold">{generalError}</p>
+                        </div>
+                    )}
                     {/* Store & Condition */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
@@ -167,8 +249,7 @@ const ProductCreate = () => {
                                 name="store_id"
                                 value={formData.store_id}
                                 onChange={handleChange}
-                                required
-                                className="w-full h-12 px-4 rounded-xl bg-card border border-border/60 font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                                className={`w-full h-12 px-4 rounded-xl bg-card border font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all ${errors.store_id ? 'border-red-400' : 'border-border/60'}`}
                             >
                                 <option value="">{t('admin.products.form.selectStore') || 'Select Store'}</option>
                                 {stores.map(store => (
@@ -187,7 +268,7 @@ const ProductCreate = () => {
                                 name="condition"
                                 value={formData.condition}
                                 onChange={handleChange}
-                                className="w-full h-12 px-4 rounded-xl bg-card border border-border/60 font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                                className={`w-full h-12 px-4 rounded-xl bg-card border font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all ${errors.condition ? 'border-red-400' : 'border-border/60'}`}
                             >
                                 <option value="NEW">{t('admin.products.form.condNew') || 'New'}</option>
                                 <option value="GOOD">{t('admin.products.form.condGood') || 'Good'}</option>
@@ -209,8 +290,7 @@ const ProductCreate = () => {
                                     value={formData.name_fr}
                                     onChange={handleChange}
                                     placeholder={t('admin.products.form.frenchPlaceholder') || 'Nom du produit'}
-                                    className="h-12 bg-card border-border/60 rounded-xl font-bold"
-                                    required
+                                    className={`h-12 bg-card rounded-xl font-bold ${errors.name_fr ? 'border-red-400' : 'border-border/60'}`}
                                 />
                                 <span className="text-[10px] text-muted-foreground ml-1">Français</span>
                                 {errors.name_fr && <p className="text-red-500 text-xs">{errors.name_fr[0]}</p>}
@@ -222,8 +302,7 @@ const ProductCreate = () => {
                                     onChange={handleChange}
                                     placeholder="اسم المنتج"
                                     dir="rtl"
-                                    className="h-12 bg-card border-border/60 rounded-xl font-black text-right"
-                                    required
+                                    className={`h-12 bg-card rounded-xl font-black text-right ${errors.name_ar ? 'border-red-400' : 'border-border/60'}`}
                                 />
                                 <span className="text-[10px] text-muted-foreground ml-1 block text-right mr-1">العربية</span>
                                 {errors.name_ar && <p className="text-red-500 text-xs">{errors.name_ar[0]}</p>}
@@ -234,62 +313,10 @@ const ProductCreate = () => {
                                     value={formData.name_en}
                                     onChange={handleChange}
                                     placeholder={t('admin.products.form.englishPlaceholder') || 'Product name'}
-                                    className="h-12 bg-card border-border/60 rounded-xl font-bold"
-                                    required
+                                    className={`h-12 bg-card rounded-xl font-bold ${errors.name_en ? 'border-red-400' : 'border-border/60'}`}
                                 />
                                 <span className="text-[10px] text-muted-foreground ml-1">English</span>
                                 {errors.name_en && <p className="text-red-500 text-xs">{errors.name_en[0]}</p>}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Pricing & Stock */}
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                            {t('admin.products.form.pricing') || 'Pricing & Inventory'} *
-                        </label>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="space-y-1">
-                                <Input
-                                    name="price"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={formData.price}
-                                    onChange={handleChange}
-                                    placeholder="0.00"
-                                    className="h-12 bg-card border-border/60 rounded-xl font-bold"
-                                    required
-                                />
-                                <span className="text-[10px] text-muted-foreground ml-1">{t('admin.products.form.price') || 'Price ($)'}</span>
-                                {errors.price && <p className="text-red-500 text-xs">{errors.price[0]}</p>}
-                            </div>
-                            <div className="space-y-1">
-                                <Input
-                                    name="stock"
-                                    type="number"
-                                    min="0"
-                                    value={formData.stock}
-                                    onChange={handleChange}
-                                    placeholder="0"
-                                    className="h-12 bg-card border-border/60 rounded-xl font-bold"
-                                    required
-                                />
-                                <span className="text-[10px] text-muted-foreground ml-1">{t('admin.products.form.stock') || 'Stock Quantity'}</span>
-                                {errors.stock && <p className="text-red-500 text-xs">{errors.stock[0]}</p>}
-                            </div>
-                            <div className="space-y-1">
-                                <Input
-                                    name="promo"
-                                    type="number"
-                                    min="0"
-                                    max="100"
-                                    value={formData.promo}
-                                    onChange={handleChange}
-                                    placeholder="0"
-                                    className="h-12 bg-card border-border/60 rounded-xl font-bold"
-                                />
-                                <span className="text-[10px] text-muted-foreground ml-1">{t('admin.products.form.promo') || 'Promo %'}</span>
                             </div>
                         </div>
                     </div>
@@ -322,6 +349,56 @@ const ProductCreate = () => {
                                 placeholder={t('admin.products.form.descEnPlaceholder') || 'Description in English...'}
                                 className="w-full px-4 py-3 rounded-xl bg-card border border-border/60 min-h-[100px] resize-none text-sm"
                             />
+                        </div>
+                    </div>
+
+                    {/* Pricing & Stock */}
+                    <div className="space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                            {t('admin.products.form.pricing') || 'Pricing & Inventory'} *
+                        </label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-1">
+                                <Input
+                                    name="price"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={formData.price}
+                                    onChange={handleChange}
+                                    placeholder="0.00"
+                                    className={`h-12 bg-card rounded-xl font-bold ${errors.price ? 'border-red-400' : 'border-border/60'}`}
+                                />
+                                <span className="text-[10px] text-muted-foreground ml-1">{t('admin.products.form.price') || 'Price ($)'}</span>
+                                {errors.price && <p className="text-red-500 text-xs">{errors.price[0]}</p>}
+                            </div>
+                            <div className="space-y-1">
+                                <Input
+                                    name="stock"
+                                    type="number"
+                                    min="0"
+                                    value={formData.stock}
+                                    onChange={handleChange}
+                                    placeholder="0"
+                                    className={`h-12 bg-card rounded-xl font-bold ${errors.stock ? 'border-red-400' : 'border-border/60'}`}
+                                />
+                                <span className="text-[10px] text-muted-foreground ml-1">{t('admin.products.form.stock') || 'Stock Quantity'}</span>
+                                {errors.stock && <p className="text-red-500 text-xs">{errors.stock[0]}</p>}
+                            </div>
+                            <div className="space-y-1">
+                                <Input
+                                    name="promo"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={formData.promo}
+                                    onChange={handleChange}
+                                    placeholder="0"
+                                    className={`h-12 bg-card rounded-xl font-bold ${errors.promo ? 'border-red-400' : 'border-border/60'}`}
+                                />
+                                <span className="text-[10px] text-muted-foreground ml-1">{t('admin.products.form.promo') || 'Promo %'}</span>
+                                {errors.promo && <p className="text-red-500 text-xs">{errors.promo[0]}</p>}
+                            </div>
                         </div>
                     </div>
 
@@ -359,15 +436,25 @@ const ProductCreate = () => {
                         <div className="relative border-2 border-dashed border-border/50 rounded-[24px] p-8 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/30 transition-all cursor-pointer">
                             <ImageIcon className="text-muted-foreground mb-4" size={32} />
                             <span className="font-black text-sm">{t('admin.products.form.uploadImages') || 'Click to upload images'}</span>
-                            <span className="text-xs text-muted-foreground mt-1">JPG, PNG, WEBP (max 5MB each)</span>
+                            <span className="text-xs text-muted-foreground mt-1">Supported: JPG, PNG, WEBP, GIF, SVG. Max 4MB each</span>
                             <input
                                 type="file"
                                 multiple
-                                accept="image/*"
+                                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                                 className="absolute inset-0 opacity-0 cursor-pointer"
                                 onChange={handleFileChange}
                             />
                         </div>
+
+                        {fileErrors.length > 0 && (
+                            <div className="space-y-1 mt-2">
+                                {fileErrors.map((err, idx) => (
+                                    <p key={idx} className="text-red-500 text-xs flex items-center gap-1">
+                                        <span>•</span> {err}
+                                    </p>
+                                ))}
+                            </div>
+                        )}
 
                         {previews.length > 0 && (
                             <div className="flex gap-4 overflow-x-auto py-4">

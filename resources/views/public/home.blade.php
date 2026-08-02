@@ -22,7 +22,7 @@
 
         @if($heroSlides->count())
             @foreach($heroSlides as $index => $slide)
-                <img src="{{ Storage::url($slide->cover) }}"
+                <img src="{{ image_url($slide->cover) }}"
                     data-hero-slide="{{ $index }}"
                     alt="{{ $slide->{'name_' . app()->getLocale()} }}"
                     class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 {{ $index === 0 ? 'opacity-100' : 'opacity-0' }}"
@@ -77,17 +77,20 @@
         @endif
     </section>
 
-    <!-- SECTION 1: Top Products by Orders -->
+    <!-- SECTION 1: Featured / Best Promo Products -->
     <section id="section-1" class="mb-20">
         <div class="flex items-center justify-between mb-10 px-4">
-            <div>
+            <div class="flex items-center gap-4">
                 <h2 class="text-3xl font-black text-foreground tracking-tight">{{ __('website.featuredProducts') }}</h2>
-                <p class="text-sm font-bold text-muted-foreground mt-1 uppercase tracking-widest">
-                    {{ __('website.trending') }}</p>
+                @if($maxDiscount > 0)
+                    <span class="px-3 py-1 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-rose-500/30">
+                        {{ __('website.upToOff', ['percent' => $maxDiscount]) }}
+                    </span>
+                @endif
             </div>
             <a href="{{ route('public.all-products', ['sort' => 'orders']) }}"
                 class="text-xs font-black uppercase tracking-widest text-primary hover:gap-2 flex items-center gap-1 transition-all">
-                {{ __('website.viewAll') }}
+                {{ __('website.viewAllDeals') ?? __('website.viewAll') }}
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <path d="m9 18 6-6-6-6" />
@@ -95,18 +98,34 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-            @forelse($topProducts as $product)
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+            @forelse($topPromoProducts as $product)
                 <x-product-card :product="$product" :show-store="true" />
             @empty
-                <div class="col-span-2 lg:col-span-4 py-10 text-center text-muted-foreground">
+                <div class="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 py-10 text-center text-muted-foreground">
                     {{ __('website.noProductsCategory') }}
                 </div>
             @endforelse
         </div>
     </section>
 
-    <!-- SECTION 2: Top Categories by Orders -->
+    <!-- SECTION 2: Browse by Category (8 Categories) -->
+    @php
+        $categoryBg = ['bg-red-500/10', 'bg-blue-500/10', 'bg-emerald-500/10', 'bg-amber-500/10', 'bg-purple-500/10', 'bg-pink-500/10', 'bg-indigo-500/10', 'bg-teal-500/10'];
+        $categoryHoverBg = ['hover:bg-red-500', 'hover:bg-blue-500', 'hover:bg-emerald-500', 'hover:bg-amber-500', 'hover:bg-purple-500', 'hover:bg-pink-500', 'hover:bg-indigo-500', 'hover:bg-teal-500'];
+        $categoryIcons = [
+            'Electronics' => 'Laptop',
+            'Fashion' => 'Shirt',
+            'Home & Living' => 'Home',
+            'Beauty' => 'Sparkles',
+            'Sports' => 'Trophy',
+            'Books' => 'BookOpen',
+            'Automotive' => 'Car',
+            'Gaming' => 'Gamepad2',
+        ];
+        $iconFallback = 'Package';
+    @endphp
+
     <section class="mb-20">
         <div class="flex items-center justify-between mb-10 px-4">
             <div>
@@ -124,76 +143,37 @@
             </a>
         </div>
 
-        <style>
-            .categories-scroll {
-                scrollbar-width: none;
-                -ms-overflow-style: none;
-            }
-            .categories-scroll::-webkit-scrollbar { display: none; }
-            .categories-scroll { scroll-behavior: smooth; }
-            @keyframes scroll-left {
-                0% { transform: translateX(0); }
-                100% { transform: translateX(-50%); }
-            }
-            .categories-scroll-inner {
-                animation: scroll-left var(--scroll-duration, 30s) linear infinite;
-            }
-            .categories-scroll:hover .categories-scroll-inner {
-                animation-play-state: paused;
-            }
-        </style>
-
-        <div class="categories-scroll overflow-x-auto flex gap-4 px-4 pb-2" id="categoriesScroll">
-            @forelse($topCategories as $category)
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 md:gap-4 px-4">
+            @forelse($topCategories as $index => $category)
+                @php
+                    $i = $index % 8;
+                    $bgClass = $categoryBg[$i];
+                    $hoverBgClass = $categoryHoverBg[$i];
+                    $iconName = $category->icon ?: ($categoryIcons[$category->name_en] ?? $iconFallback);
+                @endphp
                 <a href="{{ route('public.category', $category->slug) }}"
-                    class="group flex-shrink-0 w-32 p-5 bg-card glass border border-border/40 rounded-[28px] text-center hover:bg-primary transition-all active:scale-95 premium-shadow">
-                    <div
-                        class="w-14 h-14 bg-muted/40 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:bg-white/20 group-hover:scale-110 transition-all">
-                        @if($category->icon)
-                            @if(file_exists(public_path($category->icon)))
-                                <img src="{{ asset($category->icon) }}" alt=""
-                                    class="w-7 h-7 object-contain group-hover:brightness-0 group-hover:invert"
-                                    onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
-                                <span style="display:none" class="text-primary group-hover:text-white transition-colors">{!! lucide_icon($category->icon, 'w-7 h-7') !!}</span>
-                            @else
-                                <span class="text-primary group-hover:text-white transition-colors">{!! lucide_icon($category->icon, 'w-7 h-7') !!}</span>
-                            @endif
-                        @else
-                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                class="text-primary group-hover:text-white transition-colors">
-                                <path d="m7.5 4.27 9 5.15" />
-                                <path
-                                    d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-                                <path d="m3.3 7 8.7 5 8.7-5" />
-                                <path d="M12 22V12" />
-                            </svg>
-                        @endif
+                    class="group relative flex flex-col items-center p-5 {{ $bgClass }} {{ $hoverBgClass }} border border-border/40 rounded-[28px] text-center hover:scale-105 transition-all duration-300 premium-shadow overflow-hidden">
+                    {{-- Icon container --}}
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300">
+                        <span class="text-foreground/70 group-hover:text-white">{!! lucide_icon($iconName, 'w-7 h-7') !!}</span>
                     </div>
-                    <h4
-                        class="font-black text-[10px] uppercase tracking-widest text-foreground group-hover:text-white transition-colors">
+
+                    {{-- Category name --}}
+                    <h4 class="font-black text-[10px] uppercase tracking-widest text-foreground group-hover:text-white transition-colors mb-2">
                         {{ $category->{'name_' . app()->getLocale()} }}
                     </h4>
+
+                    {{-- Item count --}}
+                    <span class="text-[8px] font-bold text-muted-foreground group-hover:text-white/70 uppercase tracking-wider">
+                        {{ $category->products_count ?? $category->products?->count() ?? 0 }} {{ __('website.items') ?? 'items' }}
+                    </span>
                 </a>
             @empty
-                <div class="w-full py-10 text-center text-muted-foreground">
-                    No categories found
+                <div class="col-span-2 sm:col-span-4 lg:col-span-8 py-10 text-center text-muted-foreground">
+                    {{ __('website.noCategories') ?? 'No categories found' }}
                 </div>
             @endforelse
         </div>
-
-        <script>
-            (function() {
-                const el = document.getElementById('categoriesScroll');
-                if (!el) return;
-                const count = {{ $topCategories->count() }};
-                if (count > 5) {
-                    const speed = Math.max(20, count * 5);
-                    el.style.setProperty('--scroll-duration', speed + 's');
-                    el.querySelector('.categories-scroll-inner')?.style.setProperty('--scroll-duration', speed + 's');
-                }
-            })();
-        </script>
     </section>
 
     <!-- SECTION 3: Latest Products (Recent Additions) -->

@@ -35,11 +35,19 @@
 
     {{-- Product Image --}}
     <div class="relative aspect-square overflow-hidden bg-gradient-to-br from-muted/30 to-muted/10">
-        <img src="/storage/{{ $product->albums->first()->file }}" 
+        @if($product->albums->first())
+        <img src="{{ $product->albums->first()->file }}"
              alt="{{ $product->{'name_' . app()->getLocale()} }}"
-             onerror="this.src='{{ $placeholder }}'"
+             onerror="this.onerror=null; this.src='{{ $placeholder }}'"
              loading="lazy"
              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
+        @else
+        <img src="/storage/empty/empty.webp"
+             alt="{{ $product->{'name_' . app()->getLocale()} }}"
+             onerror="this.onerror=null; this.src='{{ $placeholder }}'"
+             loading="lazy"
+             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
+        @endif
 
         {{-- Image Overlay Gradient --}}
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -72,7 +80,7 @@
         @if($showStore && $product->store)
             <a href="{{ route('public.store', $product->store->slug) }}" class="flex items-center gap-2 group/store">
                 @if($product->store->logo)
-                    <img src="/storage/{{ $product->store->logo }}"
+                    <img src="{{ image_url($product->store->logo) }}"
                          alt="{{ $product->store->{'name_' . app()->getLocale()} }}"
                          class="w-5 h-5 rounded-full object-cover border border-border/40"
                          onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">

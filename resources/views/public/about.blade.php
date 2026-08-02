@@ -24,7 +24,7 @@
             <div class="grid gap-4 md:grid-cols-3">
                 @foreach($page->images->sortBy('sort_order') as $image)
                     <img
-                        src="{{ asset('storage/' . $image->image_path) }}"
+                        src="{{ image_url($image->image_path) }}"
                         alt="{{ $title }}"
                         class="w-full h-48 object-cover rounded-2xl"
                         onerror="this.src='https://media.wallmantra.com/product/original/product_placeholder.webp'"

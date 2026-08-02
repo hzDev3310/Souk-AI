@@ -20,6 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+
+        // CSRF is skipped for the API (cookie-auth + role middleware already protect it).
+        $middleware->validateCsrfTokens(except: ['api/*']);
+
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,
         ]);

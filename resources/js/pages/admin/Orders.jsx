@@ -490,7 +490,7 @@ const Orders = () => {
                                                                 <div className="flex items-center gap-3">
                                                                     <div className="w-10 h-10 rounded-lg bg-muted flex-shrink-0 overflow-hidden">
                                                                         {item.product?.albums?.[0] ? (
-                                                                            <img src={`/storage/${item.product.albums[0].file}`} className="w-full h-full object-cover" />
+                                                                            <img src={item.product.albums[0].file} className="w-full h-full object-cover" />
                                                                         ) : (
                                                                             <img src="/storage/empty/empty.webp" className="w-full h-full object-cover" />
                                                                         )}

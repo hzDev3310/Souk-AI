@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Controllers\Concerns\HandlesFileUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\ContactSetting;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class PageContentController extends Controller
 {
+    use HandlesFileUploads;
     public function show(string $slug)
     {
         $page = Page::where('slug', $slug)->with('images')->firstOrFail();
@@ -83,7 +85,11 @@ class PageContentController extends Controller
             'imageable_id' => 'required|integer',
         ]);
 
-        $path = $request->file('image')->store('pages', 'public');
+        try {
+            $path = $this->storeUploadedFile($request->file('image'), 'pages', 'page', $request->input('imageable_type') ?: 'page');
+        } catch (\Throwable $e) {
+            return $this->fileUploadErrorResponse();
+        }
 
         $image = PageImage::create([
             'imageable_type' => $request->imageable_type,

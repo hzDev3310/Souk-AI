@@ -3,7 +3,7 @@
 <div class="group relative bg-card glass border border-border/40 rounded-[40px] overflow-hidden premium-shadow hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:-translate-y-2 flex flex-col">
     @if($store->cover)
     <div class="h-32 overflow-hidden bg-muted/20 relative">
-        <img src="/storage/{{ $store->cover }}" alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+        <img src="{{ image_url($store->cover) }}" alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
             onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
         <div class="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
     </div>
@@ -17,7 +17,7 @@
         <div class="flex items-center gap-3 mb-6 relative">
             <div class="absolute -top-14 left-0">
                 @if($store->logo)
-                    <img src="/storage/{{ $store->logo }}" alt="" class="w-20 h-20 rounded-[24px] object-cover border-4 border-card bg-card shadow-xl group-hover:rotate-12 transition-transform duration-500"
+                    <img src="{{ image_url($store->logo) }}" alt="" class="w-20 h-20 rounded-[24px] object-cover border-4 border-card bg-card shadow-xl group-hover:rotate-12 transition-transform duration-500"
                         onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                 @else
                     <div class="w-20 h-20 rounded-[24px] bg-primary/10 flex items-center justify-center text-primary font-black border-4 border-card bg-card shadow-xl group-hover:rotate-12 transition-transform duration-500 text-3xl">

@@ -1,0 +1,3166 @@
+{
+  "info": {
+    "name": "Souk-AI API",
+    "description": "Souk-AI Laravel REST API collection. Base URL: http://localhost/api\n\nAUTHENTICATION:\n- Login is SESSION/COOKIE based (Laravel web middleware + Sanctum). Postman will keep the session cookie in its jar after a successful login.\n- Register returns a Bearer token; for cookie-based routes the session cookie is what counts.\n- All /admin, /store and /shipping routes require auth + a role (admin / store / shipping_company).\n- If you hit 419 (CSRF token mismatch), first GET {{baseUrl}}/sanctum/csrf-cookie, then include the X-XSRF-TOKEN header on state-changing requests.\n\nVARIABLES:\n- {baseUrl}: {{baseUrl}}\n- {token}: bearer token from Register (not used for cookie auth)\n\nPaths with {id}/{slug}/{category} placeholders must be filled with real ids.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost/api",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "register"
+              ]
+            },
+            "description": "Register a new user. Returns user + bearer token.\n\nRoles: CLIENT, INFLUENCER, STORE.\n- CLIENT requires: address, city, code_postal\n- INFLUENCER requires: referral_code, phone, cin\n- STORE requires: store_name_fr, matricule_fiscale",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"John\",\n    \"family_name\": \"Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"CLIENT\",\n    \"address\": \"123 Main St\",\n    \"city\": \"Tunis\",\n    \"code_postal\": \"1001\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Login (cookie/session based, NOT token). Admin / Store / Influencer only via dashboard. CLIENT accounts rejected (403). Postman stores the session cookie in its cookie jar. If behind CSRF, first GET /sanctum/csrf-cookie and send X-XSRF-TOKEN header.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "logout"
+              ]
+            },
+            "description": "Logout, invalidates session."
+          }
+        },
+        {
+          "name": "Get Current User (me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "me"
+              ]
+            },
+            "description": "Auth required. Returns authenticated user with role profile loaded."
+          }
+        },
+        {
+          "name": "Check Auth Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/check",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "check"
+              ]
+            },
+            "description": "Returns { authenticated: true, user } or 401."
+          }
+        },
+        {
+          "name": "Translate Autofill",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/translate/autofill",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "translate",
+                "autofill"
+              ]
+            },
+            "description": "Auth required. Fills missing multilingual fields via Gemini.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"fields\": {\n        \"name_fr\": \"Chaussures\",\n        \"name_en\": \"\",\n        \"name_ar\": \"\"\n    }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "Semantic AI Search",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/public/ai-search",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "ai-search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "",
+                  "description": "Search query (required)"
+                },
+                {
+                  "key": "min_price",
+                  "value": "0",
+                  "description": "Minimum price filter"
+                },
+                {
+                  "key": "max_price",
+                  "value": "999999",
+                  "description": "Maximum price filter"
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "description": "Filter by category id"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Max results (1-50)"
+                }
+              ]
+            },
+            "description": "Semantic + keyword hybrid search over active stores' products."
+          }
+        },
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            },
+            "description": "Top-level categories with children."
+          }
+        },
+        {
+          "name": "Show Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{category}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{category}"
+              ]
+            },
+            "description": "Category detail with children and parent. Replace {category} with category id."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Users (simple)",
+          "item": [
+            {
+              "name": "List Users (id+name)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users"
+                  ]
+                },
+                "description": "All users (id, name only)."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Categories",
+          "item": [
+            {
+              "name": "List All (flattened)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/categories/all",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    "all"
+                  ]
+                },
+                "description": "All categories for select inputs."
+              }
+            },
+            {
+              "name": "List (tree)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories"
+                  ]
+                },
+                "description": "Top-level categories with children."
+              }
+            },
+            {
+              "name": "Create Category",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories"
+                  ]
+                },
+                "description": "multipart/form-data. cover is optional image file.",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "parent_id",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_fr",
+                      "type": "text",
+                      "value": "Electronique",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_ar",
+                      "type": "text",
+                      "value": "إلكترونيات",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_en",
+                      "type": "text",
+                      "value": "Electronics",
+                      "description": ""
+                    },
+                    {
+                      "key": "icon",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "isActive",
+                      "type": "text",
+                      "value": "true",
+                      "description": ""
+                    },
+                    {
+                      "key": "cover",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Show Category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/categories/{category}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    "{category}"
+                  ]
+                },
+                "description": "Replace {category} with category id."
+              }
+            },
+            {
+              "name": "Update Category",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/categories/{category}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    "{category}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name_fr\": \"Electronique\",\n    \"name_ar\": \"إلكترونيات\",\n    \"name_en\": \"Electronics\",\n    \"isActive\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Category",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/categories/{category}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "categories",
+                    "{category}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stores",
+          "item": [
+            {
+              "name": "List Stores",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/stores",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stores"
+                  ]
+                },
+                "description": "Paginated (20)."
+              }
+            },
+            {
+              "name": "Show Store",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/stores/{store}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stores",
+                    "{store}"
+                  ]
+                },
+                "description": "Store with user and products."
+              }
+            },
+            {
+              "name": "Update Store",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/stores/{store}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stores",
+                    "{store}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"isActive\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Store",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/stores/{store}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "stores",
+                    "{store}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Products",
+          "item": [
+            {
+              "name": "List Products",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products"
+                  ]
+                },
+                "description": "With store, albums, categoryLinks."
+              }
+            },
+            {
+              "name": "Show Product",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/products/{product}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products",
+                    "{product}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Create Product",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products"
+                  ]
+                },
+                "description": "multipart/form-data. condition: NEW|GOOD|USED. images[] is file array.",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "store_id",
+                      "type": "text",
+                      "value": "STORES_ID_HERE",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_fr",
+                      "type": "text",
+                      "value": "Produit",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_ar",
+                      "type": "text",
+                      "value": "منتج",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_en",
+                      "type": "text",
+                      "value": "Product",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_fr",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_ar",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_en",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "price",
+                      "type": "text",
+                      "value": "100",
+                      "description": ""
+                    },
+                    {
+                      "key": "condition",
+                      "type": "text",
+                      "value": "NEW",
+                      "description": ""
+                    },
+                    {
+                      "key": "stock",
+                      "type": "text",
+                      "value": "10",
+                      "description": ""
+                    },
+                    {
+                      "key": "promo",
+                      "type": "text",
+                      "value": "0",
+                      "description": ""
+                    },
+                    {
+                      "key": "categories",
+                      "type": "text",
+                      "value": "[\"CATEGORY_ID\"]",
+                      "description": ""
+                    },
+                    {
+                      "key": "images",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Product",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/products/{product}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products",
+                    "{product}"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "store_id",
+                      "type": "text",
+                      "value": "STORES_ID_HERE",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_fr",
+                      "type": "text",
+                      "value": "Produit",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_ar",
+                      "type": "text",
+                      "value": "منتج",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_en",
+                      "type": "text",
+                      "value": "Product",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_fr",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_ar",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_en",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "price",
+                      "type": "text",
+                      "value": "100",
+                      "description": ""
+                    },
+                    {
+                      "key": "condition",
+                      "type": "text",
+                      "value": "NEW",
+                      "description": ""
+                    },
+                    {
+                      "key": "stock",
+                      "type": "text",
+                      "value": "10",
+                      "description": ""
+                    },
+                    {
+                      "key": "promo",
+                      "type": "text",
+                      "value": "0",
+                      "description": ""
+                    },
+                    {
+                      "key": "categories",
+                      "type": "text",
+                      "value": "[\"CATEGORY_ID\"]",
+                      "description": ""
+                    },
+                    {
+                      "key": "images",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete Product",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/products/{product}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "products",
+                    "{product}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "List Orders",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders"
+                  ]
+                },
+                "description": "Paginated (15) with client/influencer + item counts."
+              }
+            },
+            {
+              "name": "Show Order",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{id}"
+                  ]
+                },
+                "description": "With items.product.store, variant, factures, driver."
+              }
+            },
+            {
+              "name": "Update Order",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{id}"
+                  ]
+                },
+                "description": "status: en_cours|confirme|annule|en_shipping|shipping_company|shipped. Logistics statuses restricted to ADMIN/SHIPPING_COMPANY.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\": \"confirme\",\n    \"driver_id\": null\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Get Orders by Client",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/client/{clientId}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "client",
+                    "{clientId}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Verify Order",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/{id}/verify",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{id}",
+                    "verify"
+                  ]
+                },
+                "description": "Registered route (no controller method defined in code)."
+              }
+            },
+            {
+              "name": "Confirm Manually",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/{id}/confirm-manually",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{id}",
+                    "confirm-manually"
+                  ]
+                },
+                "description": "Sets order status to 'confirme'."
+              }
+            },
+            {
+              "name": "Update Item Status",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/{order}/items/{item}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{order}",
+                    "items",
+                    "{item}",
+                    "status"
+                  ]
+                },
+                "description": "item status: en_cours|confirme|annule",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\": \"confirme\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Remove Item",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/{order}/items/{item}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{order}",
+                    "items",
+                    "{item}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete Order",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/orders/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "orders",
+                    "{id}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Influencers",
+          "item": [
+            {
+              "name": "List Influencers",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/influencers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "influencers"
+                  ]
+                },
+                "description": "Paginated (20)."
+              }
+            },
+            {
+              "name": "Show Influencer",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/influencers/{influencer}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "influencers",
+                    "{influencer}"
+                  ]
+                },
+                "description": "With user and orders."
+              }
+            },
+            {
+              "name": "Update Influencer",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/influencers/{influencer}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "influencers",
+                    "{influencer}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"isActive\": true,\n    \"commissionRate\": 5.0\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Delete Influencer",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/influencers/{influencer}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "influencers",
+                    "{influencer}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Shipping Companies",
+          "item": [
+            {
+              "name": "List",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/shipping-companies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "shipping-companies"
+                  ]
+                },
+                "description": "Paginated (20)."
+              }
+            },
+            {
+              "name": "Show",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/shipping-companies/{shippingCompany}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "shipping-companies",
+                    "{shippingCompany}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/shipping-companies/{shippingCompany}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "shipping-companies",
+                    "{shippingCompany}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Employees (Shipping)",
+          "item": [
+            {
+              "name": "List",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/employees",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "employees"
+                  ]
+                },
+                "description": "Paginated (20)."
+              }
+            },
+            {
+              "name": "Show",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/employees/{employee}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "employees",
+                    "{employee}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/employees/{employee}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "employees",
+                    "{employee}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Settings",
+          "item": [
+            {
+              "name": "List Settings",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "settings"
+                  ]
+                },
+                "description": "Seeds defaults then returns all settings."
+              }
+            },
+            {
+              "name": "Bulk Update",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/settings/bulk",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "settings",
+                    "bulk"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"settings\": {\n        \"website_logo\": \"path/to/logo\",\n        \"gemini_api_key\": \"...\"\n    }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Upload Image",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/settings/upload",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "settings",
+                    "upload"
+                  ]
+                },
+                "description": "multipart/form-data. image required (jpeg,png,jpg,gif,webp,svg, max 2MB).",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Setting",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/settings/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "settings",
+                    "{id}"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"value\": \"new_value\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pages (About/Contact)",
+          "item": [
+            {
+              "name": "Show Page",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/pages/{slug}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    "{slug}"
+                  ]
+                },
+                "description": "slug: about | contact | terms ...  Returns page + contact settings."
+              }
+            },
+            {
+              "name": "Update Page",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/pages/{slug}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    "{slug}"
+                  ]
+                },
+                "description": "Contact fields are only applied when slug == 'contact'.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"title_en\": \"About Us\",\n    \"title_fr\": \"À propos\",\n    \"title_ar\": \"من نحن\",\n    \"content_en\": \"Content\",\n    \"email\": \"contact@example.com\",\n    \"phone\": \"+216 00 000 000\",\n    \"address_en\": \"Tunis\",\n    \"map_embed_url\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Upload Page Image",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/pages/upload-image",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    "upload-image"
+                  ]
+                },
+                "description": "multipart/form-data. imageable_type/id identify the page/entity.",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "image",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    },
+                    {
+                      "key": "imageable_type",
+                      "type": "text",
+                      "value": "App\\Models\\Page",
+                      "description": ""
+                    },
+                    {
+                      "key": "imageable_id",
+                      "type": "text",
+                      "value": "PAGE_ID",
+                      "description": ""
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete Page Image",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/pages/images/{id}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    "images",
+                    "{id}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Reorder Page Images",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/admin/pages/reorder-images",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "pages",
+                    "reorder-images"
+                  ]
+                },
+                "description": "ids in desired order; sort_order set by index.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"ids\": [\n        1,\n        2,\n        3\n    ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "User Management",
+          "item": [
+            {
+              "name": "Clients",
+              "item": [
+                {
+                  "name": "List",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/clients",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "clients"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Create",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/clients",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "clients"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Client\",\n    \"family_name\": \"X\",\n    \"email\": \"client@example.com\",\n    \"password\": \"secret123\",\n    \"address\": \"Tunis\",\n    \"city\": \"Tunis\",\n    \"codePostal\": \"1001\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Update",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/clients/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "clients",
+                        "{id}"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Client\",\n    \"email\": \"client@example.com\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Delete",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/clients/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "clients",
+                        "{id}"
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Influencers",
+              "item": [
+                {
+                  "name": "List",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/influencers",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "influencers"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Create",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/influencers",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "influencers"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Inf\",\n    \"family_name\": \"Y\",\n    \"email\": \"inf@example.com\",\n    \"password\": \"secret123\",\n    \"phone\": \"+216\",\n    \"cin\": \"123456\",\n    \"commissionRate\": 5\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Update",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/influencers/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "influencers",
+                        "{id}"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"isActive\": true,\n    \"commissionRate\": 7\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Delete",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/influencers/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "influencers",
+                        "{id}"
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Stores",
+              "item": [
+                {
+                  "name": "List (full)",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/stores",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "stores"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "List (options)",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/stores/list",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "stores",
+                        "list"
+                      ]
+                    },
+                    "description": "id + localized names + isActive only."
+                  }
+                },
+                {
+                  "name": "Create",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/stores",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "stores"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Owner\",\n    \"family_name\": \"Z\",\n    \"email\": \"store@example.com\",\n    \"password\": \"secret123\",\n    \"name_fr\": \"Magasin\",\n    \"name_en\": \"Store\",\n    \"name_ar\": \"متجر\",\n    \"matriculeFiscale\": \"1234567\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Update",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/stores/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "stores",
+                        "{id}"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"isActive\": true\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Delete",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/stores/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "stores",
+                        "{id}"
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Admins",
+              "item": [
+                {
+                  "name": "List",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/admins",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "admins"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Create",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/admins",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "admins"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Admin\",\n    \"family_name\": \"A\",\n    \"email\": \"admin@example.com\",\n    \"password\": \"secret123\",\n    \"platformCommissionAdmin\": 5,\n    \"platformCommissionShare\": 50\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Update",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/admins/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "admins",
+                        "{id}"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"platformCommissionShare\": 40\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Delete",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/admins/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "admins",
+                        "{id}"
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Shipping Companies",
+              "item": [
+                {
+                  "name": "List",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/shipping-companies",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "shipping-companies"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Create",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/shipping-companies",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "shipping-companies"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Co\",\n    \"family_name\": \"C\",\n    \"email\": \"co@example.com\",\n    \"password\": \"secret123\",\n    \"company_name\": \"Expéditions\",\n    \"rib\": \"RIB\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Update",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/shipping-companies/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "shipping-companies",
+                        "{id}"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"company_name\": \"Expéditions SA\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Delete",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/shipping-companies/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "shipping-companies",
+                        "{id}"
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Shipping Employees",
+              "item": [
+                {
+                  "name": "List",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/shipping-emps",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "shipping-emps"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Create",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/shipping-emps",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "shipping-emps"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"name\": \"Emp\",\n    \"family_name\": \"E\",\n    \"email\": \"emp@example.com\",\n    \"password\": \"secret123\",\n    \"cin\": \"654321\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Update",
+                  "request": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/shipping-emps/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "shipping-emps",
+                        "{id}"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"Phone\": \"+216 00\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "name": "Delete",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/shipping-emps/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "shipping-emps",
+                        "{id}"
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "name": "General",
+              "item": [
+                {
+                  "name": "Get User",
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "{id}"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Block User",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/{id}/block",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "{id}",
+                        "block"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Unblock User",
+                  "request": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/{id}/unblock",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "{id}",
+                        "unblock"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "Delete Any User",
+                  "request": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/admin/users/{id}",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "admin",
+                        "users",
+                        "{id}"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Shipping (role: shipping_company)",
+      "item": [
+        {
+          "name": "List Orders",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shipping/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipping",
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Show Order",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shipping/orders/{id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipping",
+                "orders",
+                "{id}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shipping/orders/{id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "shipping",
+                "orders",
+                "{id}"
+              ]
+            },
+            "description": "status: en_cours|confirme|annule|en_shipping|shipping_company|shipped",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"en_shipping\",\n    \"driver_id\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Store (role: store)",
+      "item": [
+        {
+          "name": "Profile",
+          "item": [
+            {
+              "name": "Get Profile",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "profile"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Profile",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "profile"
+                  ]
+                },
+                "description": "multipart/form-data. logo/cover optional files (max 4MB).",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name_fr",
+                      "type": "text",
+                      "value": "Magasin",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_ar",
+                      "type": "text",
+                      "value": "متجر",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_en",
+                      "type": "text",
+                      "value": "Store",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_fr",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_ar",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_en",
+                      "type": "text",
+                      "value": "",
+                      "description": ""
+                    },
+                    {
+                      "key": "storePhone",
+                      "type": "text",
+                      "value": "+216 00 000 000",
+                      "description": ""
+                    },
+                    {
+                      "key": "address",
+                      "type": "text",
+                      "value": "Tunis",
+                      "description": ""
+                    },
+                    {
+                      "key": "responsibleCin",
+                      "type": "text",
+                      "value": "123456",
+                      "description": ""
+                    },
+                    {
+                      "key": "matriculeFiscale",
+                      "type": "text",
+                      "value": "1234567",
+                      "description": ""
+                    },
+                    {
+                      "key": "rib",
+                      "type": "text",
+                      "value": "RIB",
+                      "description": ""
+                    },
+                    {
+                      "key": "promo",
+                      "type": "text",
+                      "value": "0",
+                      "description": ""
+                    },
+                    {
+                      "key": "logo",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    },
+                    {
+                      "key": "cover",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Products",
+          "item": [
+            {
+              "name": "List My Products",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "products"
+                  ]
+                },
+                "description": "Paginated (15), own store only."
+              }
+            },
+            {
+              "name": "Create Product",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/products",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "products"
+                  ]
+                },
+                "description": "multipart/form-data. condition: NEW|USED|REFURBISHED. images required (array of files).",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name_fr",
+                      "type": "text",
+                      "value": "Produit",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_ar",
+                      "type": "text",
+                      "value": "منتج",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_en",
+                      "type": "text",
+                      "value": "Product",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_fr",
+                      "type": "text",
+                      "value": "Desc fr",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_ar",
+                      "type": "text",
+                      "value": "وصف",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_en",
+                      "type": "text",
+                      "value": "Desc en",
+                      "description": ""
+                    },
+                    {
+                      "key": "price",
+                      "type": "text",
+                      "value": "100",
+                      "description": ""
+                    },
+                    {
+                      "key": "condition",
+                      "type": "text",
+                      "value": "NEW",
+                      "description": ""
+                    },
+                    {
+                      "key": "stock",
+                      "type": "text",
+                      "value": "10",
+                      "description": ""
+                    },
+                    {
+                      "key": "promo",
+                      "type": "text",
+                      "value": "0",
+                      "description": ""
+                    },
+                    {
+                      "key": "categories",
+                      "type": "text",
+                      "value": "[\"CATEGORY_ID\"]",
+                      "description": ""
+                    },
+                    {
+                      "key": "images",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Show Product",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/products/{product}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "products",
+                    "{product}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Product",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/products/{product}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "products",
+                    "{product}"
+                  ]
+                },
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "name_fr",
+                      "type": "text",
+                      "value": "Produit",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_ar",
+                      "type": "text",
+                      "value": "منتج",
+                      "description": ""
+                    },
+                    {
+                      "key": "name_en",
+                      "type": "text",
+                      "value": "Product",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_fr",
+                      "type": "text",
+                      "value": "Desc fr",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_ar",
+                      "type": "text",
+                      "value": "وصف",
+                      "description": ""
+                    },
+                    {
+                      "key": "description_en",
+                      "type": "text",
+                      "value": "Desc en",
+                      "description": ""
+                    },
+                    {
+                      "key": "price",
+                      "type": "text",
+                      "value": "100",
+                      "description": ""
+                    },
+                    {
+                      "key": "condition",
+                      "type": "text",
+                      "value": "NEW",
+                      "description": ""
+                    },
+                    {
+                      "key": "stock",
+                      "type": "text",
+                      "value": "10",
+                      "description": ""
+                    },
+                    {
+                      "key": "promo",
+                      "type": "text",
+                      "value": "0",
+                      "description": ""
+                    },
+                    {
+                      "key": "categories",
+                      "type": "text",
+                      "value": "[\"CATEGORY_ID\"]",
+                      "description": ""
+                    },
+                    {
+                      "key": "images",
+                      "type": "file",
+                      "value": "",
+                      "description": "",
+                      "src": []
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete Product",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/products/{product}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "products",
+                    "{product}"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Orders",
+          "item": [
+            {
+              "name": "List My Orders",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "orders"
+                  ]
+                },
+                "description": "Orders containing this store's products, paginated (15)."
+              }
+            },
+            {
+              "name": "Show Order",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/orders/{order}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "orders",
+                    "{order}"
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update Order Status (legacy)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/orders/{order}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "orders",
+                    "{order}",
+                    "status"
+                  ]
+                },
+                "description": "Updates all of this store's items in the order.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\": \"confirme\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "name": "Update Item Status",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/store/orders/{order}/items/{item}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "store",
+                    "orders",
+                    "{order}",
+                    "items",
+                    "{item}",
+                    "status"
+                  ]
+                },
+                "description": "Auto-updates order status based on item states (annule/confirme logic).",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"status\": \"confirme\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

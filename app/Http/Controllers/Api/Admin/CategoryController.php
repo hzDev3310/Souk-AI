@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Controllers\Concerns\HandlesFileUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    use HandlesFileUploads;
     /**
      * Display a listing of the resource.
      */
@@ -43,8 +45,12 @@ class CategoryController extends Controller
         $data['slug'] = Str::slug($request->name_en) . '-' . uniqid();
 
         if ($request->hasFile('cover')) {
-            $path = $request->file('cover')->store('categories/covers', 'public');
-            $data['cover'] = $path;
+            try {
+                $path = $this->storeUploadedFile($request->file('cover'), 'categories/covers', 'category', $request->name_en ?? 'category');
+                $data['cover'] = $path;
+            } catch (\Throwable $e) {
+                return $this->fileUploadErrorResponse();
+            }
         }
 
         $category = Category::create($data);
@@ -89,15 +95,19 @@ class CategoryController extends Controller
             if ($category->cover) {
                 Storage::disk('public')->delete($category->cover);
             }
-            $path = $request->file('cover')->store('categories/covers', 'public');
-            $data['cover'] = $path;
+            try {
+                $path = $this->storeUploadedFile($request->file('cover'), 'categories/covers', 'category', $request->name_en ?? $category->name_en ?? 'category');
+                $data['cover'] = $path;
+            } catch (\Throwable $e) {
+                return $this->fileUploadErrorResponse();
+            }
         }
 
         if ($request->has('name_en') && $request->name_en !== $category->name_en) {
             $data['slug'] = Str::slug($request->name_en) . '-' . uniqid();
         }
 
-        $category->update($data);
+        $category->update($data); 
 
         return response()->json($category);
     }

@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import {
     Building2, Upload, Loader, CheckCircle2, AlertCircle, ImagePlus, Wand2
 } from 'lucide-react';
+import { validateImageFile } from '@/utils/imageUploadValidation';
 
 const StoreProfile = () => {
     const { t } = useTranslation();
@@ -98,20 +99,32 @@ const StoreProfile = () => {
 
     const handleLogoChange = (e) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setLogoFile(file);
-            const preview = URL.createObjectURL(file);
-            setLogoPreview(preview);
+        if (!file) return;
+
+        const validation = validateImageFile(file, { maxSizeBytes: 2 * 1024 * 1024 });
+        if (!validation.isValid) {
+            addNotification('error', validation.error);
+            return;
         }
+
+        setLogoFile(file);
+        const preview = URL.createObjectURL(file);
+        setLogoPreview(preview);
     };
 
     const handleCoverChange = (e) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setCoverFile(file);
-            const preview = URL.createObjectURL(file);
-            setCoverPreview(preview);
+        if (!file) return;
+
+        const validation = validateImageFile(file, { maxSizeBytes: 4 * 1024 * 1024 });
+        if (!validation.isValid) {
+            addNotification('error', validation.error);
+            return;
         }
+
+        setCoverFile(file);
+        const preview = URL.createObjectURL(file);
+        setCoverPreview(preview);
     };
 
     const handleAutoTranslate = async () => {
@@ -246,7 +259,7 @@ const StoreProfile = () => {
                                 </div>
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                                     onChange={handleCoverChange}
                                     className="absolute inset-0 opacity-0 cursor-pointer"
                                 />
@@ -271,7 +284,7 @@ const StoreProfile = () => {
                                     </div>
                                     <input
                                         type="file"
-                                        accept="image/*"
+                                        accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                                         onChange={handleLogoChange}
                                         className="absolute inset-0 opacity-0 cursor-pointer"
                                     />

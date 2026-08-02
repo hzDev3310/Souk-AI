@@ -33,7 +33,8 @@
         },
         "files": [
             "app/Helpers/settings.php",
-            "app/Helpers/icons.php"
+            "app/Helpers/icons.php",
+            "app/Helpers/image.php"
         ]
     },
     "autoload-dev": {
@@ -52,7 +53,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#c4b5fd,#fb7185,#fdba74\" \"php artisan queue:listen --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=queue,logs,vite --kill-others"
+            "npx concurrently -c \"#c4b5fd,#fb7185,#fdba74\" \"sudo -u www-data php artisan queue:listen --tries=1 --timeout=0\" \"sudo -u www-data php artisan pail --timeout=0\" \"npm run dev\" --names=queue,logs,vite --kill-others"
         ],
         "test": [
             "@php artisan config:clear --ansi",

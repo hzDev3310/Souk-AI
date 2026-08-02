@@ -113,7 +113,7 @@
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 rounded-xl overflow-hidden bg-muted/10">
                                     @if($product->albums->first())
-                                        <img src="/storage/{{ $product->albums->first()->file }}" alt="" class="w-full h-full object-cover"
+                                        <img src="{{ $product->albums->first()->file }}" alt="" class="w-full h-full object-cover"
                                             onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                                     @endif
                                 </div>

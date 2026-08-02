@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Controllers\Concerns\HandlesFileUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductAlbum;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    use HandlesFileUploads;
     public function index()
     {
         $products = Product::with(['store', 'albums', 'categoryLinks'])->latest()->get();
@@ -38,7 +40,7 @@ class ProductController extends Controller
             'promo' => 'nullable|numeric|min:0|max:100',
             'categories' => 'nullable|json',
             'images' => 'nullable|array',
-            'images.*' => 'nullable|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
         $slug = Str::slug($validated['name_en'] ?? $validated['name_fr']) . '-' . uniqid();
@@ -62,7 +64,12 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             $isFirst = true;
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
+                try {
+                    $path = $this->storeUploadedFile($image, 'products', 'product', $product->name_en ?? $product->name_fr ?? 'product');
+                } catch (\Throwable $e) {
+                    return $this->fileUploadErrorResponse();
+                }
+
                 ProductAlbum::create([
                     'product_id' => $product->id,
                     'file' => $path,
@@ -91,7 +98,7 @@ class ProductController extends Controller
             'promo' => 'nullable|numeric|min:0|max:100',
             'categories' => 'nullable|json',
             'images' => 'nullable|array',
-            'images.*' => 'nullable|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
         $slug = $product->slug;
@@ -124,7 +131,12 @@ class ProductController extends Controller
 
             $isFirst = true;
             foreach ($request->file('images') as $image) {
-                $path = $image->store('products', 'public');
+                try {
+                    $path = $this->storeUploadedFile($image, 'products', 'product', $product->name_en ?? $product->name_fr ?? 'product');
+                } catch (\Throwable $e) {
+                    return $this->fileUploadErrorResponse();
+                }
+
                 ProductAlbum::create([
                     'product_id' => $product->id,
                     'file' => $path,

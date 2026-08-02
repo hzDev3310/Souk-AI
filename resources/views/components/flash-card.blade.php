@@ -3,7 +3,7 @@
 <div class="min-w-[200px] snap-start bg-card rounded-xl p-3 shadow-sm group border border-border/30">
     <div class="relative h-40 rounded-lg overflow-hidden mb-3">
         @if($product->albums->first())
-            <img src="/storage/{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
+            <img src="{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
         @else
             <img src="/storage/empty/empty.webp" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
         @endif

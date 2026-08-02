@@ -18,7 +18,7 @@
         @forelse($categories as $category)
         <a href="{{ route('public.category', $category->slug) }}" class="group block relative rounded-[40px] overflow-hidden hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/20 premium-shadow transition-all duration-300 min-h-[220px]">
             @if($category->cover)
-                <img src="{{ Storage::url($category->cover) }}" alt="{{ $category->{'name_'.app()->getLocale()} }}"
+                <img src="{{ image_url($category->cover) }}" alt="{{ $category->{'name_'.app()->getLocale()} }}"
                     class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     onerror="this.onerror=null; this.style.display='none';">
             @endif
@@ -28,8 +28,8 @@
             <div class="relative z-10 h-full flex flex-col items-center justify-center p-8 text-center min-h-[220px]">
                 <div class="w-20 h-20 bg-white/15 backdrop-blur-sm rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:bg-white/25 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-inner border border-white/10">
                     @if($category->icon)
-                        @if(file_exists(public_path($category->icon)))
-                            <img src="{{ asset($category->icon) }}" alt="" class="w-10 h-10 object-contain"
+                        @if(str_starts_with($category->icon, 'http') || file_exists(public_path($category->icon)))
+                            <img src="{{ image_url($category->icon) }}" alt="" class="w-10 h-10 object-contain"
                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block';">
                             <span style="display:none" class="text-white">{!! lucide_icon($category->icon, 'w-10 h-10') !!}</span>
                         @else

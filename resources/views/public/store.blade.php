@@ -27,7 +27,7 @@
         {{-- Cover Image --}}
         <div class="relative h-48 md:h-64">
             @if($store->cover)
-                <img src="/storage/{{ $store->cover }}" class="w-full h-full object-cover"
+                <img src="{{ image_url($store->cover) }}" class="w-full h-full object-cover"
                     onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
             @else
                 <div class="w-full h-full bg-gradient-to-br from-primary/30 via-secondary/20 to-muted"></div>
@@ -41,7 +41,7 @@
                 {{-- Logo --}}
                 <div class="w-24 h-24 md:w-32 md:h-32 rounded-[32px] overflow-hidden border-4 border-background bg-card shadow-xl flex-shrink-0">
                     @if($store->logo)
-                        <img src="/storage/{{ $store->logo }}" alt="{{ $store->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
+                        <img src="{{ image_url($store->logo) }}" alt="{{ $store->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
                             onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                     @else
                         <div class="w-full h-full bg-primary/10 flex items-center justify-center">

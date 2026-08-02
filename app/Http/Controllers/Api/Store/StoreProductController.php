@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Store;
 
+use App\Http\Controllers\Concerns\HandlesFileUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductAlbum;
@@ -11,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 class StoreProductController extends Controller
 {
+    use HandlesFileUploads;
     /**
      * Get all products for the authenticated store
      */
@@ -61,7 +63,8 @@ class StoreProductController extends Controller
             'stock' => 'required|integer|min:0',
             'promo' => 'required|numeric|min:0|max:100',
             'categories' => 'nullable|json',
-            'images[]' => 'required|image|mimes:jpeg,png,gif,webp|max:5120',
+            'images' => 'required|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -90,7 +93,12 @@ class StoreProductController extends Controller
         // Handle image uploads
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('product_images', 'public');
+                try {
+                    $path = $this->storeUploadedFile($image, 'product_images', 'product', $product->name_en ?? $product->name_fr ?? 'product');
+                } catch (\Throwable $e) {
+                    return $this->fileUploadErrorResponse();
+                }
+
                 ProductAlbum::create([
                     'product_id' => $product->id,
                     'file' => $path
@@ -151,7 +159,8 @@ class StoreProductController extends Controller
             'stock' => 'required|integer|min:0',
             'promo' => 'required|numeric|min:0|max:100',
             'categories' => 'nullable|json',
-            'images[]' => 'nullable|image|mimes:jpeg,png,gif,webp|max:5120',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -167,7 +176,12 @@ class StoreProductController extends Controller
         // Handle new image uploads
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('product_images', 'public');
+                try {
+                    $path = $this->storeUploadedFile($image, 'product_images', 'product', $product->name_en ?? $product->name_fr ?? 'product');
+                } catch (\Throwable $e) {
+                    return $this->fileUploadErrorResponse();
+                }
+
                 ProductAlbum::create([
                     'product_id' => $product->id,
                     'file' => $path

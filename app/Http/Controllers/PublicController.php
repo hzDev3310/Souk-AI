@@ -31,22 +31,17 @@ class PublicController extends Controller
 
     public function index()
     {
-        // Section 1: Top 8 products by orders
-        $topProducts = Product::with(['store', 'albums'])
+        // Section 1: Top 8 promo products (highest discount)
+        $topPromoProducts = Product::with(['store', 'albums'])
             ->whereHas('store', function($query) {
                 $this->applyPublicStoreVisibility($query);
             })
-            ->leftJoinSub(
-                OrderItem::select('product_id', DB::raw('COUNT(*) as order_count'))
-                    ->groupBy('product_id'),
-                'order_items',
-                'products.id',
-                '=',
-                'order_items.product_id'
-            )
-            ->orderByDesc(DB::raw('COALESCE(order_items.order_count, 0)'))
+            ->where('promo', '>', 0)
+            ->orderByDesc('promo')
             ->limit(8)
             ->get();
+
+        $maxDiscount = $topPromoProducts->max('promo') ?? 0;
 
         // Section 2: Top 8 categories by orders
         $topCategories = Category::where('isActive', true)
@@ -100,7 +95,7 @@ class PublicController extends Controller
             ->with('children')
             ->get();
 
-        return view('public.home', compact('topProducts', 'topCategories', 'topStores', 'recentProducts', 'categories'));
+        return view('public.home', compact('topPromoProducts', 'maxDiscount', 'topCategories', 'topStores', 'recentProducts', 'categories'));
     }
 
     public function product($slug)

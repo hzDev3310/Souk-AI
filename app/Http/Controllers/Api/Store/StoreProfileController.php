@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Store;
 
+use App\Http\Controllers\Concerns\HandlesFileUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Store;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class StoreProfileController extends Controller
 {
+    use HandlesFileUploads;
     /**
      * Get the current authenticated store's profile
      */
@@ -78,8 +80,12 @@ class StoreProfileController extends Controller
             if ($store->logo && Storage::exists('public/' . $store->logo)) {
                 Storage::delete('public/' . $store->logo);
             }
-            $logoPath = $request->file('logo')->store('store_logos', 'public');
-            $data['logo'] = $logoPath;
+            try {
+                $logoPath = $this->storeUploadedFile($request->file('logo'), 'store_logos', 'store', $store->name_en ?? $store->name_fr ?? $store->name_ar ?? 'store');
+                $data['logo'] = $logoPath;
+            } catch (\Throwable $e) {
+                return $this->fileUploadErrorResponse();
+            }
         }
 
         // Handle cover upload
@@ -88,8 +94,12 @@ class StoreProfileController extends Controller
             if ($store->cover && Storage::exists('public/' . $store->cover)) {
                 Storage::delete('public/' . $store->cover);
             }
-            $coverPath = $request->file('cover')->store('store_covers', 'public');
-            $data['cover'] = $coverPath;
+            try {
+                $coverPath = $this->storeUploadedFile($request->file('cover'), 'store_covers', 'store', $store->name_en ?? $store->name_fr ?? $store->name_ar ?? 'store');
+                $data['cover'] = $coverPath;
+            } catch (\Throwable $e) {
+                return $this->fileUploadErrorResponse();
+            }
         }
 
         // Update store

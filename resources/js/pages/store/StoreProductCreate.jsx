@@ -6,6 +6,7 @@ import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Package, Box, Image as ImageIcon, Activity, Wand2 } from 'lucide-react';
+import { validateImageFile } from '@/utils/imageUploadValidation';
 
 const StoreProductCreate = () => {
     const { t } = useTranslation();
@@ -33,6 +34,7 @@ const StoreProductCreate = () => {
 
     const [imageFiles, setImageFiles] = useState([]);
     const [previews, setPreviews] = useState([]);
+    const [fileErrors, setFileErrors] = useState([]);
 
     useEffect(() => {
         fetchCategories();
@@ -57,10 +59,25 @@ const StoreProductCreate = () => {
     };
 
     const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
-        setImageFiles(files);
-        const newPreviews = files.map(file => URL.createObjectURL(file));
+        const files = Array.from(e.target.files || []);
+        const validFiles = [];
+        const errorsList = [];
+
+        files.forEach((file) => {
+            const validation = validateImageFile(file, { maxSizeBytes: 4 * 1024 * 1024 });
+            if (!validation.isValid) {
+                errorsList.push(validation.error);
+            } else {
+                validFiles.push(file);
+            }
+        });
+
+        setFileErrors(errorsList);
+        setImageFiles(validFiles);
+        const newPreviews = validFiles.map(file => URL.createObjectURL(file));
         setPreviews(newPreviews);
+
+        e.target.value = '';
     };
 
     const handleCategoryToggle = (catId) => {
@@ -101,6 +118,7 @@ const StoreProductCreate = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (fileErrors.length > 0) return;
         setLoading(true);
         setErrors({});
 
@@ -361,15 +379,25 @@ const StoreProductCreate = () => {
                         <div className="relative border-2 border-dashed border-border/50 rounded-[24px] p-8 flex flex-col items-center justify-center bg-muted/20 hover:bg-muted/30 transition-all cursor-pointer">
                             <ImageIcon className="text-muted-foreground mb-4" size={32} />
                             <span className="font-black text-sm">{t('store.products.form.uploadImages') || 'Click to upload images'}</span>
-                            <span className="text-xs text-muted-foreground mt-1">JPG, PNG, WEBP (max 5MB each)</span>
+                            <span className="text-xs text-muted-foreground mt-1">Supported: JPG, PNG, WEBP, GIF, SVG. Max 4MB each</span>
                             <input
                                 type="file"
                                 multiple
-                                accept="image/*"
+                                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                                 className="absolute inset-0 opacity-0 cursor-pointer"
                                 onChange={handleFileChange}
                             />
                         </div>
+
+                        {fileErrors.length > 0 && (
+                            <div className="space-y-1 mt-2">
+                                {fileErrors.map((err, idx) => (
+                                    <p key={idx} className="text-red-500 text-xs flex items-center gap-1">
+                                        <span>•</span> {err}
+                                    </p>
+                                ))}
+                            </div>
+                        )}
 
                         {previews.length > 0 && (
                             <div className="flex gap-4 overflow-x-auto py-4">

@@ -29,13 +29,14 @@ const handleError = (error) => {
  * Usage: Call this before api.post/put with files
  */
 export const prepareFormDataRequest = () => {
-    // Remove Content-Type to let browser set multipart boundary
-    const originalContentType = api.defaults.headers['Content-Type'];
+    // Remove Content-Type to let browser set multipart boundary.
+    // axios/XMLHttpRequest auto-sets the correct Content-Type per request,
+    // so nothing is restored afterwards.
     delete api.defaults.headers['Content-Type'];
-    
+
     return {
         restore: () => {
-            api.defaults.headers['Content-Type'] = originalContentType || 'application/json';
+            delete api.defaults.headers['Content-Type'];
         }
     };
 };

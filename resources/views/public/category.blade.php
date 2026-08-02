@@ -15,7 +15,7 @@
         {{-- Cover Image or Gradient Background --}}
         <div class="relative h-40 md:h-56">
             @if($category->cover)
-                <img src="/storage/{{ $category->cover }}" class="w-full h-full object-cover"
+                <img src="{{ image_url($category->cover) }}" class="w-full h-full object-cover"
                     onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
             @else
                 <div class="w-full h-full bg-gradient-to-br from-primary/20 via-secondary/10 to-muted"></div>
@@ -29,8 +29,8 @@
                 {{-- Icon or Logo --}}
                 <div class="w-20 h-20 md:w-24 md:h-24 rounded-[28px] overflow-hidden border-4 border-background bg-card shadow-xl flex-shrink-0 flex items-center justify-center">
                     @if($category->icon)
-                        @if(file_exists(public_path($category->icon)))
-                            <img src="/storage/{{ $category->icon }}" alt="{{ $category->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
+                        @if(str_starts_with($category->icon, 'http') || file_exists(public_path($category->icon)))
+                            <img src="{{ image_url($category->icon) }}" alt="{{ $category->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
                                 onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <span style="display:none" class="w-full h-full items-center justify-center bg-primary/10 text-primary text-3xl font-black">{!! lucide_icon($category->icon, 'w-10 h-10') !!}</span>
                         @else

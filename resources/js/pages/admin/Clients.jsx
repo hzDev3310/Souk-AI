@@ -532,7 +532,7 @@ const Clients = () => {
                                                         <div key={itemIdx} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
                                                             <div className="w-10 h-10 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                                                                 {item.product?.albums?.[0] ? (
-                                                                    <img src={`/storage/${item.product.albums[0].file}`} className="w-full h-full object-cover" alt="" />
+                                                                    <img src={item.product.albums[0].file} className="w-full h-full object-cover" alt="" />
                                                                 ) : (
                                                                     <img src="/storage/empty/empty.webp" className="w-full h-full object-cover" alt="" />
                                                                 )}

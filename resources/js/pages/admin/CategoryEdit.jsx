@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Save, ImagePlus, Activity } from 'lucide-react';
 import IconPicker from '@/components/ui/icon-picker';
 import { createFormData, prepareFormDataRequest, getImageUrl } from '@/services/apiService';
+import { validateImageFile } from '@/utils/imageUploadValidation';
 
 const CategoryEdit = () => {
     const { t } = useTranslation();
@@ -136,11 +137,13 @@ const CategoryEdit = () => {
         const file = e.target.files[0];
         if (!file) return;
 
-        if (file.size > 4 * 1024 * 1024) {
-            alert(t('admin.categories.messages.fileTooLarge', { size: 4 }));
+        const validation = validateImageFile(file, { maxSizeBytes: 4 * 1024 * 1024 });
+        if (!validation.isValid) {
+            setErrors(prev => ({ ...prev, cover: [validation.error] }));
             return;
         }
 
+        setErrors(prev => ({ ...prev, cover: null }));
         setCoverFile(file);
         setCoverPreview(URL.createObjectURL(file));
     };
@@ -224,7 +227,7 @@ const CategoryEdit = () => {
                                 <div className="space-y-2 max-w-sm">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cover (max 4MB)</Label>
                                 <div className="relative border-2 border-dashed border-border/50 rounded-2xl p-6 text-center hover:bg-muted/50 transition-colors cursor-pointer h-32">
-                                    <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                    <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer" />
                                     {coverPreview ? (
                                         <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover rounded-xl" />
                                     ) : (
@@ -232,6 +235,7 @@ const CategoryEdit = () => {
                                     )}
                                 </div>
                                 {errors.cover && <p className="text-xs text-red-500">{errors.cover[0]}</p>}
+                                <p className="text-[11px] text-muted-foreground">Supported: JPG, PNG, WEBP, GIF, SVG. Max 4MB.</p>
                             </div>
                         </div>
 

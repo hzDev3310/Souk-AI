@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\HandlesFileUploads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -9,6 +10,7 @@ use App\Models\Setting;
 
 class SettingController extends Controller
 {
+    use HandlesFileUploads;
     public function index()
     {
         collect([
@@ -45,8 +47,12 @@ class SettingController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('settings', 'public');
-            return response()->json(['path' => $path]);
+            try {
+                $path = $this->storeUploadedFile($request->file('image'), 'settings', 'setting', 'site');
+                return response()->json(['path' => $path]);
+            } catch (\Throwable $e) {
+                return $this->fileUploadErrorResponse();
+            }
         }
 
         return response()->json(['error' => 'No image uploaded'], 400);

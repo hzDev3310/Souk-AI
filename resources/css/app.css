@@ -189,5 +189,45 @@ aside {
     animation: pop 0.3s ease-out;
 }
 
+/* Capsule Navbar — base state (JS drives the scroll interpolation) */
+#navbar-shell {
+    will-change: margin-top, border-radius, max-width, box-shadow, background;
+}
 
+/* Search Pill — Segmented Layout with Concave Cut */
+.search-pill {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+.search-pill-left {
+    position: relative;
+    overflow: visible;
+}
+
+.search-pill-left::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 30px;
+    background: white;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.dark .search-pill-left::after {
+    background: #1e293b;
+}
+
+.search-pill-middle {
+    background: white;
+    border-radius: 0;
+    z-index: 1;
+}
+
+.dark .search-pill-middle {
+    background: #1e293b;
+}
 

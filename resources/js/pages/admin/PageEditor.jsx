@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { BookOpen, Globe, Save, Upload, Trash2, Image, RefreshCcw } from 'lucide-react';
 import api from '../../lib/api';
 import { useNotification } from '../../context/NotificationContext';
+import { validateImageFile } from '../../utils/imageUploadValidation';
 
 const LOCALES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -71,6 +72,12 @@ export default function PageEditor() {
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     for (const file of files) {
+      const validation = validateImageFile(file, { maxSizeBytes: 4 * 1024 * 1024 });
+      if (!validation.isValid) {
+        showNotification('error', validation.error);
+        continue;
+      }
+
       try {
         const formData = new FormData();
         formData.append('image', file);
@@ -298,7 +305,7 @@ export default function PageEditor() {
               Upload
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml"
                 multiple
                 onChange={handleImageUpload}
                 className="hidden"

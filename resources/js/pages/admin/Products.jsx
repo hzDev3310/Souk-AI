@@ -110,7 +110,7 @@ const Products = () => {
                                 <div className="flex items-center gap-3">
                                     <div className="w-12 h-12 rounded-2xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
                                         {product.albums && product.albums.length > 0 ? (
-                                            <img src={`/storage/${product.albums[0].file}`} alt="" className="w-full h-full object-cover" />
+                                            <img src={product.albums[0].file} alt="" className="w-full h-full object-cover" />
                                         ) : (
                                             <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
                                         )}
@@ -196,7 +196,7 @@ const Products = () => {
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
                                                     {product.albums && product.albums.length > 0 ? (
-                                                        <img src={`/storage/${product.albums[0].file}`} alt="" className="w-full h-full object-cover" />
+                                                        <img src={product.albums[0].file} alt="" className="w-full h-full object-cover" />
                                                     ) : (
                                                         <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
                                                     )}
@@ -276,7 +276,7 @@ const Products = () => {
                                     <div className="grid grid-cols-3 gap-4">
                                         {viewingProduct.albums.map((a, idx) => (
                                             <div key={idx} className="w-full h-40 rounded-2xl overflow-hidden">
-                                                <img src={`/storage/${a.file}`} alt="Album" className="w-full h-full object-cover" />
+                                                <img src={a.file} alt="Album" className="w-full h-full object-cover" />
                                             </div>
                                         ))}
                                     </div>
