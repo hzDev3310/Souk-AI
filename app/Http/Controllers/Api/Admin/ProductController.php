@@ -84,6 +84,11 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        if ($request->has('isActive') && array_keys($request->all()) === ['isActive']) {
+            $product->update(['isActive' => $request->boolean('isActive')]);
+            return response()->json($product->load(['store', 'albums']));
+        }
+
         $validated = $request->validate([
             'store_id' => 'required|exists:stores,id',
             'name_fr' => 'required|string|max:255',

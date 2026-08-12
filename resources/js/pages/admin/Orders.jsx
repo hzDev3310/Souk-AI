@@ -217,9 +217,7 @@ const Orders = () => {
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
+                                                size="iconsm" variant="soft" rounded="xl" color="info"
                                                 onClick={async () => {
                                                     const res = await api.get(`/admin/orders/${order.id}`);
                                                     setViewingOrder(res.data);
@@ -316,9 +314,10 @@ const Orders = () => {
                                         <TableCell className="py-4 px-6 text-end">
                                             <div className="flex justify-end gap-2">
                                                 <Button 
-                                                    size="icon" 
-                                                    variant="ghost" 
-                                                    className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20" 
+                                                    size="iconsm" 
+                                                    variant="soft" 
+                                                    rounded="xl"
+                                                    color="info"
                                                     onClick={async () => {
                                                         const res = await api.get(`/admin/orders/${order.id}`);
                                                         setViewingOrder(res.data);

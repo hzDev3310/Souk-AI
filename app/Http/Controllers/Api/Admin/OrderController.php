@@ -131,7 +131,7 @@ class OrderController extends Controller
     public function getByClient($clientId)
     {
         $orders = Order::where('client_id', $clientId)
-            ->with(['items.product', 'influencer.user'])
+            ->with(['items.product.albums', 'influencer.user', 'factures'])
             ->orderBy('created_at', 'desc')
             ->get();
         

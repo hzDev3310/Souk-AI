@@ -8,6 +8,7 @@ import Modal from '@/components/shared/Modal';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -17,7 +18,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import {
-    Plus, Pencil, Trash2, Search, Box, Image as ImageIcon,
+    Plus, Pencil, Search, Box, Image as ImageIcon,
     Activity, Eye, Package
 } from 'lucide-react';
 const Products = () => {
@@ -26,6 +27,7 @@ const Products = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [viewingProduct, setViewingProduct] = useState(null);
 
     useEffect(() => {
@@ -44,13 +46,14 @@ const Products = () => {
         }
     };
 
-    const handleDelete = async (product) => {
-        if (!confirm(t('admin.products.messages.confirmDelete', { name: product.name_en }) || `Confirm deletion?`)) return;
+    const handleToggleActive = async (product) => {
+        const newValue = !product.isActive;
+        setProducts((prev) => prev.map((p) => p.id === product.id ? { ...p, isActive: newValue } : p));
         try {
-            await api.delete(`/admin/products/${product.id}`);
-            fetchProducts();
+            await api.put(`/admin/products/${product.id}`, { isActive: newValue });
         } catch (error) {
-            console.error('Error deleting product:', error);
+            console.error('Error toggling product status:', error);
+            setProducts((prev) => prev.map((p) => p.id === product.id ? { ...p, isActive: !newValue } : p));
         }
     };
 
@@ -63,8 +66,9 @@ const Products = () => {
     };
 
     const filteredProducts = products.filter(prod =>
-        prod.name_en?.toLowerCase().includes(search.toLowerCase()) ||
-        prod.name_fr?.toLowerCase().includes(search.toLowerCase())
+        (prod.name_en?.toLowerCase().includes(search.toLowerCase()) ||
+        prod.name_fr?.toLowerCase().includes(search.toLowerCase())) &&
+        (statusFilter === 'all' || (statusFilter === 'active' ? prod.isActive : !prod.isActive))
     );
 
     return (
@@ -86,6 +90,15 @@ const Products = () => {
                             className="pl-12 h-12 bg-card border-border/60 rounded-2xl"
                         />
                     </div>
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="h-12 px-4 rounded-2xl bg-card border border-border/60 text-foreground font-bold text-sm"
+                    >
+                        <option value="all">{t('admin.products.filter.all') || "All Products"}</option>
+                        <option value="active">{t('admin.products.filter.active') || "Active"}</option>
+                        <option value="deactivated">{t('admin.products.filter.deactivated') || "Deactivated"}</option>
+                    </select>
                 </div>
 
                 {/* Mobile View - Card List */}
@@ -108,7 +121,7 @@ const Products = () => {
                                 key={product.id}
                                 className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
                             >
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-start gap-3">
                                     <div className="w-12 h-12 rounded-2xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
                                         {product.albums && product.albums.length > 0 ? (
                                             <img src={product.albums[0].file} alt="" className="w-full h-full object-cover" />
@@ -120,6 +133,7 @@ const Products = () => {
                                         <h3 className="font-black text-foreground tracking-tight leading-none mb-1 truncate">{product.name_fr}</h3>
                                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{product.slug}</p>
                                     </div>
+                                    <Switch size="sm" color="success" checked={product.isActive} onCheckedChange={() => handleToggleActive(product)} />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
@@ -133,34 +147,19 @@ const Products = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-1">
-                                    <p className="text-[9px] font-bold text-muted-foreground uppercase">{product.stock} in stock</p>
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => setViewingProduct(product)}
-                                            className="h-10 w-10 rounded-2xl bg-secondary/5 text-secondary hover:bg-secondary/20"
-                                        >
-                                            <Eye size={18} strokeWidth={2.5} />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleEdit(product)}
-                                            className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
-                                        >
-                                            <Pencil size={18} strokeWidth={2.5} />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleDelete(product)}
-                                            className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
-                                        >
-                                            <Trash2 size={18} strokeWidth={2.5} />
-                                        </Button>
-                                    </div>
+                                <div className="flex items-center justify-end gap-2 pt-1">
+                                    <Button
+                                        size="iconsm" variant="soft" rounded="xl" color="info"
+                                        onClick={() => setViewingProduct(product)}
+                                    >
+                                        <Eye size={18} strokeWidth={2.5} />
+                                    </Button>
+                                    <Button
+                                        size="iconsm" variant="soft" rounded="xl" color="warning"
+                                        onClick={() => handleEdit(product)}
+                                    >
+                                        <Pencil size={18} strokeWidth={2.5} />
+                                    </Button>
                                 </div>
                             </div>
                         ))
@@ -175,13 +174,15 @@ const Products = () => {
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.products.table.product') || "PRODUCT"}</TableHead>
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.products.table.store') || "STORE"}</TableHead>
                                 <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.products.table.price') || "PRICE"}</TableHead>
+                                <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.products.table.quantity') || "QUANTITY"}</TableHead>
+                                <TableHead className="py-5 px-6 text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.products.table.status') || "STATUS"}</TableHead>
                                 <TableHead className="py-5 px-6 text-end text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t('admin.products.table.actions') || "ACTIONS"}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-32 text-center">
+                                        <TableCell colSpan={5} className="h-32 text-center">
                                             <div className="flex items-center justify-center gap-2 text-muted-foreground font-bold">
                                                 <Activity className="w-5 h-5 animate-spin text-primary" />
                                                 {t('admin.common.loading')}
@@ -214,24 +215,27 @@ const Products = () => {
                                         <TableCell className="py-4 px-6">
                                             <div className="flex flex-col">
                                                 <span className="font-black text-primary">${product.price}</span>
+                                                </div>
+                                        </TableCell>
+                                        <TableCell className="py-4 px-6">
+                                            <div className="flex flex-col">
+                                                
                                                 <span className="text-[10px] font-bold text-muted-foreground uppercase">{product.stock} in stock</span>
                                             </div>
+                                        </TableCell>
+                                        <TableCell className="py-4 px-6">
+                                            <Switch size="sm" color="success" checked={product.isActive} onCheckedChange={() => handleToggleActive(product)} />
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-end">
                                             <div className="flex justify-end gap-2">
                                                 <Tooltip content={t('common.actions.view')}>
-                                                    <Button size="iconsm" variant="soft" rounded="xl" color="secondary" onClick={() => setViewingProduct(product)}>
+                                                    <Button size="iconsm" variant="soft" rounded="xl" color="info" onClick={() => setViewingProduct(product)}>
                                                         <Eye size={18} />
                                                     </Button>
                                                 </Tooltip>
                                                 <Tooltip content={t('common.actions.edit')}>
-                                                    <Button size="iconsm" variant="soft" rounded="xl" color="primary" onClick={() => handleEdit(product)}>
+                                                    <Button size="iconsm" variant="soft" rounded="xl" color="warning" onClick={() => handleEdit(product)}>
                                                         <Pencil size={18} />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip content={t('common.actions.delete')}>
-                                                    <Button size="iconsm" variant="soft" rounded="xl" color="error" onClick={() => handleDelete(product)}>
-                                                        <Trash2 size={18} />
                                                     </Button>
                                                 </Tooltip>
                                             </div>
@@ -240,7 +244,7 @@ const Products = () => {
                                 ))}
                             {!loading && filteredProducts.length === 0 && (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">
+                                    <TableCell colSpan={5} className="py-20 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs">
                                         {t('admin.products.messages.noProducts') || "No products found"}
                                     </TableCell>
                                 </TableRow>

@@ -15,7 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Truck, Users, Activity, Filter, Download, Mail, Phone, MapPin } from 'lucide-react';
+import { Plus, Pencil, Search, Truck, Users, Activity, Filter, Download, Mail, Phone, MapPin } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
 
 const ShippingCompanies = () => {
@@ -70,16 +70,6 @@ const ShippingCompanies = () => {
         } catch (error) {
             console.error('Error saving shipping company:', error);
             alert('Error saving shipping company');
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!confirm(t('admin.shippingCompanies.messages.confirmDelete'))) return;
-        try {
-            await api.delete(`/admin/users/shipping-companies/${id}`);
-            fetchCompanies();
-        } catch (error) {
-            console.error('Error deleting shipping company:', error);
         }
     };
 
@@ -220,28 +210,16 @@ const ShippingCompanies = () => {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Button
-                                            variant="ghost"
-                                            size="icon"
+                                            size="iconsm" variant="soft" rounded="xl" color="info"
                                             onClick={() => handleViewEmployees(company.id)}
-                                            className="h-10 w-10 rounded-2xl bg-blue-500/5 text-blue-500 hover:bg-blue-500/20"
                                         >
                                             <Users size={18} strokeWidth={2.5} />
                                         </Button>
                                         <Button
-                                            variant="ghost"
-                                            size="icon"
+                                            size="iconsm" variant="soft" rounded="xl" color="warning"
                                             onClick={() => handleEdit(company)}
-                                            className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
                                         >
                                             <Pencil size={18} strokeWidth={2.5} />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleDelete(company.id)}
-                                            className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
-                                        >
-                                            <Trash2 size={18} strokeWidth={2.5} />
                                         </Button>
                                     </div>
                                 </div>
@@ -324,21 +302,10 @@ const ShippingCompanies = () => {
                                                         variant="soft"
                                                         size="iconsm"
                                                         rounded="xl"
-                                                        color="primary"
+                                                        color="warning"
                                                         onClick={() => handleEdit(company)}
                                                     >
                                                         <Pencil size={18} strokeWidth={2.5} />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip content={t('common.actions.delete')}>
-                                                    <Button
-                                                        variant="soft"
-                                                        size="iconsm"
-                                                        rounded="xl"
-                                                        color="error"
-                                                        onClick={() => handleDelete(company.id)}
-                                                    >
-                                                        <Trash2 size={18} strokeWidth={2.5} />
                                                     </Button>
                                                 </Tooltip>
                                             </div>

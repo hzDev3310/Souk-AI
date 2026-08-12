@@ -23,6 +23,7 @@ import StoreCreate from './pages/admin/StoreCreate';
 import StoreEdit from './pages/admin/StoreEdit';
 import AdminInfluencers from './pages/admin/Influencers';
 import AdminClients from './pages/admin/Clients';
+import AdminClientOrders from './pages/admin/ClientOrders';
 import AdminShippingCompanies from './pages/admin/ShippingCompanies';
 import AdminShippingEmployees from './pages/admin/ShippingEmployees';
 import AdminCategories from './pages/admin/Categories';
@@ -103,6 +104,7 @@ const App = () => {
                         <Route path="stores/:id/edit" element={<StoreEdit />} />
                         <Route path="influencers" element={<AdminInfluencers />} />
                         <Route path="clients" element={<AdminClients />} />
+                        <Route path="clients/:clientId/orders" element={<AdminClientOrders />} />
                         <Route path="shipping-companies" element={<AdminShippingCompanies />} />
                         <Route path="shipping-employees" element={<AdminShippingEmployees />} />
                         <Route path="categories" element={<AdminCategories />} />

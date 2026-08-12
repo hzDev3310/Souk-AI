@@ -15,7 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Sparkles, Activity, Filter, Download, Phone, Mail } from 'lucide-react';
+import { Plus, Pencil, Search, Sparkles, Activity, Filter, Download, Phone, Mail } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
 
 const Influencers = () => {
@@ -70,16 +70,6 @@ const Influencers = () => {
         } catch (error) {
             console.error('Error saving influencer:', error);
             alert('Error saving influencer');
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!confirm(t('admin.influencers.messages.confirmDelete'))) return;
-        try {
-            await api.delete(`/admin/users/influencers/${id}`);
-            fetchInfluencers();
-        } catch (error) {
-            console.error('Error deleting influencer:', error);
         }
     };
 
@@ -193,25 +183,18 @@ const Influencers = () => {
                                 key={influencer.id}
                                 className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
                             >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl uppercase">
-                                            {influencer.name.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{influencer.name} {influencer.family_name}</h3>
-                                            <div className="flex items-center gap-1.5 mt-1">
-                                                <Mail size={10} className="text-muted-foreground" />
-                                                <p className="text-[10px] font-bold text-muted-foreground truncate max-w-[180px]">{influencer.email}</p>
-                                            </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl uppercase">
+                                        {influencer.name.charAt(0)}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{influencer.name} {influencer.family_name}</h3>
+                                        <div className="flex items-center gap-1.5 mt-1">
+                                            <Mail size={10} className="text-muted-foreground" />
+                                            <p className="text-[10px] font-bold text-muted-foreground truncate max-w-[180px]">{influencer.email}</p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-[10px] font-black uppercase tracking-tight ${influencer.influencer?.isActive ? 'text-emerald-500' : 'text-red-500'}`}>
-                                            {influencer.influencer?.isActive ? t('admin.influencers.status.active') : t('admin.influencers.status.inactive')}
-                                        </span>
-                                        <Switch size="sm" checked={influencer.influencer?.isActive ?? true} onCheckedChange={() => handleToggleActive(influencer)} />
-                                    </div>
+                                    <Switch size="sm" color="success" checked={influencer.influencer?.isActive ?? true} onCheckedChange={() => handleToggleActive(influencer)} />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
@@ -229,20 +212,10 @@ const Influencers = () => {
 
                                 <div className="flex items-center justify-end gap-2 pt-1">
                                     <Button
-                                        variant="ghost"
-                                        size="icon"
+                                        size="iconsm" variant="soft" rounded="xl" color="warning"
                                         onClick={() => handleEdit(influencer)}
-                                        className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
                                     >
                                         <Pencil size={18} strokeWidth={2.5} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleDelete(influencer.id)}
-                                        className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
-                                    >
-                                        <Trash2 size={18} strokeWidth={2.5} />
                                     </Button>
                                 </div>
                             </div>
@@ -306,12 +279,7 @@ const Influencers = () => {
                                             </span>
                                         </TableCell>
                                         <TableCell className="py-4 px-6">
-                                            <div className="flex items-center gap-2">
-                                                <span className={`text-[10px] font-black uppercase tracking-tight ${influencer.influencer?.isActive ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                    {influencer.influencer?.isActive ? t('admin.influencers.status.active') : t('admin.influencers.status.inactive')}
-                                                </span>
-                                                <Switch size="sm" checked={influencer.influencer?.isActive ?? true} onCheckedChange={() => handleToggleActive(influencer)} />
-                                            </div>
+                                            <Switch size="sm" color="success" checked={influencer.influencer?.isActive ?? true} onCheckedChange={() => handleToggleActive(influencer)} />
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-end">
                                             <div className="flex items-center justify-end gap-2">
@@ -320,21 +288,10 @@ const Influencers = () => {
                                                         variant="soft"
                                                         size="iconsm"
                                                         rounded="xl"
-                                                        color="primary"
+                                                        color="warning"
                                                         onClick={() => handleEdit(influencer)}
                                                     >
                                                         <Pencil size={18} strokeWidth={2.5} />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip content={t('common.actions.delete')}>
-                                                    <Button
-                                                        variant="soft"
-                                                        size="iconsm"
-                                                        rounded="xl"
-                                                        color="error"
-                                                        onClick={() => handleDelete(influencer.id)}
-                                                    >
-                                                        <Trash2 size={18} strokeWidth={2.5} />
                                                     </Button>
                                                 </Tooltip>
                                             </div>

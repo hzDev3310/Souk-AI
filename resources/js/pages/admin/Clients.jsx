@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import CardBox from '@/components/shared/CardBox';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -14,19 +16,18 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Users, MapPin, Activity, Filter, Download, Eye, ShoppingCart, Package, Calendar, DollarSign, Ban, ShieldCheck } from 'lucide-react';
+import { Plus, Pencil, Search, Users, MapPin, Activity, Filter, Download, Eye } from 'lucide-react';
 import Modal from '@/components/shared/Modal';
 
 const Clients = () => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingClient, setEditingClient] = useState(null);
-    const [viewingClient, setViewingClient] = useState(null);
-    const [clientOrders, setClientOrders] = useState([]);
-    const [loadingOrders, setLoadingOrders] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         family_name: '',
@@ -71,16 +72,6 @@ const Clients = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!confirm(t('admin.clients.messages.confirmDelete'))) return;
-        try {
-            await api.delete(`/admin/users/clients/${id}`);
-            fetchClients();
-        } catch (error) {
-            console.error('Error deleting client:', error);
-        }
-    };
-
     const handleEdit = (client) => {
         setEditingClient(client);
         setFormData({
@@ -95,55 +86,20 @@ const Clients = () => {
         setIsDialogOpen(true);
     };
 
-    const handleView = async (client) => {
-        setViewingClient(client);
-        setLoadingOrders(true);
-        try {
-            const response = await api.get(`/admin/orders/client/${client.client?.id || client.id}`);
-            setClientOrders(response.data?.data || []);
-        } catch (error) {
-            console.error('Error fetching client orders:', error);
-            setClientOrders([]);
-        } finally {
-            setLoadingOrders(false);
-        }
+    const handleView = (client) => {
+        navigate(`/dashboard/clients/${client.client?.id || client.id}/orders`, { state: { client } });
     };
 
     const handleToggleBlock = async (client) => {
-        const action = client.isBlocked ? 'unblock' : 'block';
-        if (!confirm(`Are you sure you want to ${action} ${client.name} ${client.family_name || ''}?`)) return;
-
+        const newBlocked = !client.isBlocked;
+        const action = newBlocked ? 'block' : 'unblock';
+        setClients((prev) => prev.map((c) => c.id === client.id ? { ...c, isBlocked: newBlocked } : c));
         try {
             await api.post(`/admin/users/${client.id}/${action}`);
-            fetchClients();
         } catch (error) {
             console.error(`Error trying to ${action} client:`, error);
+            setClients((prev) => prev.map((c) => c.id === client.id ? { ...c, isBlocked: !newBlocked } : c));
         }
-    };
-
-    const getStatusConfig = (status) => {
-        switch (status?.toLowerCase()) {
-            case 'en_cours':
-            case 'pending':
-                return { label: 'Pending', color: 'text-amber-500', bg: 'bg-amber-500/10' };
-            case 'confirme':
-            case 'confirmed':
-                return { label: 'Confirmed', color: 'text-emerald-500', bg: 'bg-emerald-500/10' };
-            case 'annule':
-            case 'cancelled':
-                return { label: 'Cancelled', color: 'text-rose-500', bg: 'bg-rose-500/10' };
-            case 'shipped':
-                return { label: 'Shipped', color: 'text-blue-500', bg: 'bg-blue-500/10' };
-            case 'delivered':
-                return { label: 'Delivered', color: 'text-green-500', bg: 'bg-green-500/10' };
-            default:
-                return { label: status || 'Unknown', color: 'text-muted-foreground', bg: 'bg-muted/10' };
-        }
-    };
-
-    const calculateOrderTotal = (order) => {
-        if (!order.items) return 0;
-        return order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     };
 
     const resetForm = () => {
@@ -165,9 +121,10 @@ const Clients = () => {
     };
 
     const filteredClients = clients.filter(client =>
-        client.name?.toLowerCase().includes(search.toLowerCase()) ||
+        (client.name?.toLowerCase().includes(search.toLowerCase()) ||
         client.email?.toLowerCase().includes(search.toLowerCase()) ||
-        client.client?.city?.toLowerCase().includes(search.toLowerCase())
+        client.client?.city?.toLowerCase().includes(search.toLowerCase())) &&
+        (statusFilter === 'all' || (statusFilter === 'blocked' ? client.isBlocked : !client.isBlocked))
     );
 
     return (
@@ -192,6 +149,15 @@ const Clients = () => {
                     </div>
                     
                     <div className="flex items-center gap-2">
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="h-12 px-4 rounded-2xl bg-card border border-border/60 text-foreground font-bold text-sm"
+                        >
+                            <option value="all">{t('admin.clients.filter.all') || 'All Clients'}</option>
+                            <option value="blocked">{t('admin.clients.filter.blocked') || 'Blocked'}</option>
+                            <option value="unblocked">{t('admin.clients.filter.unblocked') || 'Not Blocked'}</option>
+                        </select>
                         <Button variant="outlinemuted" size="xl" padding="lg" rounded="2xl" className="font-bold">
                             <Filter size={18} className="text-muted-foreground" />
                             {t('common.actions.filter') || 'Filter'}
@@ -223,19 +189,15 @@ const Clients = () => {
                                 key={client.id}
                                 className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
                             >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 font-black text-xl uppercase">
-                                            {client.name.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{client.name} {client.family_name}</h3>
-                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{client.email}</p>
-                                        </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 font-black text-xl uppercase">
+                                        {client.name.charAt(0)}
                                     </div>
-                                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${client.isBlocked ? 'bg-red-500/10 text-red-600' : 'bg-emerald-500/10 text-emerald-600'}`}>
-                                        {client.isBlocked ? t('admin.clients.status.blocked') : t('admin.clients.status.active')}
-                                    </span>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{client.name} {client.family_name}</h3>
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{client.email}</p>
+                                    </div>
+                                    <Switch size="sm" color="success" checked={!client.isBlocked} onCheckedChange={() => handleToggleBlock(client)} />
                                 </div>
 
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground font-medium py-2 border-y border-border/40">
@@ -255,28 +217,10 @@ const Clients = () => {
                                     </Button>
                                     <div className="flex items-center gap-2">
                                         <Button
-                                            variant="ghost"
-                                            size="icon"
+                                            size="iconsm" variant="soft" rounded="xl" color="warning"
                                             onClick={() => handleEdit(client)}
-                                            className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
                                         >
                                             <Pencil size={18} strokeWidth={2.5} />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleToggleBlock(client)}
-                                            className={`h-10 w-10 rounded-2xl ${client.isBlocked ? 'bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500/20' : 'bg-amber-500/5 text-amber-500 hover:bg-amber-500/20'}`}
-                                        >
-                                            {client.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleDelete(client.id)}
-                                            className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
-                                        >
-                                            <Trash2 size={18} strokeWidth={2.5} />
                                         </Button>
                                     </div>
                                 </div>
@@ -329,9 +273,7 @@ const Clients = () => {
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-4 px-6">
-                                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${client.isBlocked ? 'bg-red-500/10 text-red-600' : 'bg-emerald-500/10 text-emerald-600'}`}>
-                                                {client.isBlocked ? t('admin.clients.status.blocked') : t('admin.clients.status.active')}
-                                            </span>
+                                            <Switch size="sm" color="success" checked={!client.isBlocked} onCheckedChange={() => handleToggleBlock(client)} />
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-end">
                                             <div className="flex items-center justify-end gap-2">
@@ -340,7 +282,7 @@ const Clients = () => {
                                                         variant="soft"
                                                         size="iconsm"
                                                         rounded="xl"
-                                                        color="secondary"
+                                                        color="info"
                                                         onClick={() => handleView(client)}
                                                     >
                                                         <Eye size={18} strokeWidth={2.5} />
@@ -351,32 +293,10 @@ const Clients = () => {
                                                         variant="soft"
                                                         size="iconsm"
                                                         rounded="xl"
-                                                        color="primary"
+                                                        color="warning"
                                                         onClick={() => handleEdit(client)}
                                                     >
                                                         <Pencil size={18} strokeWidth={2.5} />
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip content={client.isBlocked ? t('common.actions.unblock') : t('common.actions.block')}>
-                                                    <Button
-                                                        variant="soft"
-                                                        size="iconsm"
-                                                        rounded="xl"
-                                                        color={client.isBlocked ? 'success' : 'warning'}
-                                                        onClick={() => handleToggleBlock(client)}
-                                                    >
-                                                        {client.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
-                                                    </Button>
-                                                </Tooltip>
-                                                <Tooltip content={t('common.actions.delete')}>
-                                                    <Button
-                                                        variant="soft"
-                                                        size="iconsm"
-                                                        rounded="xl"
-                                                        color="error"
-                                                        onClick={() => handleDelete(client.id)}
-                                                    >
-                                                        <Trash2 size={18} strokeWidth={2.5} />
                                                     </Button>
                                                 </Tooltip>
                                             </div>
@@ -468,112 +388,6 @@ const Clients = () => {
                             </div>
                         </div>
                     </form>
-                </Modal>
-
-                {/* View Client Orders Modal */}
-                <Modal
-                    isOpen={!!viewingClient}
-                    onClose={() => { setViewingClient(null); setClientOrders([]); }}
-                    title={t('admin.clients.view.ordersTitle') || "Client Order History"}
-                    subtitle={viewingClient ? `${viewingClient.name} ${viewingClient.family_name || ''}` : ''}
-                    icon={ShoppingCart}
-                    maxWidth="max-w-4xl"
-                    footer={
-                        <Button onClick={() => { setViewingClient(null); setClientOrders([]); }} size="xl" padding="xl" rounded="xl" className="font-bold bg-muted text-foreground hover:bg-muted/80">
-                            {t('common.close') || "Close"}
-                        </Button>
-                    }
-                >
-                    {viewingClient && (
-                        <div className="space-y-6 text-start">
-                            {/* Client Info Summary */}
-                            <div className="p-4 bg-muted/20 rounded-2xl border border-border/40">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 font-black text-lg">
-                                        {viewingClient.name.charAt(0)}
-                                    </div>
-                                    <div>
-                                        <p className="font-black text-foreground">{viewingClient.name} {viewingClient.family_name}</p>
-                                        <p className="text-sm text-muted-foreground">{viewingClient.email}</p>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                            <MapPin size={12} className="inline mr-1" />
-                                            {viewingClient.client?.city || '-'}, {viewingClient.client?.codePostal || '-'}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Orders List */}
-                            {loadingOrders ? (
-                                <div className="flex items-center justify-center py-12">
-                                    <Activity className="w-8 h-8 animate-spin text-primary" />
-                                </div>
-                            ) : clientOrders.length === 0 ? (
-                                <div className="py-12 text-center">
-                                    <Package className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-                                    <p className="text-muted-foreground font-bold">{t('admin.clients.view.noOrders') || "No orders found"}</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4 max-h-[400px] overflow-y-auto">
-                                    {clientOrders.map((order, idx) => {
-                                        const status = getStatusConfig(order.status);
-                                        const total = calculateOrderTotal(order);
-                                        return (
-                                            <div
-                                                key={order.id}
-                                                className="p-4 bg-card rounded-2xl border border-border/50 hover:border-primary/30 transition-colors"
-                                            >
-                                                <div className="flex items-center justify-between mb-3">
-                                                    <div className="flex items-center gap-3">
-                                                        <span className="font-black text-foreground">
-                                                            {order.order_number || `#${order.id?.toString().slice(-8)}`}
-                                                        </span>
-                                                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black uppercase ${status.bg} ${status.color}`}>
-                                                            {status.label}
-                                                        </span>
-                                                    </div>
-                                                    <span className="text-xs text-muted-foreground">
-                                                        <Calendar size={12} className="inline mr-1" />
-                                                        {new Date(order.created_at).toLocaleDateString()}
-                                                    </span>
-                                                </div>
-
-                                                {/* Order Items */}
-                                                <div className="space-y-2">
-                                                    {order.items?.map((item, itemIdx) => (
-                                                        <div key={itemIdx} className="flex items-center gap-3 py-2 border-b border-border/30 last:border-0">
-                                                            <div className="w-10 h-10 rounded-lg bg-muted overflow-hidden flex-shrink-0">
-                                                                {item.product?.albums?.[0] ? (
-                                                                    <img src={item.product.albums[0].file} className="w-full h-full object-cover" alt="" />
-                                                                ) : (
-                                                                    <img src="/storage/empty/empty.webp" className="w-full h-full object-cover" alt="" />
-                                                                )}
-                                                            </div>
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="font-bold text-sm text-foreground truncate">{item.product?.name_fr || item.product?.name_en}</p>
-                                                                <p className="text-xs text-muted-foreground">x{item.quantity}</p>
-                                                            </div>
-                                                            <span className="font-black text-primary text-sm">
-                                                                {(item.price * item.quantity).toFixed(2)} TND
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                {/* Order Total */}
-                                                <div className="flex justify-end pt-3 mt-3 border-t border-border/30">
-                                                    <div className="text-right">
-                                                        <p className="text-[10px] font-black text-muted-foreground uppercase">{t('admin.orders.table.total') || "Total"}</p>
-                                                        <p className="text-xl font-black text-primary">{total.toFixed(2)} TND</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-                    )}
                 </Modal>
             </div>
         </AdminPageLayout>

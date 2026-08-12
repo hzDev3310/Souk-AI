@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class Product extends Model {
     use HasUuids;
-    protected $fillable = ['store_id', 'name_fr', 'name_ar', 'name_en', 'description_fr', 'description_ar', 'description_en', 'price', 'condition', 'stock', 'slug', 'promo', 'categories'];
-    protected $casts = ['categories' => 'array'];
+    protected $fillable = ['store_id', 'name_fr', 'name_ar', 'name_en', 'description_fr', 'description_ar', 'description_en', 'price', 'condition', 'stock', 'slug', 'promo', 'categories', 'isActive'];
+    protected $casts = ['categories' => 'array', 'isActive' => 'boolean'];
 
     public function store() { return $this->belongsTo(Store::class); }
     public function variants() { return $this->hasMany(ProductVariant::class); }

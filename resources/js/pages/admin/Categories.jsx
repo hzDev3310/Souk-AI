@@ -17,8 +17,8 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import {
-    Pencil, Trash2, Search, Layers, Image as ImageIcon,
-    CheckCircle2, XCircle, ChevronRight, Activity, Eye
+    Pencil, Search, Layers, Image as ImageIcon,
+    ChevronRight, Activity, Eye
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
@@ -56,16 +56,6 @@ const Categories = () => {
     useEffect(() => {
         fetchCategories();
     }, [categoryId]);
-
-    const handleDelete = async (category) => {
-        if (!confirm(t('admin.categories.messages.confirmDelete', { name: category.name_en }) || `Confirm deletion of ${category.name_en}?`)) return;
-        try {
-            await api.delete(`/admin/categories/${category.id}`);
-            fetchCategories();
-        } catch (error) {
-            console.error('Error deleting category:', error);
-        }
-    };
 
     const handleAdd = () => {
         navigate('/dashboard/categories/create');
@@ -162,26 +152,19 @@ const Categories = () => {
                     ) : (
                         filteredCategories.map((category) => (
                             <div key={category.id} className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 rounded-2xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
-                                            {category.icon && LucideIcons[category.icon] ? (
-                                                React.createElement(LucideIcons[category.icon], { size: 20, className: 'text-primary' })
-                                            ) : (
-                                                <ImageIcon size={20} className="text-muted-foreground" />
-                                            )}
-                                        </div>
-                                        <div>
-                                            <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{category.name_fr}</h3>
-                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{category.name_en}</p>
-                                        </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-muted overflow-hidden flex items-center justify-center border border-border/50">
+                                        {category.icon && LucideIcons[category.icon] ? (
+                                            React.createElement(LucideIcons[category.icon], { size: 20, className: 'text-primary' })
+                                        ) : (
+                                            <ImageIcon size={20} className="text-muted-foreground" />
+                                        )}
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-[10px] font-black uppercase tracking-tight ${category.isActive ? 'text-emerald-500' : 'text-red-500'}`}>
-                                            {category.isActive ? (t('admin.categories.table.active') || 'Active') : (t('admin.categories.table.inactive') || 'Inactive')}
-                                        </span>
-                                        <Switch size="sm" checked={category.isActive} onCheckedChange={() => handleToggleActive(category)} />
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{category.name_fr}</h3>
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{category.name_en}</p>
                                     </div>
+                                    <Switch size="sm" color="success" checked={category.isActive} onCheckedChange={() => handleToggleActive(category)} />
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
@@ -189,45 +172,20 @@ const Categories = () => {
                                         <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.categories.table.slug') || 'Slug'}</p>
                                         <p className="text-xs font-bold text-foreground font-mono truncate">{category.slug}</p>
                                     </div>
-                                    <div>
-                                        <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.categories.table.status') || 'Status'}</p>
-                                        <div className="flex items-center gap-2">
-                                            {category.isActive ? (
-                                                <CheckCircle2 size={14} className="text-emerald-500" />
-                                            ) : (
-                                                <XCircle size={14} className="text-red-500" />
-                                            )}
-                                            <span className={`font-bold text-xs uppercase ${category.isActive ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                {category.isActive ? (t('admin.categories.table.active') || 'Active') : (t('admin.categories.table.inactive') || 'Inactive')}
-                                            </span>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <div className="flex items-center justify-end gap-2 pt-1">
                                     <Button
-                                        variant="ghost"
-                                        size="icon"
+                                        size="iconsm" variant="soft" rounded="xl" color="info"
                                         onClick={() => handleView(category)}
-                                        className="h-10 w-10 rounded-2xl bg-secondary/5 text-secondary hover:bg-secondary/20"
                                     >
                                         <Eye size={18} strokeWidth={2.5} />
                                     </Button>
                                     <Button
-                                        variant="ghost"
-                                        size="icon"
+                                        size="iconsm" variant="soft" rounded="xl" color="warning"
                                         onClick={() => handleEdit(category)}
-                                        className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
                                     >
                                         <Pencil size={18} strokeWidth={2.5} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleDelete(category)}
-                                        className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
-                                    >
-                                        <Trash2 size={18} strokeWidth={2.5} />
                                     </Button>
                                 </div>
                             </div>
@@ -274,33 +232,18 @@ const Categories = () => {
                                     </TableCell>
                                     <TableCell className="py-4 px-6 font-mono text-[10px] text-muted-foreground">{category.slug}</TableCell>
                                     <TableCell className="py-4 px-6">
-                                        <div className="flex items-center gap-2">
-                                            {category.isActive ? (
-                                                <CheckCircle2 size={14} className="text-emerald-500" />
-                                            ) : (
-                                                <XCircle size={14} className="text-red-500" />
-                                            )}
-                                            <span className={`font-bold text-xs uppercase ${category.isActive ? 'text-emerald-500' : 'text-red-500'}`}>
-                                                {category.isActive ? (t('admin.categories.table.active') || 'Active') : (t('admin.categories.table.inactive') || 'Inactive')}
-                                            </span>
-                                            <Switch size="sm" checked={category.isActive} onCheckedChange={() => handleToggleActive(category)} />
-                                        </div>
+                                        <Switch size="sm" color="success" checked={category.isActive} onCheckedChange={() => handleToggleActive(category)} />
                                     </TableCell>
                                     <TableCell className="py-4 px-6 text-end">
                                         <div className="flex justify-end gap-2">
                                             <Tooltip content={t('common.actions.view')}>
-                                                <Button size="iconsm" variant="soft" rounded="xl" color="secondary" onClick={() => handleView(category)}>
+                                                <Button size="iconsm" variant="soft" rounded="xl" color="info" onClick={() => handleView(category)}>
                                                     <Eye size={18} />
                                                 </Button>
                                             </Tooltip>
                                             <Tooltip content={t('common.actions.edit')}>
-                                                <Button size="iconsm" variant="soft" rounded="xl" color="primary" onClick={() => handleEdit(category)}>
+                                                <Button size="iconsm" variant="soft" rounded="xl" color="warning" onClick={() => handleEdit(category)}>
                                                     <Pencil size={18} />
-                                                </Button>
-                                            </Tooltip>
-                                            <Tooltip content={t('common.actions.delete')}>
-                                                <Button size="iconsm" variant="soft" rounded="xl" color="error" onClick={() => handleDelete(category)}>
-                                                    <Trash2 size={18} />
                                                 </Button>
                                             </Tooltip>
                                         </div>

@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Plus, Pencil, Trash2, Search, Store, Activity, Filter, Download, Ban, ShieldCheck } from 'lucide-react';
+import { Plus, Pencil, Search, Store, Activity, Filter, Download } from 'lucide-react';
 
 const Stores = () => {
   const { t } = useTranslation();
@@ -24,6 +24,7 @@ const Stores = () => {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   const fetchStores = async () => {
     setLoading(true);
@@ -41,16 +42,6 @@ const Stores = () => {
     fetchStores();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm(t('admin.stores.messages.confirmDelete'))) return;
-    try {
-      await api.delete(`/admin/users/stores/${id}`);
-      fetchStores();
-    } catch (error) {
-      console.error('Error deleting store:', error);
-    }
-  };
-
   const handleAdd = () => {
     navigate('/dashboard/stores/create');
   };
@@ -60,32 +51,22 @@ const Stores = () => {
   };
 
   const handleToggleBlock = async (store) => {
-    const action = store.isBlocked ? 'unblock' : 'block';
-    if (!confirm(`Are you sure you want to ${action} ${store.store?.name_fr || store.name}?`)) return;
-
+    const newBlocked = !store.isBlocked;
+    const action = newBlocked ? 'block' : 'unblock';
+    setStores((prev) => prev.map((s) => s.id === store.id ? { ...s, isBlocked: newBlocked } : s));
     try {
       await api.post(`/admin/users/${store.id}/${action}`);
-      fetchStores();
     } catch (error) {
       console.error(`Error trying to ${action} store:`, error);
-    }
-  };
-
-  const handleToggleActive = async (store) => {
-    const newValue = !(store.store?.isActive ?? true);
-    setStores((prev) => prev.map((s) => s.id === store.id ? { ...s, store: { ...s.store, isActive: newValue } } : s));
-    try {
-      await api.put(`/admin/users/stores/${store.id}`, { isActive: newValue });
-    } catch (error) {
-      console.error('Error toggling store status:', error);
-      setStores((prev) => prev.map((s) => s.id === store.id ? { ...s, store: { ...s.store, isActive: !newValue } } : s));
+      setStores((prev) => prev.map((s) => s.id === store.id ? { ...s, isBlocked: !newBlocked } : s));
     }
   };
 
   const filteredStores = stores.filter(store =>
-    store.name?.toLowerCase().includes(search.toLowerCase()) ||
+    (store.name?.toLowerCase().includes(search.toLowerCase()) ||
     store.email?.toLowerCase().includes(search.toLowerCase()) ||
-    store.store?.name_fr?.toLowerCase().includes(search.toLowerCase())
+    store.store?.name_fr?.toLowerCase().includes(search.toLowerCase())) &&
+    (statusFilter === 'all' || (statusFilter === 'blocked' ? store.isBlocked : !store.isBlocked))
   );
 
   return (
@@ -110,6 +91,15 @@ const Stores = () => {
             </div>
             
             <div className="flex items-center gap-2">
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="h-12 px-4 rounded-2xl bg-card border border-border/60 text-foreground font-bold text-sm"
+                >
+                    <option value="all">{t('admin.stores.filter.all') || 'All Stores'}</option>
+                    <option value="blocked">{t('admin.stores.filter.blocked') || 'Blocked'}</option>
+                    <option value="unblocked">{t('admin.stores.filter.unblocked') || 'Not Blocked'}</option>
+                </select>
                 <Button variant="outlinemuted" size="xl" rounded="2xl" className="font-bold">
                     <Filter size={18} className="text-muted-foreground" />
                     {t('common.actions.filter') || 'Filter'}
@@ -141,22 +131,15 @@ const Stores = () => {
                             key={store.id}
                             className="bg-card border border-border/60 rounded-[24px] p-5 space-y-4 shadow-sm active:scale-[0.98] transition-transform"
                         >
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl uppercase">
-                                        {(store.store?.name_fr || store.name).charAt(0)}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{store.store?.name_fr || store.name}</h3>
-                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{store.store?.matriculeFiscale || 'No MAT'}</p>
-                                    </div>
+                            <div className="flex items-start gap-3">
+                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl uppercase">
+                                    {(store.store?.name_fr || store.name).charAt(0)}
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <span className={`text-[10px] font-black uppercase tracking-tight ${store.isBlocked ? 'text-red-500' : store.store?.isActive ? 'text-emerald-500' : 'text-amber-500'}`}>
-                                        {store.isBlocked ? 'Blocked' : store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
-                                    </span>
-                                    <Switch size="sm" checked={store.store?.isActive ?? true} onCheckedChange={() => handleToggleActive(store)} />
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="font-black text-foreground tracking-tight leading-none mb-1">{store.store?.name_fr || store.name}</h3>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{store.store?.matriculeFiscale || 'No MAT'}</p>
                                 </div>
+                                <Switch size="sm" color="success" checked={!store.isBlocked} onCheckedChange={() => handleToggleBlock(store)} />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
@@ -179,34 +162,12 @@ const Stores = () => {
                                     <Tooltip content={t('common.actions.edit')}>
                                         <Button
                                             variant="soft"
-                                            size="icon"
-                                            color="primary"
-                                            rounded="2xl"
+                                            size="iconsm"
+                                            color="warning"
+                                            rounded="xl"
                                             onClick={() => handleEdit(store)}
                                         >
                                             <Pencil size={18} strokeWidth={2.5} />
-                                        </Button>
-                                    </Tooltip>
-                                    <Tooltip content={store.isBlocked ? t('common.actions.unblock') : t('common.actions.block')}>
-                                        <Button
-                                            variant="soft"
-                                            size="icon"
-                                            color={store.isBlocked ? 'success' : 'warning'}
-                                            rounded="2xl"
-                                            onClick={() => handleToggleBlock(store)}
-                                        >
-                                            {store.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
-                                        </Button>
-                                    </Tooltip>
-                                    <Tooltip content={t('common.actions.delete')}>
-                                        <Button
-                                            variant="soft"
-                                            size="icon"
-                                            color="error"
-                                            rounded="2xl"
-                                            onClick={() => handleDelete(store.id)}
-                                        >
-                                            <Trash2 size={18} strokeWidth={2.5} />
                                         </Button>
                                     </Tooltip>
                                 </div>
@@ -262,12 +223,7 @@ const Stores = () => {
                                 <TableCell className="py-4 px-6 text-sm text-muted-foreground font-medium">{store.email}</TableCell>
                                 <TableCell className="py-4 px-6 text-sm text-muted-foreground font-medium">{store.store?.storePhone || '-'}</TableCell>
                                 <TableCell className="py-4 px-6">
-                                    <div className="flex items-center gap-2">
-                                        <span className={`text-[10px] font-black uppercase tracking-tight ${store.isBlocked ? 'text-red-500' : store.store?.isActive ? 'text-emerald-500' : 'text-amber-500'}`}>
-                                            {store.isBlocked ? 'Blocked' : store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
-                                        </span>
-                                        <Switch size="sm" checked={store.store?.isActive ?? true} onCheckedChange={() => handleToggleActive(store)} />
-                                    </div>
+                                    <Switch size="sm" color="success" checked={!store.isBlocked} onCheckedChange={() => handleToggleBlock(store)} />
                                 </TableCell>
                                 <TableCell className="py-4 px-6 text-end">
                                     <div className="flex items-center justify-end gap-2  transition-opacity">
@@ -275,33 +231,11 @@ const Stores = () => {
                                             <Button
                                                 variant="soft"
                                                 size="iconsm"
-                                                color="primary"
+                                                color="warning"
                                                 rounded="xl"
                                                 onClick={() => handleEdit(store)}
                                             >
                                                 <Pencil size={18} strokeWidth={2.5} />
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip content={store.isBlocked ? t('common.actions.unblock') : t('common.actions.block')}>
-                                            <Button
-                                                variant="soft"
-                                                size="iconsm"
-                                                color={store.isBlocked ? 'success' : 'warning'}
-                                                rounded="xl"
-                                                onClick={() => handleToggleBlock(store)}
-                                            >
-                                                {store.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
-                                            </Button>
-                                        </Tooltip>
-                                        <Tooltip content={t('common.actions.delete')}>
-                                            <Button
-                                                variant="soft"
-                                                size="iconsm"
-                                                color="error"
-                                                rounded="xl"
-                                                onClick={() => handleDelete(store.id)}
-                                            >
-                                                <Trash2 size={18} strokeWidth={2.5} />
                                             </Button>
                                         </Tooltip>
                                     </div>

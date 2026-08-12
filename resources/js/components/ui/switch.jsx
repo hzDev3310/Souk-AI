@@ -6,10 +6,28 @@ const Switch = React.forwardRef(({
     onCheckedChange,
     disabled = false,
     size = 'default',
+    color = 'primary',
     className,
     id,
     ...props
 }, ref) => {
+    const colors = {
+        primary: {
+            track: 'bg-gradient-to-r from-primary to-primary/80 shadow-[0_0_12px_rgba(var(--primary-rgb,99,102,241),0.4)]',
+            glow: 'bg-primary/20',
+            inner: 'bg-gradient-to-r from-primary/90 to-primary/70',
+            dot: 'bg-primary/30',
+        },
+        success: {
+            track: 'bg-gradient-to-r from-emerald-500 to-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.4)]',
+            glow: 'bg-emerald-500/20',
+            inner: 'bg-gradient-to-r from-emerald-500/90 to-emerald-400/80',
+            dot: 'bg-emerald-500/30',
+        },
+    };
+
+    const c = colors[color] || colors.primary;
+
     const sizes = {
         sm: { track: 'w-9 h-5', thumb: 'w-3.5 h-3.5', translate: 16, padding: 3 },
         default: { track: 'w-12 h-7', thumb: 'w-5 h-5', translate: 20, padding: 4 },
@@ -31,7 +49,7 @@ const Switch = React.forwardRef(({
                 'relative inline-flex shrink-0 cursor-pointer items-center rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 s.track,
                 checked
-                    ? 'bg-gradient-to-r from-primary to-primary/80 shadow-[0_0_12px_rgba(var(--primary-rgb,99,102,241),0.4)]'
+                    ? c.track
                     : 'bg-muted/60 border border-border/60',
                 disabled && 'opacity-40 cursor-not-allowed',
                 className
@@ -40,15 +58,13 @@ const Switch = React.forwardRef(({
         >
             {/* Glow effect when active */}
             {checked && (
-                <div className="absolute inset-0 rounded-full bg-primary/20 blur-sm animate-in fade-in duration-200" />
+                <div className={`absolute inset-0 rounded-full blur-sm animate-in fade-in duration-200 ${c.glow}`} />
             )}
 
             {/* Track inner highlight */}
             <div className={cn(
                 'absolute inset-[1px] rounded-full transition-all duration-300',
-                checked
-                    ? 'bg-gradient-to-r from-primary/90 to-primary/70'
-                    : 'bg-muted/40'
+                checked ? c.inner : 'bg-muted/40'
             )} />
 
             {/* Thumb */}
@@ -69,7 +85,7 @@ const Switch = React.forwardRef(({
                 <div
                     className={cn(
                         'absolute inset-0 m-auto rounded-full transition-all duration-200',
-                        checked ? 'bg-primary/30' : 'bg-muted-foreground/20'
+                        checked ? c.dot : 'bg-muted-foreground/20'
                     )}
                     style={{
                         width: checked ? '40%' : '30%',
