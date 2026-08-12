@@ -160,7 +160,7 @@ const CategoryEdit = () => {
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate('/dashboard/categories')} className="h-10 w-10 rounded-xl">
+                <Button variant="ghost" size="icon" rounded="xl" onClick={() => navigate('/dashboard/categories')}>
                     <ArrowLeft size={20} />
                 </Button>
                 <div>
@@ -241,10 +241,10 @@ const CategoryEdit = () => {
 
                         {/* Actions */}
                         <div className="flex items-center justify-end gap-4 pt-4 border-t border-border/50">
-                            <Button type="button" variant="ghost" onClick={() => navigate('/dashboard/categories')} className="h-12 px-6 rounded-xl font-bold">
+                            <Button type="button" variant="ghost" size="xl" padding="xl" rounded="xl" className="font-bold" onClick={() => navigate('/dashboard/categories')}>
                                 {t('common.cancel') || 'Cancel'}
                             </Button>
-                            <Button type="submit" disabled={saving} className="h-12 px-8 rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20 hover:bg-primaryemphasis transition-all">
+                            <Button type="submit" size="xl" padding="2xl" rounded="xl" disabled={saving} className="font-black shadow-lg shadow-primary/20 transition-all">
                                 {saving ? 'Saving...' : <><Save size={18} className="mr-2" /> {t('common.save') || 'Save Changes'}</>}
                             </Button>
                         </div>

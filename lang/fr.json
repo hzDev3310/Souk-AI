@@ -531,5 +531,11 @@
     "website.vipTitle": "Rejoignez notre liste VIP",
     "website.visit": "Visiter le magasin",
     "website.welcome": "Bienvenue",
-    "welcome_message": "Le projet a été réinitialisé. Commencez à construire votre application incroyable !"
+    "welcome_message": "Le projet a été réinitialisé. Commencez à construire votre application incroyable !",
+    "common.actions.edit": "Modifier",
+    "common.actions.delete": "Supprimer",
+    "common.actions.view": "Voir",
+    "common.actions.block": "Bloquer",
+    "common.actions.unblock": "Débloquer",
+    "common.actions.viewFleet": "Voir la flotte"
 }

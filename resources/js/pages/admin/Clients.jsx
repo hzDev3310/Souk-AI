@@ -4,6 +4,7 @@ import api from '@/lib/api';
 import CardBox from '@/components/shared/CardBox';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import {
     Table,
@@ -191,11 +192,11 @@ const Clients = () => {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted font-bold text-sm gap-2">
+                        <Button variant="outlinemuted" size="xl" padding="lg" rounded="2xl" className="font-bold">
                             <Filter size={18} className="text-muted-foreground" />
                             {t('common.actions.filter') || 'Filter'}
                         </Button>
-                        <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted font-bold text-sm gap-2">
+                        <Button variant="outlinemuted" size="xl" padding="lg" rounded="2xl" className="font-bold">
                             <Download size={18} className="text-muted-foreground" />
                             {t('common.actions.export') || 'Export'}
                         </Button>
@@ -333,40 +334,51 @@ const Clients = () => {
                                             </span>
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-end">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleView(client)}
-                                                    className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20"
-                                                    title="View Order History"
-                                                >
-                                                    <Eye size={18} strokeWidth={2.5} />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleEdit(client)}
-                                                    className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20"
-                                                >
-                                                    <Pencil size={18} strokeWidth={2.5} />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleToggleBlock(client)}
-                                                    className={`h-9 w-9 rounded-xl ${client.isBlocked ? 'text-emerald-500 hover:bg-emerald-500/20' : 'text-amber-500 hover:bg-amber-500/20'}`}
-                                                >
-                                                    {client.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleDelete(client.id)}
-                                                    className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20"
-                                                >
-                                                    <Trash2 size={18} strokeWidth={2.5} />
-                                                </Button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Tooltip content={t('common.actions.view')}>
+                                                    <Button
+                                                        variant="soft"
+                                                        size="iconsm"
+                                                        rounded="xl"
+                                                        color="secondary"
+                                                        onClick={() => handleView(client)}
+                                                    >
+                                                        <Eye size={18} strokeWidth={2.5} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content={t('common.actions.edit')}>
+                                                    <Button
+                                                        variant="soft"
+                                                        size="iconsm"
+                                                        rounded="xl"
+                                                        color="primary"
+                                                        onClick={() => handleEdit(client)}
+                                                    >
+                                                        <Pencil size={18} strokeWidth={2.5} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content={client.isBlocked ? t('common.actions.unblock') : t('common.actions.block')}>
+                                                    <Button
+                                                        variant="soft"
+                                                        size="iconsm"
+                                                        rounded="xl"
+                                                        color={client.isBlocked ? 'success' : 'warning'}
+                                                        onClick={() => handleToggleBlock(client)}
+                                                    >
+                                                        {client.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content={t('common.actions.delete')}>
+                                                    <Button
+                                                        variant="soft"
+                                                        size="iconsm"
+                                                        rounded="xl"
+                                                        color="error"
+                                                        onClick={() => handleDelete(client.id)}
+                                                    >
+                                                        <Trash2 size={18} strokeWidth={2.5} />
+                                                    </Button>
+                                                </Tooltip>
                                             </div>
                                         </TableCell>
                                     </tr>
@@ -386,10 +398,10 @@ const Clients = () => {
                     maxWidth="max-w-lg"
                     footer={
                         <>
-                            <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 rounded-xl font-bold border border-border/50 hover:bg-muted transition-all">
+                            <Button type="button" variant="outlinemuted" size="xl" padding="xl" rounded="xl" className="font-bold" onClick={() => setIsDialogOpen(false)}>
                                 {t('admin.clients.form.cancel')}
                             </Button>
-                            <Button onClick={handleSubmit} className="h-12 px-8 rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20 hover:bg-primaryemphasis transition-all">
+                            <Button onClick={handleSubmit} size="xl" padding="2xl" rounded="xl" className="font-black shadow-lg shadow-primary/20 transition-all">
                                 {editingClient ? t('admin.clients.form.update') : t('admin.clients.form.create')}
                             </Button>
                         </>
@@ -467,7 +479,7 @@ const Clients = () => {
                     icon={ShoppingCart}
                     maxWidth="max-w-4xl"
                     footer={
-                        <Button onClick={() => { setViewingClient(null); setClientOrders([]); }} className="h-12 px-6 rounded-xl font-bold bg-muted text-foreground hover:bg-muted/80">
+                        <Button onClick={() => { setViewingClient(null); setClientOrders([]); }} size="xl" padding="xl" rounded="xl" className="font-bold bg-muted text-foreground hover:bg-muted/80">
                             {t('common.close') || "Close"}
                         </Button>
                     }

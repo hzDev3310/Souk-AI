@@ -138,7 +138,7 @@ const Register = () => {
             <div className="absolute top-6 right-6 flex items-center gap-3 z-50 px-4 py-2 bg-background/40 backdrop-blur-md rounded-full border border-border/50 shadow-sm">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="rounded-full w-9 h-9 hover:bg-primary/10 transition-colors"><Languages className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="iconsm" rounded="full"><Languages className="h-4 w-4" /></Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="bg-popover/90 backdrop-blur-lg border-border">
                         <DropdownMenuItem onClick={() => changeLanguage('en')}>English</DropdownMenuItem>
@@ -147,7 +147,7 @@ const Register = () => {
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <div className="w-[1px] h-4 bg-border" />
-                <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full w-9 h-9 hover:bg-primary/10 transition-colors">
+                <Button variant="ghost" size="iconsm" rounded="full" onClick={toggleTheme}>
                     {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
             </div>
@@ -165,7 +165,7 @@ const Register = () => {
                                 </div>
                                 <h2 className="text-3xl font-black text-foreground mb-4">{t('auth.register.successTitle')}</h2>
                                 <p className="text-muted-foreground mb-8 text-lg">{t('auth.register.successOther')}</p>
-                                <Button asChild className="w-full h-14 rounded-2xl bg-primary hover:bg-primaryemphasis text-lg font-bold shadow-xl shadow-primary/20">
+                                <Button asChild size="hero" rounded="2xl" className="text-lg font-bold shadow-xl shadow-primary/20">
                                     <Link to={ADMIN_LOGIN_PATH}>{t('auth.register.goToLogin')}</Link>
                                 </Button>
                             </div>
@@ -186,7 +186,7 @@ const Register = () => {
                                         
                                         {errors.general && <div className="p-4 bg-error/10 text-error rounded-xl text-sm font-bold border border-error/20">{errors.general}</div>}
 
-                                        <Button type="submit" disabled={loading} className="w-full h-14 rounded-2xl bg-primary hover:bg-primaryemphasis text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                                        <Button type="submit" disabled={loading} size="hero" rounded="2xl" className="text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
                                             {loading ? t('auth.register.submitting') : t('auth.register.submit')}
                                         </Button>
                                     </form>

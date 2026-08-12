@@ -391,7 +391,7 @@ const StoreOrders = () => {
                     icon={ShoppingCart}
                     maxWidth="max-w-4xl"
                     footer={
-                        <Button onClick={() => setViewingOrder(null)} className="rounded-xl font-black bg-muted text-foreground hover:bg-muted/80">
+                        <Button onClick={() => setViewingOrder(null)} rounded="xl" className="font-black bg-muted text-foreground hover:bg-muted/80">
                             {t("store.orders.view.close") || "Close"}
                         </Button>
                     }

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import CardBox from '@/components/shared/CardBox';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import {
     Table,
@@ -152,11 +153,11 @@ const ShippingCompanies = () => {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted font-bold text-sm gap-2">
+                        <Button variant="outlinemuted" size="xl" padding="lg" rounded="2xl" className="font-bold">
                             <Filter size={18} className="text-muted-foreground" />
                             {t('common.actions.filter') || 'Filter'}
                         </Button>
-                        <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted font-bold text-sm gap-2">
+                        <Button variant="outlinemuted" size="xl" padding="lg" rounded="2xl" className="font-bold">
                             <Download size={18} className="text-muted-foreground" />
                             {t('common.actions.export') || 'Export'}
                         </Button>
@@ -306,32 +307,40 @@ const ShippingCompanies = () => {
                                             </span>
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-end">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleViewEmployees(company.id)}
-                                                    className="h-9 w-9 rounded-xl text-blue-500 hover:bg-blue-500/10"
-                                                    title="View Fleet"
-                                                >
-                                                    <Users size={18} strokeWidth={2.5} />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleEdit(company)}
-                                                    className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20"
-                                                >
-                                                    <Pencil size={18} strokeWidth={2.5} />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleDelete(company.id)}
-                                                    className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20"
-                                                >
-                                                    <Trash2 size={18} strokeWidth={2.5} />
-                                                </Button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Tooltip content={t('common.actions.viewFleet')}>
+                                                    <Button
+                                                        variant="soft"
+                                                        size="iconsm"
+                                                        rounded="xl"
+                                                        color="info"
+                                                        onClick={() => handleViewEmployees(company.id)}
+                                                    >
+                                                        <Users size={18} strokeWidth={2.5} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content={t('common.actions.edit')}>
+                                                    <Button
+                                                        variant="soft"
+                                                        size="iconsm"
+                                                        rounded="xl"
+                                                        color="primary"
+                                                        onClick={() => handleEdit(company)}
+                                                    >
+                                                        <Pencil size={18} strokeWidth={2.5} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content={t('common.actions.delete')}>
+                                                    <Button
+                                                        variant="soft"
+                                                        size="iconsm"
+                                                        rounded="xl"
+                                                        color="error"
+                                                        onClick={() => handleDelete(company.id)}
+                                                    >
+                                                        <Trash2 size={18} strokeWidth={2.5} />
+                                                    </Button>
+                                                </Tooltip>
                                             </div>
                                         </TableCell>
                                     </tr>
@@ -351,10 +360,10 @@ const ShippingCompanies = () => {
                     maxWidth="max-w-2xl"
                     footer={
                         <>
-                            <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 rounded-xl font-bold border border-border/50 hover:bg-muted transition-all">
+                            <Button type="button" variant="outlinemuted" size="xl" padding="xl" rounded="xl" className="font-bold" onClick={() => setIsDialogOpen(false)}>
                                 {t('admin.shippingCompanies.form.cancel')}
                             </Button>
-                            <Button onClick={handleSubmit} className="h-12 px-8 rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20 hover:bg-primaryemphasis transition-all">
+                            <Button onClick={handleSubmit} size="xl" padding="2xl" rounded="xl" className="font-black shadow-lg shadow-primary/20 transition-all">
                                 {editingCompany ? t('admin.shippingCompanies.form.update') : t('admin.shippingCompanies.form.create')}
                             </Button>
                         </>

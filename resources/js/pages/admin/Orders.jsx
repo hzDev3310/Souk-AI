@@ -4,6 +4,7 @@ import api from "@/lib/api";
 import CardBox from "@/components/shared/CardBox";
 import AdminPageLayout from "@/components/shared/AdminPageLayout";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import {
     Table,
@@ -228,7 +229,7 @@ const Orders = () => {
                                             </Button>
                                             <DropdownMenu>
                                                 <DropdownMenuTrigger asChild>
-                                                    <Button size="icon" variant="ghost" className="h-10 w-10 rounded-2xl bg-muted/50 hover:bg-muted">
+                                                    <Button size="icon" variant="ghost" rounded="2xl" className="bg-muted/50 hover:bg-muted">
                                                         <ChevronDown size={18} />
                                                     </Button>
                                                 </DropdownMenuTrigger>
@@ -328,7 +329,7 @@ const Orders = () => {
                                                 
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
-                                                        <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl hover:bg-muted">
+                                                        <Button size="iconsm" variant="ghost" rounded="xl" className="hover:bg-muted">
                                                             <ChevronDown size={18} />
                                                         </Button>
                                                     </DropdownMenuTrigger>
@@ -381,7 +382,7 @@ const Orders = () => {
                             )}
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="rounded-xl font-black gap-2">
+                                    <Button variant="outline" rounded="xl" className="font-black">
                                         LOGISTIQUE <ChevronDown size={14} />
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -391,7 +392,7 @@ const Orders = () => {
                                     <DropdownMenuItem onClick={() => updateStatus(viewingOrder.id, 'shipped')} className="font-bold text-[10px] uppercase">LIVRÉ</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Button onClick={() => setViewingOrder(null)} className="rounded-xl font-black bg-muted text-foreground hover:bg-muted/80">
+                            <Button onClick={() => setViewingOrder(null)} rounded="xl" className="font-black bg-muted text-foreground hover:bg-muted/80">
                                 {t("admin.orders.view.close") || "Close"}
                             </Button>
                         </div>
@@ -475,7 +476,7 @@ const Orders = () => {
                                                 {storeGrp.allConfirmed ? <CheckCircle2 size={12} className="text-emerald-500" /> : <Clock size={12} className="text-amber-500" />}
                                             </div>
                                             {storeGrp.phone && (
-                                                <Button size="sm" variant="outline" className="h-7 rounded-lg gap-1.5 font-bold text-[9px] px-3" onClick={() => window.open(`tel:${storeGrp.phone}`)}>
+                                                <Button size="xs" variant="outline" padding="sm" rounded="lg" className="gap-1.5 font-bold text-[9px]" onClick={() => window.open(`tel:${storeGrp.phone}`)}>
                                                     <Phone size={10} />
                                                     APPELER
                                                 </Button>
@@ -500,7 +501,7 @@ const Orders = () => {
                                                                         <div className="flex items-center gap-2 mt-1">
                                                                             <DropdownMenu>
                                                                                 <DropdownMenuTrigger asChild>
-                                                                                    <Button variant="ghost" size="sm" className={`h-5 text-[9px] font-black px-1.5 py-0.5 rounded ${item.status === 'confirme' ? 'bg-emerald-500/10 text-emerald-500' : item.status === 'annule' ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                                                                                    <Button variant="ghost" size="xxs" padding="xs" className={`text-[9px] font-black ${item.status === 'confirme' ? 'bg-emerald-500/10 text-emerald-500' : item.status === 'annule' ? 'bg-rose-500/10 text-rose-500' : 'bg-amber-500/10 text-amber-500'}`}>
                                                                                         {item.status.toUpperCase()} <ChevronDown size={8} className="ml-1" />
                                                                                     </Button>
                                                                                 </DropdownMenuTrigger>
@@ -517,9 +518,11 @@ const Orders = () => {
                                                             <TableCell className="text-center font-bold text-xs">x {item.quantity}</TableCell>
                                                             <TableCell className="text-end font-black text-primary text-sm">{item.price * item.quantity} TND</TableCell>
                                                             <TableCell className="text-end">
-                                                                <Button variant="ghost" size="sm" className="h-8 w-8 rounded-full text-rose-500 hover:bg-rose-500/10" onClick={() => removeItem(viewingOrder.id, item.id)}>
-                                                                    <XCircle size={14} />
-                                                                </Button>
+                                                                <Tooltip content={t('common.actions.delete')}>
+                                                                    <Button variant="soft" size="iconsm" rounded="full" color="error" onClick={() => removeItem(viewingOrder.id, item.id)}>
+                                                                        <XCircle size={14} />
+                                                                    </Button>
+                                                                </Tooltip>
                                                             </TableCell>
                                                         </TableRow>
                                                     ))}

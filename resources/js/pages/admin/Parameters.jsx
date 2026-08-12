@@ -93,7 +93,7 @@ const Parameters = () => {
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                     state === 'saved'
                         ? 'bg-emerald-500 text-white'
-                        : 'bg-primary/10 text-primary hover:bg-primary hover:text-white opacity-0 group-hover:opacity-100'
+                        : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'
                 }`}
             >
                 {state === 'saving' ? <RefreshCcw className="w-3 h-3 animate-spin" /> :

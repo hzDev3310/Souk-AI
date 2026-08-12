@@ -5,6 +5,8 @@ import api from '@/lib/api';
 import CardBox from '@/components/shared/CardBox';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
+import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import {
     Table,
@@ -73,6 +75,17 @@ const Categories = () => {
         navigate(`/dashboard/categories/${category.id}/edit`);
     };
 
+    const handleToggleActive = async (category) => {
+        const newValue = !category.isActive;
+        setCategories((prev) => prev.map((c) => c.id === category.id ? { ...c, isActive: newValue } : c));
+        try {
+            await api.put(`/admin/categories/${category.id}`, { isActive: newValue });
+        } catch (error) {
+            console.error('Error toggling category status:', error);
+            setCategories((prev) => prev.map((c) => c.id === category.id ? { ...c, isActive: !newValue } : c));
+        }
+    };
+
     const handleView = (category) => {
         navigate(`/dashboard/categories/${category.id}`);
     };
@@ -117,13 +130,13 @@ const Categories = () => {
 
                 {currentCategory && (
                     <div className="flex flex-wrap items-center gap-2 rounded-[24px] border border-border/50 bg-card/70 p-3">
-                        <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/categories')} className="rounded-xl">
+                        <Button variant="ghost" size="sm" rounded="xl" onClick={() => navigate('/dashboard/categories')}>
                             {t('admin.categories.title') || 'Categories'}
                         </Button>
                         {currentCategory.parent && (
                             <>
                                 <ChevronRight size={16} className="text-muted-foreground" />
-                                <Button variant="ghost" size="sm" onClick={() => navigate(`/dashboard/categories/${currentCategory.parent.id}`)} className="rounded-xl">
+                                <Button variant="ghost" size="sm" rounded="xl" onClick={() => navigate(`/dashboard/categories/${currentCategory.parent.id}`)}>
                                     {currentCategory.parent.name_fr || currentCategory.parent.name_en}
                                 </Button>
                             </>
@@ -163,9 +176,12 @@ const Categories = () => {
                                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{category.name_en}</p>
                                         </div>
                                     </div>
-                                    <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${category.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
-                                        {category.isActive ? (t('admin.categories.table.active') || 'Active') : (t('admin.categories.table.inactive') || 'Inactive')}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-[10px] font-black uppercase tracking-tight ${category.isActive ? 'text-emerald-500' : 'text-red-500'}`}>
+                                            {category.isActive ? (t('admin.categories.table.active') || 'Active') : (t('admin.categories.table.inactive') || 'Inactive')}
+                                        </span>
+                                        <Switch size="sm" checked={category.isActive} onCheckedChange={() => handleToggleActive(category)} />
+                                    </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
@@ -175,15 +191,16 @@ const Categories = () => {
                                     </div>
                                     <div>
                                         <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.categories.table.status') || 'Status'}</p>
-                                        {category.isActive ? (
-                                            <div className="flex items-center gap-1.5 text-emerald-500 font-bold text-xs uppercase">
-                                                <CheckCircle2 size={14} /> {t('admin.categories.table.active') || 'Active'}
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-1.5 text-red-500 font-bold text-xs uppercase">
-                                                <XCircle size={14} /> {t('admin.categories.table.inactive') || 'Inactive'}
-                                            </div>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {category.isActive ? (
+                                                <CheckCircle2 size={14} className="text-emerald-500" />
+                                            ) : (
+                                                <XCircle size={14} className="text-red-500" />
+                                            )}
+                                            <span className={`font-bold text-xs uppercase ${category.isActive ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                {category.isActive ? (t('admin.categories.table.active') || 'Active') : (t('admin.categories.table.inactive') || 'Inactive')}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -257,27 +274,35 @@ const Categories = () => {
                                     </TableCell>
                                     <TableCell className="py-4 px-6 font-mono text-[10px] text-muted-foreground">{category.slug}</TableCell>
                                     <TableCell className="py-4 px-6">
-                                        {category.isActive ? (
-                                            <div className="flex items-center gap-2 text-emerald-500 font-bold text-xs uppercase">
-                                                <CheckCircle2 size={14} /> {t('admin.categories.table.active') || 'Active'}
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-2 text-red-500 font-bold text-xs uppercase">
-                                                <XCircle size={14} /> {t('admin.categories.table.inactive') || 'Inactive'}
-                                            </div>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {category.isActive ? (
+                                                <CheckCircle2 size={14} className="text-emerald-500" />
+                                            ) : (
+                                                <XCircle size={14} className="text-red-500" />
+                                            )}
+                                            <span className={`font-bold text-xs uppercase ${category.isActive ? 'text-emerald-500' : 'text-red-500'}`}>
+                                                {category.isActive ? (t('admin.categories.table.active') || 'Active') : (t('admin.categories.table.inactive') || 'Inactive')}
+                                            </span>
+                                            <Switch size="sm" checked={category.isActive} onCheckedChange={() => handleToggleActive(category)} />
+                                        </div>
                                     </TableCell>
                                     <TableCell className="py-4 px-6 text-end">
-                                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20" onClick={() => handleView(category)}>
-                                                <Eye size={18} />
-                                            </Button>
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20" onClick={() => handleEdit(category)}>
-                                                <Pencil size={18} />
-                                            </Button>
-                                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20" onClick={() => handleDelete(category)}>
-                                                <Trash2 size={18} />
-                                            </Button>
+                                        <div className="flex justify-end gap-2">
+                                            <Tooltip content={t('common.actions.view')}>
+                                                <Button size="iconsm" variant="soft" rounded="xl" color="secondary" onClick={() => handleView(category)}>
+                                                    <Eye size={18} />
+                                                </Button>
+                                            </Tooltip>
+                                            <Tooltip content={t('common.actions.edit')}>
+                                                <Button size="iconsm" variant="soft" rounded="xl" color="primary" onClick={() => handleEdit(category)}>
+                                                    <Pencil size={18} />
+                                                </Button>
+                                            </Tooltip>
+                                            <Tooltip content={t('common.actions.delete')}>
+                                                <Button size="iconsm" variant="soft" rounded="xl" color="error" onClick={() => handleDelete(category)}>
+                                                    <Trash2 size={18} />
+                                                </Button>
+                                            </Tooltip>
                                         </div>
                                     </TableCell>
                                 </tr>

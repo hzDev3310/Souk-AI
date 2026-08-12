@@ -5,6 +5,8 @@ import api from '@/lib/api';
 import CardBox from '@/components/shared/CardBox';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
+import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -69,6 +71,17 @@ const Stores = () => {
     }
   };
 
+  const handleToggleActive = async (store) => {
+    const newValue = !(store.store?.isActive ?? true);
+    setStores((prev) => prev.map((s) => s.id === store.id ? { ...s, store: { ...s.store, isActive: newValue } } : s));
+    try {
+      await api.put(`/admin/users/stores/${store.id}`, { isActive: newValue });
+    } catch (error) {
+      console.error('Error toggling store status:', error);
+      setStores((prev) => prev.map((s) => s.id === store.id ? { ...s, store: { ...s.store, isActive: !newValue } } : s));
+    }
+  };
+
   const filteredStores = stores.filter(store =>
     store.name?.toLowerCase().includes(search.toLowerCase()) ||
     store.email?.toLowerCase().includes(search.toLowerCase()) ||
@@ -97,11 +110,11 @@ const Stores = () => {
             </div>
             
             <div className="flex items-center gap-2">
-                <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted hover:text-foreground font-bold text-sm gap-2">
+                <Button variant="outlinemuted" size="xl" rounded="2xl" className="font-bold">
                     <Filter size={18} className="text-muted-foreground" />
                     {t('common.actions.filter') || 'Filter'}
                 </Button>
-                <Button variant="outline" className="h-12 px-5 rounded-2xl border-border/60 bg-card hover:bg-muted hover:text-foreground font-bold text-sm gap-2">
+                <Button variant="outlinemuted" size="xl" rounded="2xl" className="font-bold">
                     <Download size={18} className="text-muted-foreground" />
                     {t('common.actions.export') || 'Export'}
                 </Button>
@@ -138,9 +151,12 @@ const Stores = () => {
                                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{store.store?.matriculeFiscale || 'No MAT'}</p>
                                     </div>
                                 </div>
-                                <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${store.isBlocked ? 'bg-red-500/10 text-red-600' : store.store?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
-                                    {store.isBlocked ? 'Blocked' : store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`text-[10px] font-black uppercase tracking-tight ${store.isBlocked ? 'text-red-500' : store.store?.isActive ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                        {store.isBlocked ? 'Blocked' : store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
+                                    </span>
+                                    <Switch size="sm" checked={store.store?.isActive ?? true} onCheckedChange={() => handleToggleActive(store)} />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4 py-2 border-y border-border/40">
@@ -160,30 +176,39 @@ const Stores = () => {
                                     <p className="text-xs font-bold text-primary truncate max-w-[150px]">{store.email}</p>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleEdit(store)}
-                                        className="h-10 w-10 rounded-2xl bg-primary/5 text-primary hover:bg-primary/20"
-                                    >
-                                        <Pencil size={18} strokeWidth={2.5} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleToggleBlock(store)}
-                                        className={`h-10 w-10 rounded-2xl ${store.isBlocked ? 'bg-emerald-500/5 text-emerald-500 hover:bg-emerald-500/20' : 'bg-amber-500/5 text-amber-500 hover:bg-amber-500/20'}`}
-                                    >
-                                        {store.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        onClick={() => handleDelete(store.id)}
-                                        className="h-10 w-10 rounded-2xl bg-red-500/5 text-red-500 hover:bg-red-500/20"
-                                    >
-                                        <Trash2 size={18} strokeWidth={2.5} />
-                                    </Button>
+                                    <Tooltip content={t('common.actions.edit')}>
+                                        <Button
+                                            variant="soft"
+                                            size="icon"
+                                            color="primary"
+                                            rounded="2xl"
+                                            onClick={() => handleEdit(store)}
+                                        >
+                                            <Pencil size={18} strokeWidth={2.5} />
+                                        </Button>
+                                    </Tooltip>
+                                    <Tooltip content={store.isBlocked ? t('common.actions.unblock') : t('common.actions.block')}>
+                                        <Button
+                                            variant="soft"
+                                            size="icon"
+                                            color={store.isBlocked ? 'success' : 'warning'}
+                                            rounded="2xl"
+                                            onClick={() => handleToggleBlock(store)}
+                                        >
+                                            {store.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
+                                        </Button>
+                                    </Tooltip>
+                                    <Tooltip content={t('common.actions.delete')}>
+                                        <Button
+                                            variant="soft"
+                                            size="icon"
+                                            color="error"
+                                            rounded="2xl"
+                                            onClick={() => handleDelete(store.id)}
+                                        >
+                                            <Trash2 size={18} strokeWidth={2.5} />
+                                        </Button>
+                                    </Tooltip>
                                 </div>
                             </div>
                         </div>
@@ -237,36 +262,48 @@ const Stores = () => {
                                 <TableCell className="py-4 px-6 text-sm text-muted-foreground font-medium">{store.email}</TableCell>
                                 <TableCell className="py-4 px-6 text-sm text-muted-foreground font-medium">{store.store?.storePhone || '-'}</TableCell>
                                 <TableCell className="py-4 px-6">
-                                    <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight ${store.isBlocked ? 'bg-red-500/10 text-red-600' : store.store?.isActive ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
-                                        {store.isBlocked ? 'Blocked' : store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-[10px] font-black uppercase tracking-tight ${store.isBlocked ? 'text-red-500' : store.store?.isActive ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                            {store.isBlocked ? 'Blocked' : store.store?.isActive ? t('admin.stores.status.active') : t('admin.stores.status.inactive')}
+                                        </span>
+                                        <Switch size="sm" checked={store.store?.isActive ?? true} onCheckedChange={() => handleToggleActive(store)} />
+                                    </div>
                                 </TableCell>
                                 <TableCell className="py-4 px-6 text-end">
-                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleEdit(store)}
-                                            className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20"
-                                        >
-                                            <Pencil size={18} strokeWidth={2.5} />
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleToggleBlock(store)}
-                                            className={`h-9 w-9 rounded-xl ${store.isBlocked ? 'text-emerald-500 hover:bg-emerald-500/20' : 'text-amber-500 hover:bg-amber-500/20'}`}
-                                        >
-                                            {store.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
-                                        </Button>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => handleDelete(store.id)}
-                                            className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20"
-                                        >
-                                            <Trash2 size={18} strokeWidth={2.5} />
-                                        </Button>
+                                    <div className="flex items-center justify-end gap-2  transition-opacity">
+                                        <Tooltip content={t('common.actions.edit')}>
+                                            <Button
+                                                variant="soft"
+                                                size="iconsm"
+                                                color="primary"
+                                                rounded="xl"
+                                                onClick={() => handleEdit(store)}
+                                            >
+                                                <Pencil size={18} strokeWidth={2.5} />
+                                            </Button>
+                                        </Tooltip>
+                                        <Tooltip content={store.isBlocked ? t('common.actions.unblock') : t('common.actions.block')}>
+                                            <Button
+                                                variant="soft"
+                                                size="iconsm"
+                                                color={store.isBlocked ? 'success' : 'warning'}
+                                                rounded="xl"
+                                                onClick={() => handleToggleBlock(store)}
+                                            >
+                                                {store.isBlocked ? <ShieldCheck size={18} strokeWidth={2.5} /> : <Ban size={18} strokeWidth={2.5} />}
+                                            </Button>
+                                        </Tooltip>
+                                        <Tooltip content={t('common.actions.delete')}>
+                                            <Button
+                                                variant="soft"
+                                                size="iconsm"
+                                                color="error"
+                                                rounded="xl"
+                                                onClick={() => handleDelete(store.id)}
+                                            >
+                                                <Trash2 size={18} strokeWidth={2.5} />
+                                            </Button>
+                                        </Tooltip>
                                     </div>
                                 </TableCell>
                             </tr>

@@ -208,7 +208,7 @@ const Dashboard = () => {
               ))}
             </div>
 
-            <Button className="w-full mt-8 rounded-2xl bg-muted hover:bg-muted/80 text-foreground font-bold shadow-none border border-border/50">
+            <Button size="hero" rounded="2xl" className="mt-8 bg-muted hover:bg-muted/80 text-foreground font-bold shadow-none border border-border/50">
               Generate Full Report
             </Button>
           </CardBox>

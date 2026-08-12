@@ -6,6 +6,7 @@ import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import CardBox from '@/components/shared/CardBox';
 import Modal from '@/components/shared/Modal';
 import { Button } from '@/components/ui/button';
+import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import {
     Table,
@@ -217,16 +218,22 @@ const Products = () => {
                                             </div>
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-end">
-                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-secondary hover:bg-secondary/20" onClick={() => setViewingProduct(product)}>
-                                                    <Eye size={18} />
-                                                </Button>
-                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-primary hover:bg-primary/20" onClick={() => handleEdit(product)}>
-                                                    <Pencil size={18} />
-                                                </Button>
-                                                <Button size="icon" variant="ghost" className="h-9 w-9 rounded-xl text-red-500 hover:bg-red-500/20 hover:text-red-600" onClick={() => handleDelete(product)}>
-                                                    <Trash2 size={18} />
-                                                </Button>
+                                            <div className="flex justify-end gap-2">
+                                                <Tooltip content={t('common.actions.view')}>
+                                                    <Button size="iconsm" variant="soft" rounded="xl" color="secondary" onClick={() => setViewingProduct(product)}>
+                                                        <Eye size={18} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content={t('common.actions.edit')}>
+                                                    <Button size="iconsm" variant="soft" rounded="xl" color="primary" onClick={() => handleEdit(product)}>
+                                                        <Pencil size={18} />
+                                                    </Button>
+                                                </Tooltip>
+                                                <Tooltip content={t('common.actions.delete')}>
+                                                    <Button size="iconsm" variant="soft" rounded="xl" color="error" onClick={() => handleDelete(product)}>
+                                                        <Trash2 size={18} />
+                                                    </Button>
+                                                </Tooltip>
                                             </div>
                                         </TableCell>
                                     </tr>
@@ -251,7 +258,7 @@ const Products = () => {
                     icon={Package}
                     maxWidth="max-w-3xl"
                     footer={
-                        <Button variant="ghost" onClick={() => setViewingProduct(null)} className="rounded-xl font-bold bg-muted/30">
+                        <Button variant="ghost" rounded="xl" onClick={() => setViewingProduct(null)} className="font-bold bg-muted/30">
                             {t('admin.products.view.close') || "Close"}
                         </Button>
                     }

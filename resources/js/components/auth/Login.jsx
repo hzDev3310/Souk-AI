@@ -106,7 +106,7 @@ const Login = () => {
             <div className="absolute top-6 right-6 z-50 flex items-center gap-3 rounded-full border border-border/50 bg-background/80 px-4 py-2 shadow-sm backdrop-blur-sm">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-primary/10">
+                        <Button variant="ghost" size="iconsm" rounded="full">
                             <Languages className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
@@ -117,7 +117,7 @@ const Login = () => {
                     </DropdownMenuContent>
                 </DropdownMenu>
                 <div className="h-4 w-px bg-border" />
-                <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-9 w-9 rounded-full hover:bg-primary/10">
+                <Button variant="ghost" size="iconsm" rounded="full" onClick={toggleTheme}>
                     {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </Button>
             </div>

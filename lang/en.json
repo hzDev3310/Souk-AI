@@ -531,5 +531,11 @@
     "website.vipTitle": "Join Our VIP List",
     "website.visit": "Visit Store",
     "website.welcome": "Welcome",
-    "welcome_message": "The project has been reset. Start building your amazing application!"
+    "welcome_message": "The project has been reset. Start building your amazing application!",
+    "common.actions.edit": "Edit",
+    "common.actions.delete": "Delete",
+    "common.actions.view": "View",
+    "common.actions.block": "Block",
+    "common.actions.unblock": "Unblock",
+    "common.actions.viewFleet": "View Fleet"
 }

@@ -531,5 +531,11 @@
     "website.vipTitle": "انضم إلى قائمة VIP الخاصة بنا",
     "website.visit": "زيارة المتجر",
     "website.welcome": "مرحباً",
-    "welcome_message": "تمت إعادة تعيين المشروع. ابدأ في بناء تطبيقك الرائع!"
+    "welcome_message": "تمت إعادة تعيين المشروع. ابدأ في بناء تطبيقك الرائع!",
+    "common.actions.edit": "تعديل",
+    "common.actions.delete": "حذف",
+    "common.actions.view": "عرض",
+    "common.actions.block": "حظر",
+    "common.actions.unblock": "إلغاء الحظر",
+    "common.actions.viewFleet": "عرض الأسطول"
 }

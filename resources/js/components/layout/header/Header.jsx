@@ -77,7 +77,7 @@ const Header = ({ onMenuClick }) => {
           {/* Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-10 px-3 rounded-2xl bg-card border border-border/50 hover:bg-muted text-foreground transition-all gap-2">
+              <Button variant="outlinemuted" padding="sm" rounded="2xl" className="transition-all">
                 <Globe size={18} className="text-primary" />
                 <span className="text-xs font-black uppercase tracking-widest hidden sm:inline">{language}</span>
                 <ChevronDown size={14} className="text-muted-foreground" />
