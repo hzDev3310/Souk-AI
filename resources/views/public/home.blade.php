@@ -12,7 +12,7 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section class="relative h-[480px] rounded-[60px] overflow-hidden mb-16 shadow-2xl shadow-primary/10" id="heroCarousel">
+    <section class="relative h-[400px] sm:h-[480px] rounded-[32px] sm:rounded-[60px] overflow-hidden mb-12 md:mb-16 shadow-2xl shadow-primary/10" id="heroCarousel">
         <div class="absolute inset-0 bg-gradient-to-br from-primary/40 via-primaryemphasis/50 to-main-bg-dark/70 z-10">
         </div>
 
@@ -29,33 +29,33 @@
                     onerror="this.onerror=null; this.style.display='none';">
             @endforeach
         @else
-            <img src="{{ setting('hero_image') ? (str_starts_with(setting('hero_image'), 'http') ? setting('hero_image') : '/storage/' . setting('hero_image')) : 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop' }}"
+            <img src="{{ image_url(setting('hero_image'), 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop') }}"
                 class="absolute inset-0 w-full h-full object-cover"
                 onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
         @endif
 
-        <div class="relative z-20 h-full flex flex-col justify-center items-start px-12 md:px-24 max-w-4xl space-y-8">
+        <div class="relative z-20 h-full flex flex-col justify-center items-start px-6 sm:px-12 md:px-24 max-w-4xl space-y-6 md:space-y-8">
             <div
                 class="inline-flex items-center gap-2 px-4 py-1.5 glass rounded-full border-blue-400/20 text-white text-[10px] font-black uppercase tracking-[0.2em]">
                 <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
                 {{ __('website.specialOffer') }}
             </div>
 
-            <h1 class="text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tight">
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-[1.05] tracking-tight">
                 {!! preg_replace('/\*(.*?)\*/', '<span class="text-secondary">$1</span>', setting('hero_title_' . app()->getLocale(), __('website.heroTitle'))) !!}
             </h1>
 
-            <p class="text-lg text-white/80 font-medium max-w-xl leading-relaxed">
+            <p class="text-sm sm:text-lg text-white/80 font-medium max-w-xl leading-relaxed">
                 {{ setting('hero_subtitle_' . app()->getLocale(), __('website.heroSubtitle')) }}
             </p>
 
-            <div class="flex flex-wrap gap-4 pt-4">
+            <div class="flex flex-col sm:flex-row flex-wrap gap-4 pt-4 w-full sm:w-auto">
                 <a href="#section-1"
-                    class="px-8 py-4 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl shadow-black/10">
+                    class="px-8 py-4 bg-foreground text-background rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl shadow-black/10 text-center">
                     {{ __('website.exploreCollection') }}
                 </a>
                 <a href="/register"
-                    class="px-8 py-4 glass text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border-white/20">
+                    class="px-8 py-4 glass text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all border-white/20 text-center">
                     {{ __('website.joinAsSeller') }}
                 </a>
             </div>
@@ -79,9 +79,9 @@
 
     <!-- SECTION 1: Featured / Best Promo Products -->
     <section id="section-1" class="mb-20">
-        <div class="flex items-center justify-between mb-10 px-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-8 md:mb-10 px-4">
             <div class="flex items-center gap-4">
-                <h2 class="text-3xl font-black text-foreground tracking-tight">{{ __('website.featuredProducts') }}</h2>
+                <h2 class="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{{ __('website.featuredProducts') }}</h2>
                 @if($maxDiscount > 0)
                     <span class="px-3 py-1 bg-gradient-to-r from-rose-500 to-rose-600 text-white text-[10px] font-black uppercase tracking-widest rounded-full shadow-lg shadow-rose-500/30">
                         {{ __('website.upToOff', ['percent' => $maxDiscount]) }}
@@ -98,11 +98,11 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
             @forelse($topPromoProducts as $product)
                 <x-product-card :product="$product" :show-store="true" />
             @empty
-                <div class="col-span-1 sm:col-span-2 md:col-span-3 lg:col-span-4 py-10 text-center text-muted-foreground">
+                <div class="col-span-2 md:col-span-3 lg:col-span-4 py-10 text-center text-muted-foreground">
                     {{ __('website.noProductsCategory') }}
                 </div>
             @endforelse
@@ -127,9 +127,9 @@
     @endphp
 
     <section class="mb-20">
-        <div class="flex items-center justify-between mb-10 px-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-8 md:mb-10 px-4">
             <div>
-                <h2 class="text-3xl font-black text-foreground tracking-tight">{{ __('website.browseByCategory') }}</h2>
+                <h2 class="text-2xl sm:text-3xl font-black text-foreground tracking-tight">{{ __('website.browseByCategory') }}</h2>
                 <p class="text-sm font-bold text-muted-foreground mt-1 uppercase tracking-widest">
                     {{ __('website.categories') }}</p>
             </div>
@@ -152,10 +152,10 @@
                     $iconName = $category->icon ?: ($categoryIcons[$category->name_en] ?? $iconFallback);
                 @endphp
                 <a href="{{ route('public.category', $category->slug) }}"
-                    class="group relative flex flex-col items-center p-5 {{ $bgClass }} {{ $hoverBgClass }} border border-border/40 rounded-[28px] text-center hover:scale-105 transition-all duration-300 premium-shadow overflow-hidden">
+                    class="group relative flex flex-col items-center p-4 sm:p-5 {{ $bgClass }} {{ $hoverBgClass }} border border-border/40 rounded-[20px] sm:rounded-[28px] text-center hover:scale-105 transition-all duration-300 premium-shadow overflow-hidden">
                     {{-- Icon container --}}
-                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300">
-                        <span class="text-foreground/70 group-hover:text-white">{!! lucide_icon($iconName, 'w-7 h-7') !!}</span>
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-all duration-300">
+                        <span class="text-foreground/70 group-hover:text-white">{!! lucide_icon($iconName, 'w-6 h-6 sm:w-7 sm:h-7') !!}</span>
                     </div>
 
                     {{-- Category name --}}
@@ -178,9 +178,9 @@
 
     <!-- SECTION 3: Latest Products (Recent Additions) -->
     <section class="mb-20">
-        <div class="flex items-center justify-between mb-10 px-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-8 md:mb-10 px-4">
             <div>
-                <h2 class="text-3xl font-black text-foreground tracking-tight">
+                <h2 class="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
                     {{ __('website.latestProducts') ?? 'Latest Products' }}</h2>
                 <p class="text-sm font-bold text-muted-foreground mt-1 uppercase tracking-widest">
                     {{ __('website.recentAdditions') ?? 'Recently Added' }}</p>
@@ -210,9 +210,9 @@
 
     <!-- SECTION 4: Top Stores by Orders -->
     <section class="mb-20">
-        <div class="flex items-center justify-between mb-10 px-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-8 md:mb-10 px-4">
             <div>
-                <h2 class="text-3xl font-black text-foreground tracking-tight">
+                <h2 class="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
                     {{ __('website.bestStores') ?? 'Best Stores' }}</h2>
                 <p class="text-sm font-bold text-muted-foreground mt-1 uppercase tracking-widest">
                     {{ __('website.topSellers') ?? 'Top Sellers' }}</p>
@@ -242,7 +242,7 @@
 
     <!-- Trust Banner -->
     <section
-        class="grid grid-cols-1 md:grid-cols-3 gap-8 p-12 bg-card glass border border-border/40 rounded-[60px] premium-shadow">
+        class="grid grid-cols-1 md:grid-cols-3 gap-8 p-6 sm:p-10 md:p-12 bg-card glass border border-border/40 rounded-[28px] sm:rounded-[40px] md:rounded-[60px] premium-shadow">
         <div class="flex flex-col items-center text-center space-y-4">
             <div class="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"

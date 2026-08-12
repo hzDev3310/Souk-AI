@@ -35,7 +35,7 @@
                             </div>
                             <input type="text" name="q" value="{{ request('q') }}"
                                 placeholder="Search for wallpapers, art, designs..."
-                                class="w-full pl-11 pr-4 py-2 bg-slate-50 dark:bg-slate-700/50 text-sm font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none rounded-l-full">
+                                class="w-full pl-11 pr-4 py-2 bg-transparent text-sm font-medium text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none rounded-l-full">
                         </div>
 
                         <!-- Middle Segment — Keyword Search Button -->

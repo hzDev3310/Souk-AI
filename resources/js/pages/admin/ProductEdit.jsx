@@ -80,7 +80,9 @@ const ProductEdit = () => {
                     condition: product.condition || 'NEW',
                     stock: product.stock || '0',
                     promo: product.promo || '0',
-                    categories: product.categories?.map(c => c.id) || []
+                    categories: Array.isArray(product.categories)
+                        ? product.categories.map(c => (typeof c === 'object' && c !== null ? c.id : c))
+                        : []
                 });
                 setExistingImages(product.albums || []);
             }
