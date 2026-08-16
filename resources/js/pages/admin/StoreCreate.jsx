@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import CardBox from '@/components/shared/CardBox';
+import GovernorateSelect from '@/components/shared/GovernorateSelect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Store, ArrowLeft, Save } from 'lucide-react';
@@ -23,6 +24,7 @@ const StoreCreate = () => {
     address: '',
     matriculeFiscale: '',
     rib: '',
+    governorate: '',
   });
 
   const handleSubmit = async (e) => {
@@ -223,6 +225,15 @@ const StoreCreate = () => {
                     className="h-12 bg-muted/30 border-border/50 rounded-xl"
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                  {t('admin.stores.form.governorate')}
+                </label>
+                <GovernorateSelect
+                  value={formData.governorate}
+                  onChange={(value) => handleChange('governorate', value)}
+                />
               </div>
             </div>
 

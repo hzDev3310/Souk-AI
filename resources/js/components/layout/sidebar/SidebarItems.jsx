@@ -81,6 +81,12 @@ export const SidebarContent = [
         roles: ['ADMIN'],
       },
       {
+        name: 'Delivery Zones',
+        icon: 'Map',
+        url: '/dashboard/zones',
+        roles: ['ADMIN'],
+      },
+      {
         name: 'About Page',
         icon: 'BookOpen',
         url: '/dashboard/pages/about',

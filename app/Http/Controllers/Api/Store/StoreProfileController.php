@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Store;
 
 use App\Http\Controllers\Concerns\HandlesFileUploads;
 use App\Http\Controllers\Controller;
+use App\Models\GeoZone;
 use App\Models\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -60,6 +61,7 @@ class StoreProfileController extends Controller
             'matriculeFiscale' => 'required|string|max:50',
             'rib' => 'required|string|max:100',
             'promo' => 'required|numeric|min:0|max:100',
+            'governorate' => 'nullable|in:' . implode(',', GeoZone::GOVERNORATES),
             'logo' => 'nullable|file|max:4096',
             'cover' => 'nullable|file|max:4096',
         ]);
@@ -69,6 +71,14 @@ class StoreProfileController extends Controller
                 'success' => false,
                 'message' => 'Validation failed',
                 'errors' => $validator->errors()
+            ], 422);
+        }
+
+        if ($request->has('governorate') && $request->governorate && !GeoZone::zoneForGovernorate($request->governorate)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('store.profile.messages.noZoneForGovernorate'),
+                'errors' => ['governorate' => [__('store.profile.messages.noZoneForGovernorate')]]
             ], 422);
         }
 

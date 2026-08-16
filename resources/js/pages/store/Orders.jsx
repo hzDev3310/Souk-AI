@@ -152,6 +152,16 @@ const StoreOrders = () => {
 
     const calculateStoreTotal = (order) => {
         const storeItems = getStoreItems(order);
+        return storeItems.reduce((sum, item) => sum + ((item.price - (item.commission || 0)) * item.quantity), 0);
+    };
+
+    const calculateStoreCommission = (order) => {
+        const storeItems = getStoreItems(order);
+        return storeItems.reduce((sum, item) => sum + ((item.commission || 0) * item.quantity), 0);
+    };
+
+    const calculateStoreGross = (order) => {
+        const storeItems = getStoreItems(order);
         return storeItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     };
 
@@ -536,8 +546,16 @@ const StoreOrders = () => {
 
                                 {/* Store Total */}
                                 <div className="flex justify-end p-6 bg-primary/5 rounded-[32px] border border-primary/10">
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase">{t("store.orders.view.yourTotal") || "Your Store Total"}</p>
+                                    <div className="text-right space-y-1.5">
+                                        <div className="flex items-center justify-end gap-3 text-xs font-bold text-muted-foreground">
+                                            <span>{t("store.orders.view.subtotal") || "Customer Total"}</span>
+                                            <span>{calculateStoreGross(viewingOrder).toFixed(2)} TND</span>
+                                        </div>
+                                        <div className="flex items-center justify-end gap-3 text-xs font-bold text-amber-600">
+                                            <span>{t("store.orders.view.commission") || "Platform Commission (10%)"}</span>
+                                            <span>- {calculateStoreCommission(viewingOrder).toFixed(2)} TND</span>
+                                        </div>
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase mt-2">{t("store.orders.view.yourTotal") || "Your Store Net"}</p>
                                         <p className="text-3xl font-black text-primary leading-none mt-1">
                                             {calculateStoreTotal(viewingOrder).toFixed(2)} TND
                                         </p>

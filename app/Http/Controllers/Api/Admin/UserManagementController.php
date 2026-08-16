@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\GeoZone;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -171,10 +172,15 @@ class UserManagementController extends Controller
             'address' => 'nullable|string',
             'matriculeFiscale' => 'nullable|string',
             'rib' => 'nullable|string',
+            'governorate' => 'nullable|in:' . implode(',', GeoZone::GOVERNORATES),
         ]);
         
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        if ($request->has('governorate') && $request->governorate && !GeoZone::zoneForGovernorate($request->governorate)) {
+            return response()->json(['errors' => ['governorate' => [__('admin.stores.messages.noZoneForGovernorate')]]], 422);
         }
         
         $user = $this->userService->createStore($request->all());
@@ -195,11 +201,16 @@ class UserManagementController extends Controller
             'address' => 'nullable|string',
             'matriculeFiscale' => 'nullable|string',
             'rib' => 'nullable|string',
+            'governorate' => 'nullable|in:' . implode(',', GeoZone::GOVERNORATES),
             'isActive' => 'nullable|boolean',
         ]);
         
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        if ($request->has('governorate') && $request->governorate && !GeoZone::zoneForGovernorate($request->governorate)) {
+            return response()->json(['errors' => ['governorate' => [__('admin.stores.messages.noZoneForGovernorate')]]], 422);
         }
         
         $user = $this->userService->updateStore($id, $request->all());

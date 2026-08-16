@@ -8,6 +8,7 @@ import Modal from '@/components/shared/Modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNotification } from '@/context/NotificationContext';
+import { useAuth } from '@/context/AuthContext';
 import { validateImageFile } from '@/utils/imageUploadValidation';
 import {
     Package, Store, Tags, Box, Image as ImageIcon, Activity, Plus, X,
@@ -15,14 +16,16 @@ import {
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
-const validateForm = (formData, imageFiles, fileErrors) => {
+const VALID_CONDITIONS = ['NEW', 'GOOD', 'USED', 'REFURBISHED'];
+
+const validateForm = (formData, imageFiles, fileErrors, { requireStore = true } = {}) => {
     const errs = {};
 
     if (fileErrors.length > 0) {
         errs.images = fileErrors;
     }
 
-    if (!formData.store_id) {
+    if (requireStore && !formData.store_id) {
         errs.store_id = ['Please select a store.'];
     }
 
@@ -48,7 +51,7 @@ const validateForm = (formData, imageFiles, fileErrors) => {
         errs.price = ['Please enter a valid price (0 or greater).'];
     }
 
-    if (!['NEW', 'GOOD', 'USED'].includes(formData.condition)) {
+    if (!VALID_CONDITIONS.includes(formData.condition)) {
         errs.condition = ['Please select a valid condition.'];
     }
 
@@ -79,11 +82,14 @@ const FieldError = ({ error }) => (
     error ? <p className="text-red-500 text-xs mt-1.5 font-semibold">{error[0]}</p> : null
 );
 
-const ProductForm = ({ mode = 'create', productId }) => {
+const ProductForm = ({ mode = 'create', productId, role = 'admin' }) => {
     const isEdit = mode === 'edit';
+    const isStore = role === 'store';
+    const apiBase = isStore ? '/store/products' : '/admin/products';
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { showToast } = useNotification();
+    const { user } = useAuth();
 
     const [loading, setLoading] = useState(false);
     const [fetchingData, setFetchingData] = useState(true);
@@ -93,7 +99,7 @@ const ProductForm = ({ mode = 'create', productId }) => {
     const [generalError, setGeneralError] = useState('');
 
     const [formData, setFormData] = useState({
-        store_id: '',
+        store_id: isStore ? (user?.store?.id ?? '') : '',
         name_fr: '',
         name_ar: '',
         name_en: '',
@@ -120,7 +126,9 @@ const ProductForm = ({ mode = 'create', productId }) => {
     const [categoryForm, setCategoryForm] = useState({ name_en: '', name_fr: '', name_ar: '', icon: '' });
 
     useEffect(() => {
-        fetchStores();
+        if (!isStore) {
+            fetchStores();
+        }
         fetchCategories();
         if (isEdit && productId) {
             fetchProduct(productId);
@@ -141,7 +149,7 @@ const ProductForm = ({ mode = 'create', productId }) => {
 
     const fetchCategories = async () => {
         try {
-            const response = await api.get('/admin/categories/all');
+            const response = await api.get(isStore ? '/categories' : '/admin/categories/all');
             const categoriesData = response.data?.data || response.data || [];
             setCategories(Array.isArray(categoriesData) ? categoriesData : []);
         } catch (error) {
@@ -151,11 +159,11 @@ const ProductForm = ({ mode = 'create', productId }) => {
 
     const fetchProduct = async (id) => {
         try {
-            const response = await api.get(`/admin/products/${id}`);
+            const response = await api.get(`${apiBase}/${id}`);
             const product = response.data?.data || response.data;
             if (product) {
                 setFormData({
-                    store_id: product.store_id || '',
+                    store_id: isStore ? (user?.store?.id ?? product.store_id ?? '') : (product.store_id || ''),
                     name_fr: product.name_fr || '',
                     name_ar: product.name_ar || '',
                     name_en: product.name_en || '',
@@ -292,7 +300,7 @@ const ProductForm = ({ mode = 'create', productId }) => {
         e.preventDefault();
         setGeneralError('');
 
-        const validationErrors = validateForm(formData, imageFiles, fileErrors);
+        const validationErrors = validateForm(formData, imageFiles, fileErrors, { requireStore: !isStore });
         setErrors(validationErrors);
 
         if (Object.keys(validationErrors).length > 0) {
@@ -322,11 +330,11 @@ const ProductForm = ({ mode = 'create', productId }) => {
 
         try {
             if (isEdit) {
-                await api.post(`/admin/products/${productId}`, data);
+                await api.post(`${apiBase}/${productId}`, data);
                 showToast(t('admin.products.messages.updateSuccess') || 'Product updated successfully', 'success');
                 navigate('/dashboard/products');
             } else {
-                const created = await api.post('/admin/products', data);
+                const created = await api.post(apiBase, data);
                 showToast(t('admin.products.messages.createSuccess') || 'Product created successfully', 'success');
                 const newId = created.data?.id;
                 navigate(newId ? `/dashboard/products/${newId}/variants` : '/dashboard/products');
@@ -389,25 +397,38 @@ const ProductForm = ({ mode = 'create', productId }) => {
                                 subtitle={t('admin.products.form.basicInfoSubtitle') || 'Store and condition details'}
                             />
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
-                                        {t('admin.products.form.store') || 'Store'} *
-                                    </label>
-                                    <select
-                                        name="store_id"
-                                        value={formData.store_id}
-                                        onChange={handleChange}
-                                        className={`w-full h-12 px-4 rounded-xl bg-card border font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all ${errors.store_id ? 'border-red-400' : 'border-border/60'}`}
-                                    >
-                                        <option value="">{t('admin.products.form.selectStore') || 'Select Store'}</option>
-                                        {stores.map(store => (
-                                            <option key={store.id} value={store.id}>
-                                                {store.name_fr || store.name_en}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <FieldError error={errors.store_id} />
-                                </div>
+                                {!isStore && (
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                                            {t('admin.products.form.store') || 'Store'} *
+                                        </label>
+                                        <select
+                                            name="store_id"
+                                            value={formData.store_id}
+                                            onChange={handleChange}
+                                            className={`w-full h-12 px-4 rounded-xl bg-card border font-bold text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all ${errors.store_id ? 'border-red-400' : 'border-border/60'}`}
+                                        >
+                                            <option value="">{t('admin.products.form.selectStore') || 'Select Store'}</option>
+                                            {stores.map(store => (
+                                                <option key={store.id} value={store.id}>
+                                                    {store.name_fr || store.name_en}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <FieldError error={errors.store_id} />
+                                    </div>
+                                )}
+
+                                {isStore && (
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
+                                            {t('admin.products.form.store') || 'Store'}
+                                        </label>
+                                        <div className="w-full h-12 px-4 rounded-xl bg-card border border-border/60 flex items-center font-bold text-sm">
+                                            {user?.store?.store_name_fr || user?.store?.name_fr || formData.store_id || '—'}
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">
@@ -422,6 +443,7 @@ const ProductForm = ({ mode = 'create', productId }) => {
                                         <option value="NEW">{t('admin.products.form.condNew') || 'New'}</option>
                                         <option value="GOOD">{t('admin.products.form.condGood') || 'Good'}</option>
                                         <option value="USED">{t('admin.products.form.condUsed') || 'Used'}</option>
+                                        <option value="REFURBISHED">{t('admin.products.form.condRefurbished') || 'Refurbished'}</option>
                                     </select>
                                     <FieldError error={errors.condition} />
                                 </div>
@@ -691,15 +713,17 @@ const ProductForm = ({ mode = 'create', productId }) => {
                                     </div>
                                 )}
 
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setShowCategoryModal(true)}
-                                    className="w-full h-10 rounded-xl font-bold text-xs border-dashed gap-2"
-                                >
-                                    <Plus size={14} strokeWidth={3} />
-                                    {t('admin.products.form.addCategory') || 'Add New Category'}
-                                </Button>
+                                {!isStore && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setShowCategoryModal(true)}
+                                        className="w-full h-10 rounded-xl font-bold text-xs border-dashed gap-2"
+                                    >
+                                        <Plus size={14} strokeWidth={3} />
+                                        {t('admin.products.form.addCategory') || 'Add New Category'}
+                                    </Button>
+                                )}
                             </div>
                         </CardBox>
 

@@ -121,6 +121,16 @@ const Orders = () => {
         }
     };
 
+    const calculateOrderCommission = (order) => {
+        if (!order?.items) return 0;
+        return order.items.reduce((sum, item) => sum + ((item.commission || 0) * item.quantity), 0);
+    };
+
+    const calculateStoreNet = (order) => {
+        if (!order?.items) return 0;
+        return order.items.reduce((sum, item) => sum + ((item.price - (item.commission || 0)) * item.quantity), 0);
+    };
+
     const getStatusConfig = (status) => {
         switch (status) {
             case "en_cours":
@@ -497,6 +507,9 @@ const Orders = () => {
                                                                     </div>
                                                                     <div className="text-start">
                                                                         <p className="font-bold text-sm leading-tight">{item.product?.name_fr}</p>
+                                                                        {item.variant_name && (
+                                                                            <p className="text-[10px] font-bold text-primary">{item.variant_name}</p>
+                                                                        )}
                                                                         <div className="flex items-center gap-2 mt-1">
                                                                             <DropdownMenu>
                                                                                 <DropdownMenuTrigger asChild>
@@ -532,9 +545,17 @@ const Orders = () => {
                                 ))}
 
                                 <div className="flex justify-end p-6 bg-primary/5 rounded-[32px] border border-primary/10 mt-4">
-                                    <div className="text-right">
-                                        <p className="text-[10px] font-black text-muted-foreground uppercase">{t("admin.orders.table.amount")} TOTAL</p>
-                                        <p className="text-3xl font-black text-primary leading-none mt-1">{viewingOrder.totalAmount} TND</p>
+                                    <div className="text-right space-y-1.5">
+                                        <div className="flex items-center justify-end gap-3 text-xs font-bold text-muted-foreground">
+                                            <span>{t("admin.orders.view.subtotal") || "Customer Total"}</span>
+                                            <span>{Number(viewingOrder.totalAmount || 0).toFixed(2)} TND</span>
+                                        </div>
+                                        <div className="flex items-center justify-end gap-3 text-xs font-bold text-amber-600">
+                                            <span>{t("admin.orders.view.commission") || "Platform Commission"}</span>
+                                            <span>+ {calculateOrderCommission(viewingOrder).toFixed(2)} TND</span>
+                                        </div>
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase mt-2">{t("admin.orders.view.storeNet") || "Store Net"}</p>
+                                        <p className="text-3xl font-black text-primary leading-none mt-1">{calculateStoreNet(viewingOrder).toFixed(2)} TND</p>
                                     </div>
                                 </div>
                             </div>

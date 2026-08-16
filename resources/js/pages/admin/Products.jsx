@@ -5,6 +5,7 @@ import api from '@/lib/api';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import CardBox from '@/components/shared/CardBox';
 import Modal from '@/components/shared/Modal';
+import ProductViewModal from '@/components/shared/ProductViewModal';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
@@ -143,7 +144,7 @@ const Products = () => {
                                     </div>
                                     <div>
                                         <p className="text-[9px] font-black text-muted-foreground uppercase mb-1">{t('admin.products.table.price') || "Price"}</p>
-                                        <p className="text-xs font-bold text-primary">${product.price}</p>
+                                        <p className="text-xs font-bold text-primary">${(product.price * 1.1).toFixed(2)} (${product.price})</p>
                                     </div>
                                 </div>
 
@@ -220,8 +221,9 @@ const Products = () => {
                                         </TableCell>
                                         <TableCell className="py-4 px-6">
                                             <div className="flex flex-col">
-                                                <span className="font-black text-primary">${product.price}</span>
-                                                </div>
+                                                <span className="font-black text-primary">${(product.price * 1.1).toFixed(2)}</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase line-through">${product.price}</span>
+                                            </div>
                                         </TableCell>
                                         <TableCell className="py-4 px-6">
                                             <div className="flex flex-col">
@@ -271,55 +273,14 @@ const Products = () => {
                     title={t('admin.products.view.title') || "Product Details"}
                     subtitle={viewingProduct?.name_fr || ""}
                     icon={Package}
-                    maxWidth="max-w-3xl"
+                    maxWidth="max-w-6xl"
                     footer={
                         <Button variant="ghost" rounded="xl" onClick={() => setViewingProduct(null)} className="font-bold bg-muted/30">
                             {t('admin.products.view.close') || "Close"}
                         </Button>
                     }
                 >
-                    {viewingProduct && (
-                        <div className="space-y-8 text-start">
-                            <div className="grid grid-cols-2 gap-8">
-                                <div>
-                                    <h3 className="text-sm font-black uppercase text-muted-foreground border-b border-border/50 pb-2">{t('admin.products.view.details') || "Details"}</h3>
-                                    <div className="mt-4 space-y-4 font-bold">
-                                        <p>Price: ${viewingProduct.price}</p>
-                                        <p>Stock: {viewingProduct.stock}</p>
-                                        <p>Condition: {viewingProduct.condition}</p>
-                                        <p>Store: {viewingProduct.store?.store_name_fr || 'N/A'}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-black uppercase text-muted-foreground border-b border-border/50 pb-2">{t('admin.products.view.images') || "Images"}</h3>
-                                {viewingProduct.albums?.length > 0 ? (
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {viewingProduct.albums.map((a, idx) => (
-                                            <div key={idx} className="w-full h-40 rounded-2xl overflow-hidden">
-                                                <img src={a.file} alt="Album" className="w-full h-full object-cover" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="w-full h-40 rounded-2xl overflow-hidden">
-                                        <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="pt-2">
-                                <Button
-                                    className="w-full h-12 rounded-2xl font-bold gap-2"
-                                    onClick={() => { navigate(`/dashboard/products/${viewingProduct.id}/variants`); }}
-                                >
-                                    <GitBranch size={16} strokeWidth={2.5} />
-                                    {t('admin.products.variants') || 'Manage Variants'}
-                                </Button>
-                            </div>
-                        </div>
-                    )}
+                    <ProductViewModal product={viewingProduct} apiBase="/admin/products" showStore />
                 </Modal>
             </div>
         </AdminPageLayout>

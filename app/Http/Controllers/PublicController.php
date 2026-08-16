@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Category;
 use App\Models\User;
 use App\Models\Client;
@@ -10,8 +11,10 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Page;
 use App\Models\ContactSetting;
+use App\Models\GeoZone;
 use App\Models\Store;
 use App\Services\ProductSemanticSearchService;
+use App\Services\VariantTreeService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Hash;
@@ -227,31 +230,73 @@ class PublicController extends Controller
 
     public function cart()
     {
-        $cart = session()->get('cart', []);
-        $productIds = array_keys($cart);
+        $rawCart = session()->get('cart', []);
+        $items = $this->parseRawCart($rawCart);
+
+        $productIds = collect($items)->pluck('product_id')->unique()->values()->all();
         $products = Product::whereIn('id', $productIds)
-            ->whereHas('store', function ($query) {
-                $this->applyPublicStoreVisibility($query);
-            })
+            ->whereHas('store', fn ($q) => $this->applyPublicStoreVisibility($q))
             ->with(['store', 'albums'])
-            ->get();
-        
+            ->get()
+            ->keyBy('id');
+
+        $cart = [];
+        foreach ($items as $item) {
+            $product = $products->get($item['product_id']);
+            if (!$product) continue;
+            $cart[] = [
+                'product'      => $product,
+                'variant_id'   => $item['variant_id'],
+                'quantity'     => $item['quantity'],
+                'variant_name' => $item['variant_name'],
+                'variant_data' => $item['variant_data'],
+                'cart_key'     => $item['cart_key'],
+            ];
+        }
+
+        $zoneGroups = $this->groupCartByZone($cart);
         $categories = Category::where('isActive', true)->whereNull('parent_id')->get();
         
-        return view('public.cart', compact('products', 'cart', 'categories'));
+        return view('public.cart', compact('cart', 'zoneGroups', 'categories'));
     }
 
-    public function addToCart(Request $request)
+    public function addToCart(Request $request, VariantTreeService $treeService)
     {
         $productId = $request->input('product_id');
+        $variantId = $request->input('variant_id');
         $quantity = $request->input('quantity', 1);
         
         $cart = session()->get('cart', []);
-        
-        if(isset($cart[$productId])) {
-            $cart[$productId] += $quantity;
+        $key = $variantId ? "$productId:$variantId" : $productId;
+
+        // Snapshot the variant path at add-to-cart time so the order is
+        // independent of whether the store owner later deletes variants.
+        $variantName = null;
+        $variantData = null;
+        if ($variantId) {
+            $leaf = ProductVariant::with('product')->find($variantId);
+            if ($leaf) {
+                $path = $treeService->pathFromLeaf($leaf);
+                $variantData = $path;
+                $variantName = collect($path)->pluck('attribute_value')->implode(' > ');
+            }
+        }
+
+        if (isset($cart[$key]) && is_array($cart[$key])) {
+            $cart[$key]['quantity'] += $quantity;
+        } elseif (isset($cart[$key])) {
+            // Migrate legacy int format
+            $cart[$key] = [
+                'quantity' => (int) $cart[$key] + $quantity,
+                'variant_name' => $variantName,
+                'variant_data' => $variantData,
+            ];
         } else {
-            $cart[$productId] = $quantity;
+            $cart[$key] = [
+                'quantity' => $quantity,
+                'variant_name' => $variantName,
+                'variant_data' => $variantData,
+            ];
         }
         
         session()->put('cart', $cart);
@@ -261,11 +306,11 @@ class PublicController extends Controller
 
     public function removeFromCart(Request $request)
     {
-        $productId = $request->input('product_id');
+        $cartKey = $request->input('cart_key', $request->input('product_id'));
         $cart = session()->get('cart', []);
         
-        if(isset($cart[$productId])) {
-            unset($cart[$productId]);
+        if (isset($cart[$cartKey])) {
+            unset($cart[$cartKey]);
             session()->put('cart', $cart);
         }
         
@@ -274,13 +319,16 @@ class PublicController extends Controller
 
     public function updateCart(Request $request)
     {
-        $productId = $request->input('product_id');
+        $cartKey = $request->input('cart_key', $request->input('product_id'));
         $quantity = $request->input('quantity');
         
         $cart = session()->get('cart', []);
-        
-        if(isset($cart[$productId])) {
-            $cart[$productId] = max(1, $quantity);
+        if (isset($cart[$cartKey])) {
+            if (is_array($cart[$cartKey])) {
+                $cart[$cartKey]['quantity'] = max(1, (int) $quantity);
+            } else {
+                $cart[$cartKey] = max(1, (int) $quantity);
+            }
             session()->put('cart', $cart);
         }
         
@@ -322,26 +370,39 @@ class PublicController extends Controller
 
     public function checkout()
     {
-        $cart = session()->get('cart', []);
-        if(empty($cart)) return redirect()->route('public.cart');
+        $rawCart = session()->get('cart', []);
+        if (empty($rawCart)) return redirect()->route('public.cart');
 
-        $productIds = array_keys($cart);
+        $items = $this->parseRawCart($rawCart);
+
+        $productIds = collect($items)->pluck('product_id')->unique()->values()->all();
         $products = Product::whereIn('id', $productIds)
-            ->whereHas('store', function ($query) {
-                $this->applyPublicStoreVisibility($query);
-            })
-            ->with(['store'])
-            ->get();
-        
-        $total = 0;
-        foreach($products as $product) {
-            $price = $product->promo > 0 ? $product->price * (1 - $product->promo/100) : $product->price;
-            $total += $price * $cart[$product->id];
+            ->whereHas('store', fn ($q) => $this->applyPublicStoreVisibility($q))
+            ->with(['store', 'albums'])
+            ->get()
+            ->keyBy('id');
+
+        $cart = [];
+        foreach ($items as $item) {
+            $product = $products->get($item['product_id']);
+            if (!$product) continue;
+            $cart[] = [
+                'product'      => $product,
+                'variant_id'   => $item['variant_id'],
+                'quantity'     => $item['quantity'],
+                'variant_name' => $item['variant_name'],
+                'variant_data' => $item['variant_data'],
+                'price'        => $product->customerPrice(),
+                'commission'   => $product->commissionAmount(),
+                'cart_key'     => $item['cart_key'],
+            ];
         }
 
+        $zoneGroups = $this->groupCartByZone($cart);
+        $total = array_sum(array_column($zoneGroups, 'total'));
         $categories = Category::where('isActive', true)->whereNull('parent_id')->get();
         
-        return view('public.checkout', compact('products', 'cart', 'total', 'categories'));
+        return view('public.checkout', compact('cart', 'zoneGroups', 'total', 'categories'));
     }
 
     public function processCheckout(Request $request)
@@ -389,43 +450,119 @@ class PublicController extends Controller
                 ]
             );
 
-            $productIds = array_keys($cart);
+            // Parse new cart format
+            $items = $this->parseRawCart($cart);
+
+            $productIds = collect($items)->pluck('product_id')->unique()->values()->all();
             $products = Product::whereIn('id', $productIds)
-                ->whereHas('store', function ($query) {
-                    $this->applyPublicStoreVisibility($query);
-                })
-                ->get();
-            $totalAmount = 0;
-            
-            foreach($products as $product) {
-                $price = $product->promo > 0 ? $product->price * (1 - $product->promo/100) : $product->price;
-                $totalAmount += $price * $cart[$product->id];
+                ->whereHas('store', fn ($q) => $this->applyPublicStoreVisibility($q))
+                ->get()
+                ->keyBy('id');
+
+            $cartItems = [];
+            foreach ($items as $item) {
+                $product = $products->get($item['product_id']);
+                if (!$product) continue;
+                $cartItems[] = [
+                    'product'      => $product,
+                    'variant_id'   => $item['variant_id'],
+                    'quantity'     => $item['quantity'],
+                    'variant_name' => $item['variant_name'],
+                    'variant_data' => $item['variant_data'],
+                    'price'        => $product->customerPrice(),
+                    'commission'   => $product->commissionAmount(),
+                    'cart_key'     => $item['cart_key'],
+                ];
             }
 
-            $order = Order::create([
-                'client_id' => $client->id,
-                'status' => 'PENDING',
-                'totalAmount' => $totalAmount,
-            ]);
+            // One order per geo-zone
+            $zoneGroups = $this->groupCartByZone($cartItems);
 
-            foreach($products as $product) {
-                $price = $product->promo > 0 ? $product->price * (1 - $product->promo/100) : $product->price;
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'quantity' => $cart[$product->id],
-                    'price' => $price,
+            $orders = [];
+            foreach ($zoneGroups as $group) {
+                $order = Order::create([
+                    'client_id' => $client->id,
                     'status' => 'PENDING',
+                    'totalAmount' => $group['total'],
                 ]);
+
+                foreach ($group['items'] as $item) {
+                    OrderItem::create([
+                        'order_id'     => $order->id,
+                        'product_id'   => $item['product']->id,
+                        'variant_id'   => $item['variant_id'],
+                        'variant_name' => $item['variant_name'],
+                        'variant_data' => $item['variant_data'],
+                        'quantity'     => $item['quantity'],
+                        'price'        => $item['price'],
+                        'commission'   => $item['commission'],
+                        'status'       => 'PENDING',
+                    ]);
+                }
+
+                $orders[] = $order;
             }
 
             session()->forget('cart');
 
             return view('public.success', [
-                'order' => $order,
+                'orders' => $orders,
                 'categories' => Category::where('isActive', true)->whereNull('parent_id')->get()
             ]);
         });
+    }
+
+    /**
+     * Parse raw session cart → [{product_id, variant_id, quantity, variant_name, variant_data, cart_key}]
+     */
+    private function parseRawCart(array $rawCart): array
+    {
+        $items = [];
+        foreach ($rawCart as $key => $value) {
+            [$productId, $variantId] = array_pad(explode(':', $key, 2), 2, null);
+            if ($variantId === '') $variantId = null;
+            $items[] = [
+                'product_id'   => $productId,
+                'variant_id'   => $variantId,
+                'quantity'     => is_array($value) ? $value['quantity'] : (int) $value,
+                'variant_name' => is_array($value) ? ($value['variant_name'] ?? null) : null,
+                'variant_data' => is_array($value) ? ($value['variant_data'] ?? null) : null,
+                'cart_key'     => $key,
+            ];
+        }
+        return $items;
+    }
+
+    /**
+     * Group cart items by their store's delivery zone.
+     * Each group carries: zone id, translated label, items, and total (customer price × qty).
+     */
+    private function groupCartByZone(array $cart): array
+    {
+        $zoneMap = GeoZone::zoneMap();
+        $groups = [];
+        foreach ($cart as $item) {
+            $product = $item['product'];
+            $zone = $zoneMap[$product->store->governorate] ?? null;
+            if (!$zone) continue; // store's governorate has no active delivery zone yet
+
+            $key = $zone->id;
+            $price = $item['price'] ?? $product->customerPrice();
+            $subtotal = $price * $item['quantity'];
+
+            if (!isset($groups[$key])) {
+                $groups[$key] = [
+                    'zone'  => $key,
+                    'label' => $zone->getName(),
+                    'items' => [],
+                    'total' => 0,
+                ];
+            }
+
+            $groups[$key]['items'][] = $item;
+            $groups[$key]['total'] += $subtotal;
+        }
+        return array_values($groups);
     }
 
     // New sections for navigation pages
@@ -655,7 +792,10 @@ class PublicController extends Controller
     public function orders()
     {
         $user = Auth::user();
-        $orders = Order::where('client_id', $user->client->id)->with('items.product')->latest()->get();
+        $clientId = $user->client?->id;
+        $orders = $clientId
+            ? Order::where('client_id', $clientId)->with('items.product')->latest()->get()
+            : collect();
         $categories = Category::where('isActive', true)->whereNull('parent_id')->get();
         return view('public.orders', compact('orders', 'categories'));
     }

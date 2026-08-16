@@ -127,16 +127,12 @@
             <div class="space-y-0.5">
                 @if($product->promo > 0)
                     <p class="text-[10px] text-muted-foreground font-bold line-through">
-                        {{ number_format($product->price, 2) }} {{ __('website.currency') }}
+                        {{ number_format($product->display_price, 2) }} {{ __('website.currency') }}
                     </p>
                 @endif
                 <div class="flex items-baseline gap-1.5">
                     <p class="text-lg font-black text-foreground">
-                        @if($product->promo > 0)
-                            {{ number_format($product->price * (1 - $product->promo / 100), 2) }}
-                        @else
-                            {{ number_format($product->price, 2) }}
-                        @endif
+                        {{ number_format($product->customerPrice(), 2) }}
                     </p>
                     <span
                         class="text-[9px] font-black text-muted-foreground uppercase">{{ __('website.currency') }}</span>

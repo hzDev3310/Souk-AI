@@ -73,15 +73,15 @@
                 <div class="flex items-center gap-6">
                     <p id="variant-price" class="text-4xl font-black text-primary">
                         @if($product->promo > 0)
-                            {{ number_format($product->price * (1 - $product->promo/100), 2) }}
+                            {{ number_format($product->customerPrice(), 2) }}
                         @else
-                            {{ number_format($product->price, 2) }}
+                            {{ number_format($product->display_price, 2) }}
                         @endif
                         <span class="text-xs font-black text-muted-foreground uppercase ml-1">{{ __('website.currency') }}</span>
                     </p>
                     @if($product->promo > 0)
                         <p id="variant-old-price" class="text-xl font-bold text-muted-foreground line-through opacity-50 pt-2">
-                             {{ number_format($product->price, 2) }} {{ __('website.currency') }}
+                             {{ number_format($product->display_price, 2) }} {{ __('website.currency') }}
                         </p>
                         <span class="px-2 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg">
                             -{{ $product->promo }}% {{ __('website.productInfo.off') }}
@@ -237,7 +237,7 @@
     // ---- Cascading Variant Selector ----
     (function() {
         var variantTree = {!! $variantTreeJson !!};
-        var productPrice = {{ $product->price }};
+        var productPrice = {{ $product->display_price }};
         var productPromo = {{ $product->promo }};
         var productAlbums = {!! $productAlbumsJson !!};
         var currency = "{{ __('website.currency') }}";
@@ -281,8 +281,21 @@
                 groups[attrName].forEach(function(node) {
                     var btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = 'px-5 py-3 glass border-2 border-border/40 rounded-2xl font-bold text-xs hover:border-primary hover:text-primary transition-all active:scale-95';
-                    btn.textContent = node.attribute_value;
+                    btn.className = 'px-5 py-3 glass border-2 border-border/40 rounded-2xl font-bold text-xs hover:border-primary hover:text-primary transition-all active:scale-95 inline-flex items-center';
+                    if (node.option_value) {
+                        var sw = document.createElement('span');
+                        sw.className = 'w-5 h-5 rounded-full border border-black/10 shrink-0 mr-2 overflow-hidden';
+                        var isHex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(node.option_value);
+                        if (isHex) {
+                            sw.style.backgroundColor = node.option_value;
+                        } else {
+                            sw.style.backgroundImage = "url('" + node.option_value + "')";
+                            sw.style.backgroundSize = 'cover';
+                            sw.style.backgroundPosition = 'center';
+                        }
+                        btn.appendChild(sw);
+                    }
+                    btn.appendChild(document.createTextNode(node.attribute_value));
                     btn.addEventListener('click', function() {
                         selectedIds[level] = node.id;
                         // clear deeper selections
@@ -307,6 +320,9 @@
                             window.variantSelection.leafNode = node;
                             updateProductDisplay(node);
                         }
+
+                        // switch the base image to the selected variant's image
+                        setVariantImage(node);
                     });
                     chips.appendChild(btn);
                 });
@@ -323,9 +339,29 @@
             resetProductDisplay();
         }
 
+        function setVariantImage(node) {
+            var imgs = (node.albums && node.albums.length > 0) ? node.albums : productAlbums;
+            if (imgs.length === 0) return;
+            var file = imgs[0].file;
+            var mainImg = document.getElementById('main-product-image');
+            if (mainImg) mainImg.src = file;
+
+            // keep all product thumbnails visible, just highlight the matching one
+            var thumbContainer = document.getElementById('product-thumbnails');
+            if (thumbContainer) {
+                thumbContainer.querySelectorAll('img').forEach(function(img) {
+                    var wrapper = img.parentElement;
+                    if (!wrapper) return;
+                    var isMatch = img.getAttribute('src') === file;
+                    wrapper.classList.toggle('border-primary', isMatch);
+                    wrapper.classList.toggle('border-border/40', !isMatch);
+                });
+            }
+        }
+
         function updateProductDisplay(leaf) {
-            // compute price
-            var basePrice = leaf.price_override !== null ? leaf.price_override : productPrice;
+            // price always comes from the product
+            var basePrice = productPrice;
             var salePrice = productPromo > 0 ? basePrice * (1 - productPromo / 100) : basePrice;
             priceEl.textContent = salePrice.toFixed(2) + ' ';
             var span = document.createElement('span');
@@ -345,24 +381,8 @@
             stockEl.textContent = stock > 0 ? stock + ' {{ __("website.productInfo.stockAvailable") }}' : '{{ __("website.productInfo.outOfStock") }}';
             stockEl.className = stock > 0 ? 'block text-xs font-bold text-success mt-1' : 'block text-xs font-bold text-error mt-1';
 
-            // images
-            var imgs = (leaf.albums && leaf.albums.length > 0) ? leaf.albums : productAlbums;
-            if (imgs.length > 0) {
-                var mainImg = document.getElementById('main-product-image');
-                if (mainImg) mainImg.src = imgs[0].file;
-
-                var thumbContainer = document.getElementById('product-thumbnails');
-                if (thumbContainer) {
-                    thumbContainer.innerHTML = '';
-                    imgs.forEach(function(img) {
-                        var div = document.createElement('div');
-                        div.className = 'w-24 h-24 bg-card glass border border-border/40 rounded-3xl overflow-hidden cursor-pointer hover:border-primary transition-colors';
-                        div.innerHTML = '<img src="' + img.file + '" class="w-full h-full object-cover">';
-                        div.addEventListener('click', function() { window.productGallery.setImage(img.file, div); });
-                        thumbContainer.appendChild(div);
-                    });
-                }
-            }
+            // keep all product thumbnails visible; the variant image becomes the base image
+            setVariantImage(leaf);
 
             // enable add to cart
             if (addToCartBtn) addToCartBtn.classList.remove('opacity-50', 'pointer-events-none');

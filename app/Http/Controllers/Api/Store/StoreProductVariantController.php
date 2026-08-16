@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Store;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Concerns\HandlesFileUploads;
@@ -11,7 +11,12 @@ use App\Services\VariantTreeService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ProductVariantController extends Controller
+/**
+ * Variant tree management for the store dashboard. Mirrors the admin
+ * ProductVariantController but guards every operation so a store can only
+ * manage the variants of its own products.
+ */
+class StoreProductVariantController extends Controller
 {
     use HandlesFileUploads;
 
@@ -19,20 +24,33 @@ class ProductVariantController extends Controller
     {
     }
 
-    /**
-     * Full nested variant tree for a product (roots -> children -> ...).
-     */
-    public function tree(Product $product)
+    private function ownedProduct(Request $request, Product $product): Product
     {
+        $store = $request->user()->store;
+        abort_if(!$store || $product->store_id !== $store->id, 403, 'Unauthorized');
+
+        return $product;
+    }
+
+    private function ownedVariant(Request $request, ProductVariant $variant): ProductVariant
+    {
+        $store = $request->user()->store;
+        abort_if(!$store || $variant->product->store_id !== $store->id, 403, 'Unauthorized');
+
+        return $variant;
+    }
+
+    public function tree(Request $request, Product $product)
+    {
+        $this->ownedProduct($request, $product);
+
         return response()->json($this->treeService->treeFor($product));
     }
 
-    /**
-     * Flat list of every variant node of the product, used by the searchable
-     * multi-parent picker when creating/linking a child option.
-     */
-    public function options(Product $product)
+    public function options(Request $request, Product $product)
     {
+        $this->ownedProduct($request, $product);
+
         $nodes = $product->variants()->with('parents')->get()->map(function ($v) {
             return [
                 'id' => $v->id,
@@ -49,13 +67,10 @@ class ProductVariantController extends Controller
         return response()->json($nodes);
     }
 
-    /**
-     * Insert a variant node. `parent_ids` may contain zero to many parents:
-     *   []        -> top-level option (root)
-     *   [p1, p2]  -> linked under both p1 and p2 (shared sub-option)
-     */
     public function store(Request $request, Product $product)
     {
+        $this->ownedProduct($request, $product);
+
         $validated = $request->validate([
             'attribute_name' => 'required|string|max:255',
             'attribute_value' => 'required|string|max:255',
@@ -85,11 +100,10 @@ class ProductVariantController extends Controller
         return response()->json($this->node($variant), 201);
     }
 
-    /**
-     * Update a node's fields and (optionally) its parent links.
-     */
     public function update(Request $request, ProductVariant $variant)
     {
+        $this->ownedVariant($request, $variant);
+
         $validated = $request->validate([
             'attribute_name' => 'required|string|max:255',
             'attribute_value' => 'required|string|max:255',
@@ -119,11 +133,10 @@ class ProductVariantController extends Controller
         return response()->json($this->node($variant));
     }
 
-    /**
-     * Direct sub-options of a single variant node, used by the drill-down page.
-     */
-    public function children(ProductVariant $variant)
+    public function children(Request $request, ProductVariant $variant)
     {
+        $this->ownedVariant($request, $variant);
+
         $children = $variant->children()->with('albums', 'parents')->get()->map(function ($child) {
             return [
                 'id' => $child->id,
@@ -150,11 +163,10 @@ class ProductVariantController extends Controller
         ]);
     }
 
-    /**
-     * Upload a small swatch/icon image and store its path as option_value.
-     */
     public function icon(Request $request, ProductVariant $variant)
     {
+        $this->ownedVariant($request, $variant);
+
         $request->validate([
             'image' => 'required|file|mimes:jpeg,png,jpg,gif,webp,svg|max:4096',
         ]);
@@ -175,20 +187,19 @@ class ProductVariantController extends Controller
         return response()->json(['option_value' => $variant->optionValueUrl()]);
     }
 
-    /**
-     * Delete a node; child links cascade via the foreign keys.
-     */
-    public function destroy(ProductVariant $variant)
+    public function destroy(Request $request, ProductVariant $variant)
     {
+        $this->ownedVariant($request, $variant);
+
         $variant->delete();
+
         return response()->noContent();
     }
 
-    /**
-     * Link specific product images to a variant node (any level).
-     */
     public function images(Request $request, ProductVariant $variant)
     {
+        $this->ownedVariant($request, $variant);
+
         $validated = $request->validate([
             'image_ids' => 'nullable|array',
             'image_ids.*' => 'exists:product_albums,id',

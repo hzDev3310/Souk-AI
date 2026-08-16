@@ -43,7 +43,7 @@ class VariantTreeService
             $childrenMap[null][] = $rootId;
         }
 
-        return $this->build($byId, $childrenMap, $parentMap, null);
+        return $this->build($byId, $childrenMap, $parentMap, null, []);
     }
 
     /**
@@ -86,7 +86,40 @@ class VariantTreeService
         return $path;
     }
 
-    private function build($byId, array $childrenMap, array $parentMap, ?string $parentId): array
+    /**
+     * Walk from a leaf variant up through its parents and return the
+     * root → leaf path as an ordered array.  If a node has multiple
+     * parents the first (by sort order) is followed — suitable for the
+     * order-item snapshot where the primary selection path is enough.
+     */
+    public function pathFromLeaf(\App\Models\ProductVariant $leaf): array
+    {
+        $chain = [];
+        $current = $leaf;
+
+        while ($current) {
+            array_unshift($chain, $current);
+            $parentId = DB::table('variant_links')
+                ->where('child_variant_id', $current->id)
+                ->orderBy('parent_variant_id')
+                ->value('parent_variant_id');
+            if ($parentId) {
+                $current = \App\Models\ProductVariant::find($parentId);
+            } else {
+                $current = null;
+            }
+        }
+
+        return array_map(fn ($v) => [
+            'id' => $v->id,
+            'attribute_name' => $v->attribute_name,
+            'attribute_value' => $v->attribute_value ?: $v->variant_name,
+            'option_value' => $v->optionValueUrl(),
+            'sku' => $v->sku,
+        ], $chain);
+    }
+
+    private function build($byId, array $childrenMap, array $parentMap, ?string $parentId, array $parentAlbums): array
     {
         $branch = [];
 
@@ -96,19 +129,24 @@ class VariantTreeService
                 continue;
             }
 
+            $ownAlbums = $v->albums->map(fn ($a) => [
+                'id' => $a->id,
+                'file' => $a->file,
+            ])->values();
+
+            // Use own albums; if empty, inherit from the nearest parent that has them
+            $nodeAlbums = $ownAlbums->isNotEmpty() ? $ownAlbums->values() : collect($parentAlbums);
+
             $branch[] = [
                 'id' => $v->id,
                 'attribute_name' => $v->attribute_name,
                 'attribute_value' => $v->attribute_value ?: $v->variant_name,
+                'option_value' => $v->optionValueUrl(),
                 'sku' => $v->sku,
-                'price_override' => $v->price_override,
                 'stock_quantity' => (int) $v->stock_quantity,
                 'parent_ids' => array_values($parentMap[$v->id] ?? []),
-                'albums' => $v->albums->map(fn ($a) => [
-                    'id' => $a->id,
-                    'file' => $a->file,
-                ])->values(),
-                'children' => $this->build($byId, $childrenMap, $parentMap, $v->id),
+                'albums' => $nodeAlbums,
+                'children' => $this->build($byId, $childrenMap, $parentMap, $v->id, $nodeAlbums->toArray()),
             ];
         }
 

@@ -13,8 +13,16 @@
         <div class="space-y-6 mb-12">
             <h1 class="text-6xl font-black text-foreground tracking-tighter">{{ __('website.success.title') }}</h1>
             <p class="text-xl text-muted-foreground font-medium max-w-lg mx-auto leading-relaxed">
-                {{ __('website.success.message') }} <span class="text-primary font-black">#{{ $order->id }}</span> {{ __('website.success.status') }}
+                {{ __('website.success.message') }}
+                @foreach($orders as $order)<span class="text-primary font-black">#{{ $order->id }}</span>@if(!$loop->last), @endif
+                @endforeach
+                {{ __('website.success.status') }}
             </p>
+            @if(count($orders) > 1)
+            <p class="text-sm font-bold text-primary">
+                {{ __('website.success.multiOrder') }}
+            </p>
+            @endif
             <p class="text-sm text-muted-foreground">{{ __('website.success.emailsent') }}</p>
         </div>
 

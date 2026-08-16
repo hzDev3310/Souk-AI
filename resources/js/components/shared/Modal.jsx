@@ -25,15 +25,16 @@ const Modal = ({
                         </DialogPrimitive.Overlay>
 
                         {/* Content */}
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
                             <DialogPrimitive.Content asChild aria-describedby={undefined}>
                                 <div className={cn(
-                                        "relative w-full overflow-hidden rounded-[32px] border border-border/60 bg-card/95 p-0 shadow-2xl backdrop-blur-lg",
+                                        "relative w-full max-h-[90vh] overflow-y-auto rounded-[32px] border border-border/60 bg-card/95 p-0 shadow-2xl backdrop-blur-lg overscroll-contain",
                                         maxWidth
                                     )}
                                 >
                                     {/* Header Section */}
-                                    <div className="p-8 pb-4 bg-muted/20">
+                                    <div className="relative p-8 pb-4 bg-gradient-to-br from-muted/30 via-muted/10 to-transparent border-b border-border/30 overflow-hidden">
+                                        <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-primary via-secondary to-primary/30" />
                                         <div className="flex items-start justify-between">
                                             <div className="flex items-center gap-4">
                                                 {Icon && (

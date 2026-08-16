@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class OrderItem extends Model {
     use HasUuids;
-    protected $fillable = ['order_id', 'product_id', 'variant_id', 'quantity', 'price', 'status'];
+    protected $fillable = ['order_id', 'product_id', 'variant_id', 'variant_name', 'variant_data', 'quantity', 'price', 'commission', 'status'];
+
+    protected $casts = [
+        'variant_data' => 'array',
+    ];
 
     public static function boot()
     {

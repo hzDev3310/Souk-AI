@@ -6,6 +6,7 @@ import api from '@/lib/api';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import CardBox from '@/components/shared/CardBox';
 import Modal from '@/components/shared/Modal';
+import ProductViewModal from '@/components/shared/ProductViewModal';
 import { Button } from '@/components/ui/button';
 import { Tooltip } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
@@ -19,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import {
     Plus, Pencil, Trash2, Search, Box, Image as ImageIcon,
-    CheckCircle2, XCircle, Activity, Eye, Package, ChevronDown, ChevronUp
+    CheckCircle2, XCircle, Activity, Eye, Package, ChevronDown, ChevronUp, GitBranch
 } from 'lucide-react';
 
 const StoreProducts = () => {
@@ -179,7 +180,8 @@ const StoreProducts = () => {
 
                                                 {/* Price - Right */}
                                                 <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                                                    <span className="font-black text-primary text-lg">${product.price}</span>
+                                                    <span className="font-black text-primary text-lg">${(product.price * 1.1).toFixed(2)}</span>
+                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase line-through">${product.price}</span>
                                                     <button className="text-muted-foreground hover:text-foreground transition-colors">
                                                         {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                                                     </button>
@@ -193,19 +195,19 @@ const StoreProducts = () => {
                                                 >
                                                         {/* Quick Edit Fields */}
                                                         <div className="grid grid-cols-2 gap-3">
-                                                            <div>
-                                                                <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Price</label>
-                                                                <Input
-                                                                    type="number"
-                                                                    step="0.01"
-                                                                    defaultValue={product.price}
-                                                                    onChange={(e) => setQuickEditData(prev => ({
-                                                                        ...prev,
-                                                                        [product.id]: { ...prev[product.id], price: e.target.value }
-                                                                    }))}
-                                                                    className="h-9 text-sm rounded-lg bg-card border-border/60"
-                                                                />
-                                                            </div>
+                                    <div>
+                                        <p className="text-xs font-semibold text-muted-foreground block mb-1.5">Price (Base)</p>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            defaultValue={product.price}
+                                            onChange={(e) => setQuickEditData(prev => ({
+                                                ...prev,
+                                                [product.id]: { ...prev[product.id], price: e.target.value }
+                                            }))}
+                                            className="h-9 text-sm rounded-lg bg-card border-border/60"
+                                        />
+                                    </div>
                                                             <div>
                                                                 <label className="text-xs font-semibold text-muted-foreground block mb-1.5">Quantity</label>
                                                                 <Input
@@ -227,6 +229,15 @@ const StoreProducts = () => {
                                                                 <span className="text-xs font-medium text-foreground">Published</span>
                                                             </label>
                                                             <div className="flex gap-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="outline"
+                                                                    onClick={() => navigate(`/dashboard/products/${product.id}/variants`)}
+                                                                    className="h-8 text-xs rounded-lg"
+                                                                >
+                                                                    <GitBranch size={14} className="mr-1" />
+                                                                    Variants
+                                                                </Button>
                                                                 <Button
                                                                     size="sm"
                                                                     variant="outline"
@@ -306,7 +317,8 @@ const StoreProducts = () => {
                                         </TableCell>
                                         <TableCell className="py-4 px-6">
                                             <div className="flex flex-col">
-                                                <span className="font-black text-primary">${product.price}</span>
+                                                <span className="font-black text-primary">${(product.price * 1.1).toFixed(2)}</span>
+                                                <span className="text-[10px] font-bold text-muted-foreground uppercase line-through">${product.price} base</span>
                                                 <span className="text-[10px] font-bold text-muted-foreground uppercase">{product.stock} in stock</span>
                                             </div>
                                         </TableCell>
@@ -317,6 +329,11 @@ const StoreProducts = () => {
                                         </TableCell>
                                         <TableCell className="py-4 px-6 text-end">
                                             <div className="flex justify-end gap-2">
+                                                <Tooltip content={t('store.products.variants') || 'Variants'}>
+                                                    <Button size="iconsm" variant="soft" rounded="xl" color="secondary" onClick={() => navigate(`/dashboard/products/${product.id}/variants`)}>
+                                                        <GitBranch size={18} />
+                                                    </Button>
+                                                </Tooltip>
                                                 <Tooltip content={t('common.actions.view')}>
                                                     <Button size="iconsm" variant="soft" rounded="xl" color="secondary" onClick={() => setViewingProduct(product)}>
                                                         <Eye size={18} />
@@ -355,45 +372,14 @@ const StoreProducts = () => {
                     title={t('store.products.view.title') || "Product Details"}
                     subtitle={viewingProduct?.name_fr || ""}
                     icon={Package}
-                    maxWidth="max-w-3xl"
+                    maxWidth="max-w-6xl"
                     footer={
                         <Button variant="ghost" rounded="xl" onClick={() => setViewingProduct(null)} className="font-bold bg-muted/30">
                             {t('store.products.view.close') || "Close"}
                         </Button>
                     }
                 >
-                    {viewingProduct && (
-                        <div className="space-y-8 text-start">
-                            <div className="grid grid-cols-2 gap-8">
-                                <div>
-                                    <h3 className="text-sm font-black uppercase text-muted-foreground border-b border-border/50 pb-2">{t('store.products.view.details') || "Details"}</h3>
-                                    <div className="mt-4 space-y-4 font-bold">
-                                        <p>Price: ${viewingProduct.price}</p>
-                                        <p>Stock: {viewingProduct.stock}</p>
-                                        <p>Condition: {viewingProduct.condition}</p>
-                                        {viewingProduct.promo > 0 && <p className="text-primary">Promo: {viewingProduct.promo}%</p>}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-black uppercase text-muted-foreground border-b border-border/50 pb-2">{t('store.products.view.images') || "Images"}</h3>
-                                {viewingProduct.albums?.length > 0 ? (
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {viewingProduct.albums.map((a, idx) => (
-                                            <div key={idx} className="w-full h-40 rounded-2xl overflow-hidden">
-                                                <img src={a.file} alt="Album" className="w-full h-full object-cover" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="w-full h-40 rounded-2xl overflow-hidden">
-                                        <img src="/storage/empty/empty.webp" alt="" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    <ProductViewModal product={viewingProduct} apiBase="/store/products" showPromo />
                 </Modal>
             </div>
         </AdminPageLayout>

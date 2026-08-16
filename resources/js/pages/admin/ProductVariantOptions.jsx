@@ -9,7 +9,7 @@ import Modal from '@/components/shared/Modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useNotification } from '@/context/NotificationContext';
-import { GitBranch, Plus, Loader2, Check } from 'lucide-react';
+import { Layers, Plus, Loader2, Check } from 'lucide-react';
 import VariantOptionCard from './VariantOptionCard';
 import SwatchEditor from './VariantSwatch';
 
@@ -21,15 +21,16 @@ const emptyNode = () => ({
     stock_quantity: 0,
 });
 
-const ProductVariants = () => {
-    const { id: productId } = useParams();
+const ProductVariantOptions = () => {
+    const { id: productId, variantId } = useParams();
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { showToast } = useNotification();
     const { user } = useAuth();
     const apiBase = user?.role === 'STORE' ? '/store/products' : '/admin/products';
     const [product, setProduct] = useState(null);
-    const [tree, setTree] = useState([]);
+    const [variant, setVariant] = useState(null);
+    const [children, setChildren] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showCreate, setShowCreate] = useState(false);
     const [newNode, setNewNode] = useState(emptyNode());
@@ -37,30 +38,32 @@ const ProductVariants = () => {
 
     const refresh = useCallback(async () => {
         try {
-            const treeRes = await api.get(`${apiBase}/${productId}/variants`);
-            setTree(treeRes.data || []);
+            const res = await api.get(`${apiBase}/variants/${variantId}/children`);
+            setVariant(res.data.variant || null);
+            setChildren(res.data.children || []);
         } catch (error) {
-            console.error('Error fetching variants:', error);
+            console.error('Error fetching variant children:', error);
         }
-    }, [productId, apiBase]);
+    }, [variantId, apiBase]);
 
     useEffect(() => {
         const load = async () => {
             try {
-                const [productRes, treeRes] = await Promise.all([
+                const [productRes, childrenRes] = await Promise.all([
                     api.get(`${apiBase}/${productId}`),
-                    api.get(`${apiBase}/${productId}/variants`),
+                    api.get(`${apiBase}/variants/${variantId}/children`),
                 ]);
                 setProduct(productRes.data);
-                setTree(treeRes.data || []);
+                setVariant(childrenRes.data.variant || null);
+                setChildren(childrenRes.data.children || []);
             } catch (error) {
-                console.error('Error loading variants page:', error);
+                console.error('Error loading variant options page:', error);
             } finally {
                 setLoading(false);
             }
         };
         load();
-    }, [productId, apiBase]);
+    }, [productId, variantId, apiBase]);
 
     const openCreate = () => {
         setNewNode(emptyNode());
@@ -80,6 +83,7 @@ const ProductVariants = () => {
                 option_value: newNode.option_value || null,
                 sku: newNode.sku.trim() || null,
                 stock_quantity: newNode.stock_quantity === '' ? 0 : Number(newNode.stock_quantity),
+                parent_ids: [variantId],
             };
             await api.post(`${apiBase}/${productId}/variants`, payload);
             setShowCreate(false);
@@ -101,41 +105,47 @@ const ProductVariants = () => {
         );
     }
 
+    const label = variant
+        ? `${variant.attribute_name || ''}: ${variant.attribute_value || ''}`
+        : '';
+
     return (
         <AdminPageLayout
-            title={t('admin.variants.title') || 'Variants'}
+            title={label}
             subtitle={product?.name_fr || product?.name_en || ''}
-            icon={GitBranch}
-            onBack={() => navigate(`/dashboard/products/${productId}/edit`)}
+            icon={Layers}
+            onBack={() => navigate(`/dashboard/products/${productId}/variants`)}
             onAdd={openCreate}
-            addLabel={t('admin.variants.addVariant') || 'Add Variant'}
+            addLabel={t('admin.variants.addSubOption') || 'Add Sub-Option'}
         >
             <div className="space-y-6 text-start">
-                {tree.length === 0 ? (
+                {children.length === 0 ? (
                     <CardBox className="p-10 rounded-[32px]">
                         <div className="text-center space-y-3">
                             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                                <GitBranch className="w-8 h-8 text-primary" />
+                                <Layers className="w-8 h-8 text-primary" />
                             </div>
-                            <h3 className="text-lg font-black text-foreground">{t('admin.variants.empty')}</h3>
-                            <p className="text-sm text-muted-foreground font-medium max-w-md mx-auto">{t('admin.variants.emptySubtitle')}</p>
+                            <h3 className="text-lg font-black text-foreground">{t('admin.variants.noChildren')}</h3>
+                            <p className="text-sm text-muted-foreground font-medium max-w-md mx-auto">{t('admin.variants.noChildrenSubtitle')}</p>
                             <Button onClick={openCreate} className="mt-4 rounded-xl font-bold gap-2">
                                 <Plus size={16} strokeWidth={3} />
-                                {t('admin.variants.addVariant')}
+                                {t('admin.variants.addSubOption')}
                             </Button>
                         </div>
                     </CardBox>
                 ) : (
                     <div className="space-y-3">
-                        {tree.map(node => (
+                        {children.map(child => (
                             <VariantOptionCard
-                                key={node.id}
-                                node={node}
+                                key={child.id}
+                                node={child}
                                 albums={product?.albums || []}
                                 apiBase={apiBase}
                                 onChanged={refresh}
-                                onView={() => navigate(`/dashboard/products/${productId}/variants/${node.id}`)}
-                                viewCount={(node.children || []).length}
+                                onView={child.children_count > 0
+                                    ? () => navigate(`/dashboard/products/${productId}/variants/${child.id}`)
+                                    : undefined}
+                                viewCount={child.children_count}
                             />
                         ))}
                     </div>
@@ -144,9 +154,9 @@ const ProductVariants = () => {
                 <Modal
                     isOpen={showCreate}
                     onClose={() => setShowCreate(false)}
-                    title={t('admin.variants.addVariant')}
+                    title={t('admin.variants.createSubOption')}
                     subtitle={t('admin.variants.createSubtitle')}
-                    icon={GitBranch}
+                    icon={Layers}
                     maxWidth="max-w-2xl"
                     footer={
                         <div className="flex gap-3 p-6 pt-0">
@@ -161,6 +171,10 @@ const ProductVariants = () => {
                     }
                 >
                     <div className="px-6 pb-6 space-y-4">
+                        <div className="flex items-center gap-2 px-4 py-3 bg-primary/5 border border-primary/20 rounded-xl text-xs font-bold text-primary">
+                            <Layers size={14} />
+                            {t('admin.variants.underParent')}: {label}
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-1">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('admin.variants.attributeName')}</label>
@@ -213,4 +227,4 @@ const ProductVariants = () => {
     );
 };
 
-export default ProductVariants;
+export default ProductVariantOptions;

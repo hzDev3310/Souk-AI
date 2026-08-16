@@ -13,6 +13,7 @@ class ProductVariant extends Model {
         'variant_name',
         'attribute_name',
         'attribute_value',
+        'option_value',
         'sku',
         'price',
         'price_override',
@@ -48,6 +49,22 @@ class ProductVariant extends Model {
         return $this->belongsToMany(ProductAlbum::class, 'variant_images', 'variant_id', 'image_id')
             ->withPivot('display_order')
             ->orderBy('variant_images.display_order');
+    }
+
+    /**
+     * Option swatch value ready for the UI: hex colors pass through unchanged,
+     * stored images are turned into public URLs.
+     */
+    public function optionValueUrl(): ?string
+    {
+        $value = $this->attributes['option_value'] ?? null;
+        if ($value === null || $value === '') {
+            return null;
+        }
+        if (str_starts_with($value, '#') || str_starts_with($value, 'http') || str_starts_with($value, '/storage/')) {
+            return $value;
+        }
+        return '/storage/' . ltrim($value, '/');
     }
 
     /**

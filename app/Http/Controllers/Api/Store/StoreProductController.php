@@ -55,15 +55,15 @@ class StoreProductController extends Controller
             'name_fr' => 'required|string|max:255',
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
-            'description_fr' => 'required|string',
-            'description_ar' => 'required|string',
-            'description_en' => 'required|string',
+            'description_fr' => 'nullable|string',
+            'description_ar' => 'nullable|string',
+            'description_en' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'condition' => 'required|in:NEW,USED,REFURBISHED',
+            'condition' => 'required|in:NEW,GOOD,USED,REFURBISHED',
             'stock' => 'required|integer|min:0',
-            'promo' => 'required|numeric|min:0|max:100',
+            'promo' => 'nullable|numeric|min:0|max:100',
             'categories' => 'nullable|json',
-            'images' => 'required|array',
+            'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
@@ -151,16 +151,17 @@ class StoreProductController extends Controller
             'name_fr' => 'required|string|max:255',
             'name_ar' => 'required|string|max:255',
             'name_en' => 'required|string|max:255',
-            'description_fr' => 'required|string',
-            'description_ar' => 'required|string',
-            'description_en' => 'required|string',
+            'description_fr' => 'nullable|string',
+            'description_ar' => 'nullable|string',
+            'description_en' => 'nullable|string',
             'price' => 'required|numeric|min:0',
-            'condition' => 'required|in:NEW,USED,REFURBISHED',
+            'condition' => 'required|in:NEW,GOOD,USED,REFURBISHED',
             'stock' => 'required|integer|min:0',
-            'promo' => 'required|numeric|min:0|max:100',
+            'promo' => 'nullable|numeric|min:0|max:100',
             'categories' => 'nullable|json',
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'keep_images' => 'nullable|json',
         ]);
 
         if ($validator->fails()) {
@@ -172,6 +173,15 @@ class StoreProductController extends Controller
         }
 
         $product->update($request->except('images'));
+
+        // Delete albums not in keep_images
+        $keepImages = json_decode($request->input('keep_images', '[]'), true);
+        foreach ($product->albums as $album) {
+            if (!in_array($album->id, $keepImages)) {
+                Storage::disk('public')->delete($album->file);
+                $album->delete();
+            }
+        }
 
         // Handle new image uploads
         if ($request->hasFile('images')) {

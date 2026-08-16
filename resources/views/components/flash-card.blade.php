@@ -13,8 +13,8 @@
         {{ $product->{'name_'.app()->getLocale()} }}
     </h4>
     <div class="flex items-center gap-2 mb-2">
-        <span class="text-secondary font-bold text-sm">{{ number_format($product->price * (1 - $product->promo/100), 2) }} {{ __('website.currency') }}</span>
-        <span class="text-muted-foreground line-through text-xs">{{ number_format($product->price, 2) }} {{ __('website.currency') }}</span>
+        <span class="text-secondary font-bold text-sm">{{ number_format($product->customerPrice(), 2) }} {{ __('website.currency') }}</span>
+        <span class="text-muted-foreground line-through text-xs">{{ number_format($product->display_price, 2) }} {{ __('website.currency') }}</span>
     </div>
     <div class="w-full bg-muted h-1 rounded-full overflow-hidden">
         <div class="bg-secondary h-full" style="width: {{ rand(15, 85) }}%"></div>

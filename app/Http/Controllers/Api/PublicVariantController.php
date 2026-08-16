@@ -43,10 +43,10 @@ class PublicVariantController extends Controller
         $albums = $variant->albums->isNotEmpty() ? $variant->albums : $product->albums;
 
         return response()->json([
-            'variant' => $variant->only(['id', 'attribute_name', 'attribute_value', 'sku', 'price_override', 'stock_quantity']),
+            'variant' => $variant->only(['id', 'attribute_name', 'attribute_value', 'sku', 'stock_quantity']),
             'path' => $path,
-            'price_override' => $variant->price_override,
             'stock_quantity' => $variant->stock_quantity,
+            'option_value' => $variant->optionValueUrl(),
             'product_price' => $product->price,
             'product_promo' => $product->promo,
             'albums' => $albums,

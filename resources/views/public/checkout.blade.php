@@ -109,32 +109,62 @@
                     <h3 class="text-xs font-black uppercase tracking-[0.2em] text-foreground">{{ __('website.checkout.orderSummary') }}</h3>
                     
                     <div class="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                        @foreach($products as $product)
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-xl overflow-hidden bg-muted/10">
-                                    @if($product->albums->first())
-                                        <img src="{{ $product->albums->first()->file }}" alt="" class="w-full h-full object-cover"
-                                            onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
-                                    @endif
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-bold text-foreground truncate">{{ $product->{'name_'.app()->getLocale()} }}</p>
-                                    <p class="text-[10px] text-muted-foreground">{{ __('website.checkout.qty') }}: {{ $cart[$product->id] }}</p>
-                                </div>
-                                <p class="text-xs font-black text-foreground">
-                                    @php $price = $product->promo > 0 ? $product->price * (1 - $product->promo/100) : $product->price; @endphp
-                                    {{ number_format($price * $cart[$product->id], 2) }}
-                                </p>
+                        @foreach($zoneGroups as $group)
+                            <div class="pt-2 pb-1">
+                                <p class="text-[10px] font-black uppercase tracking-widest text-primary">{{ $group['label'] }}</p>
                             </div>
+                            @foreach($group['items'] as $item)
+                                @php $product = $item['product']; @endphp
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-muted/10">
+                                        @if($product->albums->first())
+                                            <img src="{{ $product->albums->first()->file }}" alt="" class="w-full h-full object-cover"
+                                                onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
+                                        @endif
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-bold text-foreground truncate">{{ $product->{'name_'.app()->getLocale()} }}</p>
+                                        @if($item['variant_name'])
+                                            <p class="text-[10px] font-bold text-primary">{{ $item['variant_name'] }}</p>
+                                        @endif
+                                        <p class="text-[10px] text-muted-foreground">{{ __('website.checkout.qty') }}: {{ $item['quantity'] }}</p>
+                                    </div>
+                                    <p class="text-xs font-black text-foreground">
+                                        {{ number_format($item['price'] * $item['quantity'], 2) }}
+                                    </p>
+                                </div>
+                            @endforeach
                         @endforeach
                     </div>
 
                     <div class="pt-8 border-t border-border/40 space-y-6">
+                        @if(count($zoneGroups) > 1)
+                        <div class="space-y-2 pb-2">
+                            @foreach($zoneGroups as $group)
+                                <div class="flex justify-between text-muted-foreground font-medium">
+                                    <span class="text-[10px] uppercase tracking-widest">{{ $group['label'] }}</span>
+                                    <span class="text-sm font-black text-foreground">{{ number_format($group['total'], 2) }} {{ __('website.currency') }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                        @endif
                         <div class="flex justify-between items-end">
                             <span class="text-xs font-black uppercase tracking-widest text-foreground">{{ __('website.cart.total') }}</span>
                             <div class="text-right">
                                  <p class="text-3xl font-black text-primary">{{ number_format($total, 2) }}</p>
                                  <p class="text-[10px] font-black text-muted-foreground uppercase">{{ __('website.currency') }}</p>
+                            </div>
+                        </div>
+
+                        @php $totalCommission = collect($cart)->sum(fn ($i) => $i['commission'] * $i['quantity']); @endphp
+                        <div class="pt-4 border-t border-border/40 space-y-2">
+                            <div class="flex justify-between text-muted-foreground font-medium">
+                                <span class="text-[10px] uppercase tracking-widest">{{ __('website.checkout.commission') }}</span>
+                                <span class="text-sm font-black text-foreground">{{ number_format($totalCommission, 2) }} {{ __('website.currency') }}</span>
+                            </div>
+                            <div class="flex justify-between text-muted-foreground font-medium">
+                                <span class="text-[10px] uppercase tracking-widest">{{ __('website.checkout.storeAmount') }}</span>
+                                <span class="text-sm font-black text-foreground">{{ number_format($total - $totalCommission, 2) }} {{ __('website.currency') }}</span>
                             </div>
                         </div>
                         

@@ -171,6 +171,7 @@ class UserService
                 'isActive' => $data['isActive'] ?? true,
                 'slug' => $data['slug'] ?? Str::slug($user->name . '-' . Str::random(5)),
                 'promo' => $data['promo'] ?? 0,
+                'governorate' => $data['governorate'] ?? 'TUNIS',
             ]);
             
             return $user->load('store');
@@ -187,7 +188,7 @@ class UserService
                 $updateData = [];
                 $fields = ['name_fr', 'name_ar', 'name_en', 'description_fr', 'description_ar', 
                           'description_en', 'storePhone', 'address', 'responsibleCin', 
-                          'matriculeFiscale', 'logo', 'cover', 'rib', 'isActive', 'promo'];
+                          'matriculeFiscale', 'logo', 'cover', 'rib', 'isActive', 'promo', 'governorate'];
                 
                 foreach ($fields as $field) {
                     if (isset($data[$field])) {

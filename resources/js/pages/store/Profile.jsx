@@ -5,6 +5,7 @@ import { useNotification } from '@/context/NotificationContext';
 import api from '@/lib/api';
 import AdminPageLayout from '@/components/shared/AdminPageLayout';
 import CardBox from '@/components/shared/CardBox';
+import GovernorateSelect from '@/components/shared/GovernorateSelect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,7 +39,8 @@ const StoreProfile = () => {
         responsibleCin: '',
         matriculeFiscale: '',
         rib: '',
-        promo: '0'
+        promo: '0',
+        governorate: ''
     });
 
     const storeId = user?.store?.id;
@@ -71,7 +73,8 @@ const StoreProfile = () => {
                     responsibleCin: storeData.responsibleCin || '',
                     matriculeFiscale: storeData.matriculeFiscale || '',
                     rib: storeData.rib || '',
-                    promo: storeData.promo || '0'
+                    promo: storeData.promo || '0',
+                    governorate: storeData.governorate || ''
                 });
 
                 if (storeData.logo) {
@@ -479,6 +482,14 @@ const StoreProfile = () => {
                                             className="bg-muted/30 border-border/60 rounded-2xl h-11"
                                         />
                                     </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="governorate">{t('store.profile.form.governorate') || 'Governorate'}</Label>
+                                    <GovernorateSelect
+                                        value={formData.governorate}
+                                        onChange={(value) => setFormData(prev => ({ ...prev, governorate: value }))}
+                                    />
                                 </div>
                             </div>
                         </CardBox>
