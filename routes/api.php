@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PublicSemanticSearchController;
+use App\Http\Controllers\Api\PublicVariantController;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\EmployeeController;
 use App\Http\Controllers\Api\Admin\InfluencerController;
 use App\Http\Controllers\Api\Admin\OrderController;
 use App\Http\Controllers\Api\Admin\ProductController;
+use App\Http\Controllers\Api\Admin\ProductVariantController;
 use App\Http\Controllers\Api\Admin\ShippingCompanyController;
 use App\Http\Controllers\Api\Admin\StoreController;
 use App\Http\Controllers\Api\Admin\PageContentController;
@@ -32,6 +34,10 @@ Route::get('/public/ai-search', PublicSemanticSearchController::class);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}', [CategoryController::class, 'show']);
 
+// Public Variant Routes (storefront selector / resolution)
+Route::get('/products/{product}/variants/tree', [PublicVariantController::class, 'tree']);
+Route::get('/variants/{variant}/resolve', [PublicVariantController::class, 'resolve']);
+
 // Admin Routes
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('users', function () {
@@ -41,6 +47,14 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin')->group(functi
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('stores', StoreController::class);
     Route::apiResource('products', ProductController::class);
+
+    // Nested Variant Tree Management
+    Route::get('products/{product}/variants', [ProductVariantController::class, 'tree']);
+    Route::get('products/{product}/variants/options', [ProductVariantController::class, 'options']);
+    Route::post('products/{product}/variants', [ProductVariantController::class, 'store']);
+    Route::put('products/variants/{variant}', [ProductVariantController::class, 'update']);
+    Route::delete('products/variants/{variant}', [ProductVariantController::class, 'destroy']);
+    Route::post('products/variants/{variant}/images', [ProductVariantController::class, 'images']);
 
     // Order Management
     Route::apiResource('orders', OrderController::class);

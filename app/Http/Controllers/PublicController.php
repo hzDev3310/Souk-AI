@@ -98,14 +98,16 @@ class PublicController extends Controller
         return view('public.home', compact('topPromoProducts', 'maxDiscount', 'topCategories', 'topStores', 'recentProducts', 'categories'));
     }
 
-    public function product($slug)
+    public function product($slug, \App\Services\VariantTreeService $treeService)
     {
-        $product = Product::with(['store', 'albums', 'variants'])
+        $product = Product::with(['store', 'albums', 'variants.albums'])
             ->whereHas('store', function ($query) {
                 $this->applyPublicStoreVisibility($query);
             })
             ->where('slug', $slug)
             ->firstOrFail();
+
+        $variantTree = $treeService->treeFor($product);
 
         $relatedProducts = Product::with(['store', 'albums'])
             ->whereHas('store', function ($query) {
@@ -116,7 +118,7 @@ class PublicController extends Controller
             ->limit(4)
             ->get();
 
-        return view('public.product', compact('product', 'relatedProducts'));
+        return view('public.product', compact('product', 'variantTree', 'relatedProducts'));
     }
 
     public function store($slug)

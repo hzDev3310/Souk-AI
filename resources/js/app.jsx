@@ -32,6 +32,7 @@ import CategoryEdit from './pages/admin/CategoryEdit';
 import AdminProducts from './pages/admin/Products';
 import ProductCreate from './pages/admin/ProductCreate';
 import ProductEdit from './pages/admin/ProductEdit';
+import ProductVariants from './pages/admin/ProductVariants';
 import AdminOrders from './pages/admin/Orders';
 import Parameters from './pages/admin/Parameters';
 import PageEditor from './pages/admin/PageEditor';
@@ -114,6 +115,7 @@ const App = () => {
                         <Route path="products" element={<RoleBasedProducts />} />
                         <Route path="products/create" element={<RoleBasedProductCreate />} />
                         <Route path="products/:id/edit" element={<RoleBasedProductEdit />} />
+                        <Route path="products/:id/variants" element={<ProductVariants />} />
                         <Route path="orders" element={<RoleBasedOrders />} />
                         <Route path="analytics" element={<div className="p-6 text-link">Analytics Page (Work in Progress)</div>} />
                         <Route path="parameters" element={<Parameters />} />

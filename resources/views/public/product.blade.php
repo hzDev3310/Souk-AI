@@ -13,23 +13,28 @@
 @endsection
 
 @section('content')
+    @php
+        $variantTreeJson = json_encode($variantTree);
+        $productAlbumsJson = json_encode($product->albums->map(fn ($a) => ['id' => $a->id, 'file' => $a->file]));
+    @endphp
     <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
         <!-- Image Gallery -->
         <div class="space-y-6">
             <div class="relative aspect-square bg-card glass border border-border/40 rounded-[60px] overflow-hidden premium-shadow">
                 @if($product->albums->first())
-                    <img src="{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
+                    <img id="main-product-image" src="{{ $product->albums->first()->file }}" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
                         onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                 @else
-                    <img src="/storage/empty/empty.webp" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
+                    <img id="main-product-image" src="/storage/empty/empty.webp" alt="{{ $product->{'name_'.app()->getLocale()} }}" class="w-full h-full object-cover"
                         onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                 @endif
             </div>
             
-            <div class="flex gap-4">
+            <div id="product-thumbnails" class="flex gap-4">
                 @if($product->albums->count() > 0)
                     @foreach($product->albums as $album)
-                        <div class="w-24 h-24 bg-card glass border border-border/40 rounded-3xl overflow-hidden cursor-pointer hover:border-primary transition-colors">
+                        <div class="w-24 h-24 bg-card glass border border-border/40 rounded-3xl overflow-hidden cursor-pointer hover:border-primary transition-colors"
+                            onclick="window.productGallery && window.productGallery.setImage('{{ $album->file }}', this)">
                             <img src="{{ $album->file }}" class="w-full h-full object-cover"
                                 onerror="this.onerror=null; this.src='https://media.wallmantra.com/product/original/product_placeholder.webp';">
                         </div>
@@ -66,7 +71,7 @@
                 </h1>
                 
                 <div class="flex items-center gap-6">
-                    <p class="text-4xl font-black text-primary">
+                    <p id="variant-price" class="text-4xl font-black text-primary">
                         @if($product->promo > 0)
                             {{ number_format($product->price * (1 - $product->promo/100), 2) }}
                         @else
@@ -75,7 +80,7 @@
                         <span class="text-xs font-black text-muted-foreground uppercase ml-1">{{ __('website.currency') }}</span>
                     </p>
                     @if($product->promo > 0)
-                        <p class="text-xl font-bold text-muted-foreground line-through opacity-50 pt-2">
+                        <p id="variant-old-price" class="text-xl font-bold text-muted-foreground line-through opacity-50 pt-2">
                              {{ number_format($product->price, 2) }} {{ __('website.currency') }}
                         </p>
                         <span class="px-2 py-1 bg-rose-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg">
@@ -92,16 +97,11 @@
                 </p>
             </div>
 
-            @if($product->variants->count() > 0)
+            @if(count($variantTree) > 0)
             <div class="space-y-4">
                 <h4 class="font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{{ __('website.productInfo.selectVariant') }}</h4>
-                <div class="flex flex-wrap gap-2">
-                    @foreach($product->variants as $variant)
-                        <button class="px-5 py-3 glass border-border/40 rounded-2xl font-bold text-xs hover:border-primary hover:text-primary transition-all active:scale-95">
-                            {{ $variant->variant_name }}
-                        </button>
-                    @endforeach
-                </div>
+                <div id="variant-selector"></div>
+                <div id="variant-stock" class="hidden text-xs font-bold text-muted-foreground"></div>
             </div>
             @endif
 
@@ -150,6 +150,10 @@
     if(addToCartBtn) {
         addToCartBtn.addEventListener('click', function() {
             const productId = this.getAttribute('data-product-id');
+            const payload = { product_id: productId, quantity: 1 };
+            if(window.variantSelection && window.variantSelection.leafId) {
+                payload.variant_id = window.variantSelection.leafId;
+            }
             fetch('{{ route("public.cart.add") }}', {
                 method: 'POST',
                 headers: {
@@ -157,7 +161,7 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({ product_id: productId, quantity: 1 })
+                body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(data => {
@@ -214,6 +218,193 @@
             });
         });
     }
+    // ---- Product Image Gallery ----
+    window.productGallery = {
+        setImage: function(src, thumbEl) {
+            var mainImg = document.getElementById('main-product-image');
+            if (mainImg) { mainImg.src = src; }
+            document.querySelectorAll('#product-thumbnails > div').forEach(function(d) {
+                d.classList.remove('border-primary');
+                d.classList.add('border-border/40');
+            });
+            if (thumbEl) {
+                thumbEl.classList.remove('border-border/40');
+                thumbEl.classList.add('border-primary');
+            }
+        }
+    };
+
+    // ---- Cascading Variant Selector ----
+    (function() {
+        var variantTree = {!! $variantTreeJson !!};
+        var productPrice = {{ $product->price }};
+        var productPromo = {{ $product->promo }};
+        var productAlbums = {!! $productAlbumsJson !!};
+        var currency = "{{ __('website.currency') }}";
+
+        var selectorEl = document.getElementById('variant-selector');
+        var priceEl = document.getElementById('variant-price');
+        var oldPriceEl = document.getElementById('variant-old-price');
+        var stockEl = document.getElementById('variant-stock');
+        var addToCartBtn = document.getElementById('add-to-cart-btn');
+
+        if (!selectorEl || variantTree.length === 0) return;
+
+        window.variantSelection = { leafId: null, leafNode: null };
+
+        var selectedIds = {};
+
+        function renderLevel(nodes, level) {
+            // group nodes by attribute_name so mixed attributes render as labeled groups
+            var groups = {};
+            nodes.forEach(function(node) {
+                var key = node.attribute_name || 'Option';
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(node);
+            });
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'space-y-3';
+
+            Object.keys(groups).forEach(function(attrName) {
+                var group = document.createElement('div');
+                group.className = 'space-y-1';
+
+                var label = document.createElement('p');
+                label.className = 'font-black text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1';
+                label.textContent = attrName;
+                group.appendChild(label);
+
+                var chips = document.createElement('div');
+                chips.className = 'flex flex-wrap gap-2';
+
+                groups[attrName].forEach(function(node) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'px-5 py-3 glass border-2 border-border/40 rounded-2xl font-bold text-xs hover:border-primary hover:text-primary transition-all active:scale-95';
+                    btn.textContent = node.attribute_value;
+                    btn.addEventListener('click', function() {
+                        selectedIds[level] = node.id;
+                        // clear deeper selections
+                        Object.keys(selectedIds).forEach(function(k) { if (parseInt(k) > level) delete selectedIds[k]; });
+                        document.querySelectorAll('[data-variant-level]').forEach(function(el) {
+                            if (parseInt(el.getAttribute('data-variant-level')) > level) el.remove();
+                        });
+                        // highlight within the active group only
+                        chips.querySelectorAll('button').forEach(function(b) { b.classList.remove('border-primary', 'text-primary'); b.classList.add('border-border/40'); });
+                        btn.classList.remove('border-border/40');
+                        btn.classList.add('border-primary', 'text-primary');
+
+                        if (node.children && node.children.length > 0) {
+                            var next = document.createElement('div');
+                            next.setAttribute('data-variant-level', level + 1);
+                            next.appendChild(renderLevel(node.children, level + 1));
+                            wrapper.appendChild(next);
+                            clearSelection();
+                        } else {
+                            // leaf selected
+                            window.variantSelection.leafId = node.id;
+                            window.variantSelection.leafNode = node;
+                            updateProductDisplay(node);
+                        }
+                    });
+                    chips.appendChild(btn);
+                });
+
+                group.appendChild(chips);
+                wrapper.appendChild(group);
+            });
+
+            return wrapper;
+        }
+
+        function clearSelection() {
+            window.variantSelection = { leafId: null, leafNode: null };
+            resetProductDisplay();
+        }
+
+        function updateProductDisplay(leaf) {
+            // compute price
+            var basePrice = leaf.price_override !== null ? leaf.price_override : productPrice;
+            var salePrice = productPromo > 0 ? basePrice * (1 - productPromo / 100) : basePrice;
+            priceEl.textContent = salePrice.toFixed(2) + ' ';
+            var span = document.createElement('span');
+            span.className = 'text-xs font-black text-muted-foreground uppercase ml-1';
+            span.textContent = currency;
+            priceEl.appendChild(span);
+
+            if (productPromo > 0 && oldPriceEl) {
+                oldPriceEl.textContent = basePrice.toFixed(2) + ' ' + currency;
+                oldPriceEl.style.display = '';
+            } else if (oldPriceEl) {
+                oldPriceEl.style.display = 'none';
+            }
+
+            // stock
+            var stock = leaf.stock_quantity || 0;
+            stockEl.textContent = stock > 0 ? stock + ' {{ __("website.productInfo.stockAvailable") }}' : '{{ __("website.productInfo.outOfStock") }}';
+            stockEl.className = stock > 0 ? 'block text-xs font-bold text-success mt-1' : 'block text-xs font-bold text-error mt-1';
+
+            // images
+            var imgs = (leaf.albums && leaf.albums.length > 0) ? leaf.albums : productAlbums;
+            if (imgs.length > 0) {
+                var mainImg = document.getElementById('main-product-image');
+                if (mainImg) mainImg.src = imgs[0].file;
+
+                var thumbContainer = document.getElementById('product-thumbnails');
+                if (thumbContainer) {
+                    thumbContainer.innerHTML = '';
+                    imgs.forEach(function(img) {
+                        var div = document.createElement('div');
+                        div.className = 'w-24 h-24 bg-card glass border border-border/40 rounded-3xl overflow-hidden cursor-pointer hover:border-primary transition-colors';
+                        div.innerHTML = '<img src="' + img.file + '" class="w-full h-full object-cover">';
+                        div.addEventListener('click', function() { window.productGallery.setImage(img.file, div); });
+                        thumbContainer.appendChild(div);
+                    });
+                }
+            }
+
+            // enable add to cart
+            if (addToCartBtn) addToCartBtn.classList.remove('opacity-50', 'pointer-events-none');
+        }
+
+        function resetProductDisplay() {
+            window.variantSelection = { leafId: null, leafNode: null };
+            var basePrice = productPrice;
+            var salePrice = productPromo > 0 ? basePrice * (1 - productPromo / 100) : basePrice;
+            priceEl.textContent = salePrice.toFixed(2) + ' ';
+            var span = document.createElement('span');
+            span.className = 'text-xs font-black text-muted-foreground uppercase ml-1';
+            span.textContent = currency;
+            priceEl.appendChild(span);
+            if (productPromo > 0 && oldPriceEl) {
+                oldPriceEl.textContent = basePrice.toFixed(2) + ' ' + currency;
+                oldPriceEl.style.display = '';
+            } else if (oldPriceEl) {
+                oldPriceEl.style.display = 'none';
+            }
+            stockEl.className = 'hidden';
+            stockEl.textContent = '';
+            // restore original thumbnails
+            var thumbContainer = document.getElementById('product-thumbnails');
+            if (thumbContainer && productAlbums.length > 0) {
+                thumbContainer.innerHTML = '';
+                productAlbums.forEach(function(img) {
+                    var div = document.createElement('div');
+                    div.className = 'w-24 h-24 bg-card glass border border-border/40 rounded-3xl overflow-hidden cursor-pointer hover:border-primary transition-colors';
+                    div.innerHTML = '<img src="' + img.file + '" class="w-full h-full object-cover">';
+                    div.addEventListener('click', function() { window.productGallery.setImage(img.file, div); });
+                    thumbContainer.appendChild(div);
+                });
+                var mainImg = document.getElementById('main-product-image');
+                if (mainImg && productAlbums.length > 0) mainImg.src = productAlbums[0].file;
+            }
+            if (addToCartBtn) addToCartBtn.classList.add('opacity-50', 'pointer-events-none');
+        }
+
+        selectorEl.appendChild(renderLevel(variantTree, 0));
+        if (addToCartBtn && variantTree.length > 0) addToCartBtn.classList.add('opacity-50', 'pointer-events-none');
+    })();
 </script>
 @endpush
 

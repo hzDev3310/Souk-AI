@@ -104,6 +104,7 @@ class ProductController extends Controller
             'categories' => 'nullable|json',
             'images' => 'nullable|array',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+            'keep_images' => 'nullable|json',
         ]);
 
         $slug = $product->slug;
@@ -127,14 +128,18 @@ class ProductController extends Controller
             'categories' => json_decode($validated['categories'] ?? '[]', true),
         ]);
 
-        if ($request->hasFile('images')) {
-            // Delete old images
-            foreach ($product->albums as $album) {
+        $keepImages = json_decode($validated['keep_images'] ?? '[]', true);
+
+        // Delete albums not in keep_images
+        foreach ($product->albums as $album) {
+            if (!in_array($album->id, $keepImages)) {
                 Storage::disk('public')->delete($album->file);
                 $album->delete();
             }
+        }
 
-            $isFirst = true;
+        if ($request->hasFile('images')) {
+            $isFirst = $product->albums()->count() === 0;
             foreach ($request->file('images') as $image) {
                 try {
                     $path = $this->storeUploadedFile($image, 'products', 'product', $product->name_en ?? $product->name_fr ?? 'product');
